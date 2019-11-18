@@ -3,6 +3,7 @@ import {
   IS_SERVER_ERROR,
   SET_FORM_ERRORS,
   SET_LOADING,
+  SET_LOADING_STATUS,
   UPDATE_EMAIL,
   UPDATE_PASSWORD
 } from "../actions/constants";
@@ -33,6 +34,11 @@ export default (state = {}, action) => {
       return {
         ...state,
         isLoading: action.isLoading
+      };
+    case SET_LOADING_STATUS:
+      return {
+        ...state,
+        isStatusLoading: action.isStatusLoading
       };
     case IS_SERVER_ERROR:
       return {

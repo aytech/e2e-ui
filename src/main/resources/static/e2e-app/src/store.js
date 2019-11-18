@@ -8,11 +8,15 @@ const initialState = {
     formError: false,
     formErrorMessages: [],
     isLoading: false,
+    isStatusLoading: false,
     password: '',
     serverErrorState: false,
     successfulRun: false
   },
-  outputState: {}
+  outputState: {
+    buildInProgress: false,
+    output: []
+  }
 };
 
 const configureStore = (state = initialState) => {

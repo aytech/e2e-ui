@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import {
   updateFormErrorBoolean,
   updateFormErrors,
+  updateLoading,
   updateLoadingStatus,
   updateServerErrorState,
   updateUserEmail,
@@ -32,7 +33,7 @@ class Form extends Component {
         password
       } = this.props.formState;
       if (formError !== true) {
-        this.props.updateLoadingStatus(true);
+        this.props.updateLoading(true);
         this.dockerService
           .runE2ESuite({ email: email, password: password })
           .then(response => {
@@ -59,10 +60,50 @@ class Form extends Component {
             this.props.updateServerErrorState(true);
           })
           .finally(() => {
-            this.props.updateLoadingStatus(false);
+            this.props.updateLoading(false);
           })
       }
     });
+  };
+
+  getE2EBuildStatus = async (event) => {
+    event.preventDefault();
+    this.props.updateLoadingStatus(true);
+    this.dockerService
+      .getDockerBuildStatus()
+      .then(job => {
+        console.log('Response: ', job);
+        // if (job.running === true) {
+        //   if (this.timerID === undefined) {
+        //     this.timerID = setInterval(this.getE2EBuildStatus, 2000);
+        //   }
+        // } else {
+        //   if (this.timerID !== undefined) {
+        //     clearInterval(this.timerID);
+        //   }
+        // }
+        // this.setState({
+        //   output: job.messages === null ? [] : job.messages,
+        //   loadingStatus: false,
+        //   serverErrorState: false,
+        //   buildInProgress: job.running,
+        //   statusTitle: job.running ? this.getRunningBuildOutputTitle() : this.getNoBuildOutputTitle()
+        // });
+      })
+      .catch(() => {
+        console.log('Error');
+        // this.setState({
+        //   loadingStatus: false,
+        //   serverErrorState: true,
+        //   statusTitle: this.getNetworkErrorTitle()
+        // });
+        // if (this.timerID === undefined) {
+        //   this.timerID = setInterval(this.getE2EBuildStatus, 2000);
+        // }
+      })
+      .finally(() => {
+        this.props.updateLoadingStatus(false);
+      });
   };
 
   validateForm = async () => {
@@ -91,6 +132,7 @@ class Form extends Component {
       successfulRun,
       formErrorMessages,
       isLoading,
+      isStatusLoading,
       buildInProgress,
       serverErrorState
     } = this.props.formState;
@@ -108,48 +150,63 @@ class Form extends Component {
     }
 
     return (
-      <form onSubmit={ this.runE2E }>
-        <fieldset>
-          <legend>Credentials</legend>
-          <div className="form-group">
-            <label htmlFor="email">Email address</label>
-            <input type="email" className="form-control" id="email" name="email" aria-describedby="emailHelp"
-                   placeholder="Enter email" value={ email } onChange={ this.updateUserEmail }/>
-            <small id="emailHelp" className="form-text text-muted">
-              Email address that has valid Infor OS access.
-            </small>
+      <div className="jumbotron">
+        <h1 className="display-3">Run</h1>
+        <p className="lead">
+          Rebuild E2E image or run test suite using controls below.
+        </p>
+        <hr className="my-4"/>
+        <form onSubmit={ this.runE2E }>
+          <fieldset>
+            <legend>Credentials</legend>
+            <div className="form-group">
+              <label htmlFor="email">Email address</label>
+              <input type="email" className="form-control" id="email" name="email" aria-describedby="emailHelp"
+                     placeholder="Enter email" value={ email } onChange={ this.updateUserEmail }/>
+              <small id="emailHelp" className="form-text text-muted">
+                Email address that has valid Infor OS access.
+              </small>
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <input type="password" className="form-control" id="password" name="password"
+                     placeholder="Password" value={ password } onChange={ this.updateUserPassword }/>
+            </div>
+          </fieldset>
+          <div className={ errorMessageClass }>
+            <button type="button" className="close" data-dismiss="alert">&times;</button>
+            <h4 className="alert-heading">Error processing request</h4>
+            <p className="mb-0">
+              Please correct errors:
+              {
+                formErrorMessages.map(
+                  (line, index) => <li key={ index }>{ line }</li>
+                )
+              }
+            </p>
           </div>
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input type="password" className="form-control" id="password" name="password"
-                   placeholder="Password" value={ password } onChange={ this.updateUserPassword }/>
+          <div className={ successMessageClass }>
+            <button type="button" className="close" data-dismiss="alert">&times;</button>
+            <h4 className="alert-heading">Success!</h4>
+            Process has started, log output will print below
           </div>
-        </fieldset>
-        <div className={ errorMessageClass }>
-          <button type="button" className="close" data-dismiss="alert">&times;</button>
-          <h4 className="alert-heading">Error processing request</h4>
-          <p className="mb-0">
-            Please correct errors:
-            {
-              formErrorMessages.map(
-                (line, index) => <li key={ index }>{ line }</li>
-              )
-            }
-          </p>
-        </div>
-        <div className={ successMessageClass }>
-          <button type="button" className="close" data-dismiss="alert">&times;</button>
-          <h4 className="alert-heading">Success!</h4>
-          Process has started, log output will print below
-        </div>
-        <Button
-          text={ "Run E2E build" }
-          type="submit"
-          styleType="primary"
-          error={ formError || serverErrorState }
-          loading={ isLoading }
-          disabled={ buildInProgress }/>
-      </form>
+          <Button
+            text={ "Run E2E build" }
+            type="submit"
+            styleType="primary"
+            error={ formError || serverErrorState }
+            loading={ isLoading }
+            disabled={ buildInProgress || isLoading }/>
+          <Button
+            text={ "Get build status" }
+            styleType="primary"
+            type="button"
+            disabled={ buildInProgress || isStatusLoading }
+            loading={ isStatusLoading }
+            onClick={ this.getE2EBuildStatus }/>
+        </form>
+        <hr className="my-4"/>
+      </div>
     )
   }
 }
@@ -162,7 +219,8 @@ const mapDispatchToProps = dispatch => ({
   updateUserPassword: (password) => dispatch(updateUserPassword(password)),
   updateFormErrorBoolean: (isError) => dispatch(updateFormErrorBoolean(isError)),
   updateFormErrors: (errors) => dispatch(updateFormErrors(errors)),
-  updateLoadingStatus: (isLoading) => dispatch(updateLoadingStatus(isLoading)),
+  updateLoading: (isLoading) => dispatch(updateLoading(isLoading)),
+  updateLoadingStatus: (isStatusLoading) => dispatch(updateLoadingStatus(isStatusLoading)),
   updateServerErrorState: (isError) => dispatch(updateServerErrorState(isError))
 });
 
