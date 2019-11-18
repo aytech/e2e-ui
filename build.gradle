@@ -1,0 +1,67 @@
+plugins {
+    id 'org.springframework.boot' version '2.2.0.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'java'
+}
+
+group 'com.idm.e2e'
+version '1.0-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+apply plugin: 'java'
+apply plugin: 'idea'
+
+repositories {
+    mavenCentral()
+}
+
+defaultTasks 'clean', 'test'
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation 'com.codeborne:selenide:4.12.0'
+    testImplementation 'info.cukes:cucumber-java:1.2.0'
+    testImplementation 'info.cukes:cucumber-junit:1.2.5'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.withType(Test) {
+    testLogging {
+        exceptionFormat "full"
+        events "skipped", "passed", "failed"
+        true
+    }
+    def propagatedProps = [
+            'remote',
+            'idm.configuration.path',
+            'idm.credentials.path',
+            'selenide.browser',
+            'selenide.headless',
+            'webdriver.chrome.driver'
+    ]
+    project.properties.each() { k, v ->
+        if (propagatedProps.contains(k)) {
+            systemProperty(k, v)
+        }
+    }
+}
+
+task chrome(type: Test) {
+    systemProperties['selenide.browser'] = 'chrome'
+    systemProperties['selenide.headless'] = 'true'
+}
+
+task firefox(type: Test) {
+    systemProperties['selenide.browser'] = 'firefox'
+    systemProperties['selenide.headless'] = 'true'
+}
+
+task ie(type: Test) {
+    systemProperties['selenide.browser'] = 'ie'
+}

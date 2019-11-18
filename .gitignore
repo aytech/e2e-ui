@@ -1,0 +1,14 @@
+.gradle
+.idea
+
+# Build files/ directories
+build
+out
+
+# IntelliJ meta
+*.iml
+*.ipr
+*.iws
+
+# Docker files
+**/.env

@@ -1,0 +1,11 @@
+.alert.hidden {
+  display: none;
+}
+
+.output {
+  margin-top: 1rem;
+}
+
+.progress-bar.full {
+  width: 100%;
+}

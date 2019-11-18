@@ -1,0 +1,19 @@
+.fas {
+  visibility: hidden;
+}
+
+.fas.loading {
+  visibility: visible;
+}
+
+.button-text {
+  margin-left: .5rem;
+}
+
+.fa-exclamation-circle {
+  color: #cc0000;
+}
+
+.fa-exclamation-circle.visible {
+  visibility: visible;
+}
