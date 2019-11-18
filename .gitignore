@@ -5,6 +5,15 @@
 build
 out
 
+# UI build files, src/main/resources/static is the React build directory
+src/main/resources/static/static
+src/main/resources/static/*.json
+src/main/resources/static/*.js
+src/main/resources/static/*.css
+src/main/resources/static/*.txt
+src/main/resources/static/*.png
+src/main/resources/static/*.html
+
 # IntelliJ meta
 *.iml
 *.ipr
