@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
 import {
+  updateBuildStatus,
   updateFormErrorBoolean,
   updateFormErrors,
   updateLoading,
   updateLoadingStatus,
+  updateOutput,
+  updateRunStatus,
   updateServerErrorState,
   updateUserEmail,
   updateUserPassword
@@ -31,29 +34,24 @@ class Form extends Component {
         email,
         formError,
         password
-      } = this.props.formState;
+      } = this.props.state;
+
       if (formError !== true) {
         this.props.updateLoading(true);
         this.dockerService
           .runE2ESuite({ email: email, password: password })
           .then(response => {
             if (response.status === 200) {
-              // this.setState({
-              //         loadingBuild: false,
-              //         loadingStatus: true,
-              //         runRequestData: { user: '', password: '' },
-              //         successfulRun: true
-              //       });
-              //       this.timeoutID = setTimeout(() => {
-              //         this.getE2EBuildStatus();
-              //         clearTimeout(this.timeoutID);
-              //       });
+              this.props.updateRunStatus(true);
+              this.props.updateUserEmail(null);
+              this.props.updateUserPassword(null);
+              this.timeoutID = setTimeout(() => {
+                this.getE2EBuildStatus();
+                clearTimeout(this.timeoutID);
+              }, 2000);
             } else {
-              //       this.setState({
-              //         formError: true,
-              //         formErrorMessages: response.errors,
-              //         loadingBuild: false
-              //       })
+              this.props.updateFormErrorBoolean(true);
+              this.props.updateFormErrors(response.errors);
             }
           })
           .catch(() => {
@@ -67,39 +65,35 @@ class Form extends Component {
   };
 
   getE2EBuildStatus = async (event) => {
-    event.preventDefault();
+    if (event !== undefined) {
+      event.preventDefault();
+    }
     this.props.updateLoadingStatus(true);
     this.dockerService
       .getDockerBuildStatus()
       .then(job => {
-        console.log('Response: ', job);
-        // if (job.running === true) {
-        //   if (this.timerID === undefined) {
-        //     this.timerID = setInterval(this.getE2EBuildStatus, 2000);
-        //   }
-        // } else {
-        //   if (this.timerID !== undefined) {
-        //     clearInterval(this.timerID);
-        //   }
-        // }
-        // this.setState({
-        //   output: job.messages === null ? [] : job.messages,
-        //   loadingStatus: false,
-        //   serverErrorState: false,
-        //   buildInProgress: job.running,
-        //   statusTitle: job.running ? this.getRunningBuildOutputTitle() : this.getNoBuildOutputTitle()
-        // });
+        if (job.running === true) {
+          if (this.timerID === undefined) {
+            this.timerID = setInterval(this.getE2EBuildStatus, 2000);
+          }
+        } else {
+          if (this.timerID !== undefined) {
+            clearInterval(this.timerID);
+          }
+        }
+        if (job.messages === null) {
+          this.props.updateOutput([]);
+        } else {
+          this.props.updateOutput(job.messages);
+        }
+        this.props.updateServerErrorState(false);
+        this.props.updateBuildStatus(job.running);
       })
       .catch(() => {
-        console.log('Error');
-        // this.setState({
-        //   loadingStatus: false,
-        //   serverErrorState: true,
-        //   statusTitle: this.getNetworkErrorTitle()
-        // });
-        // if (this.timerID === undefined) {
-        //   this.timerID = setInterval(this.getE2EBuildStatus, 2000);
-        // }
+        this.props.updateServerErrorState(true);
+        if (this.timerID === undefined) {
+          this.timerID = setInterval(this.getE2EBuildStatus, 2000);
+        }
       })
       .finally(() => {
         this.props.updateLoadingStatus(false);
@@ -108,7 +102,7 @@ class Form extends Component {
 
   validateForm = async () => {
     let messages = [], error = false;
-    const { email, password } = this.props.formState;
+    const { email, password } = this.props.state;
 
     if (email === undefined || email === '') {
       error = true;
@@ -135,7 +129,7 @@ class Form extends Component {
       isStatusLoading,
       buildInProgress,
       serverErrorState
-    } = this.props.formState;
+    } = this.props.state;
 
     if (formError === true) {
       errorMessageClass = 'alert alert-dismissible alert-danger';
@@ -201,6 +195,7 @@ class Form extends Component {
             text={ "Get build status" }
             styleType="primary"
             type="button"
+            error={ serverErrorState }
             disabled={ buildInProgress || isStatusLoading }
             loading={ isStatusLoading }
             onClick={ this.getE2EBuildStatus }/>
@@ -215,13 +210,16 @@ const mapStateToProps = state => ({
   ...state
 });
 const mapDispatchToProps = dispatch => ({
-  updateUserEmail: (email) => dispatch(updateUserEmail(email)),
-  updateUserPassword: (password) => dispatch(updateUserPassword(password)),
+  updateBuildStatus: (isRunning) => dispatch(updateBuildStatus(isRunning)),
   updateFormErrorBoolean: (isError) => dispatch(updateFormErrorBoolean(isError)),
   updateFormErrors: (errors) => dispatch(updateFormErrors(errors)),
   updateLoading: (isLoading) => dispatch(updateLoading(isLoading)),
   updateLoadingStatus: (isStatusLoading) => dispatch(updateLoadingStatus(isStatusLoading)),
-  updateServerErrorState: (isError) => dispatch(updateServerErrorState(isError))
+  updateOutput: (output) => dispatch(updateOutput(output)),
+  updateRunStatus: (isSuccessful) => dispatch(updateRunStatus(isSuccessful)),
+  updateServerErrorState: (isError) => dispatch(updateServerErrorState(isError)),
+  updateUserEmail: (email) => dispatch(updateUserEmail(email)),
+  updateUserPassword: (password) => dispatch(updateUserPassword(password)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Form);

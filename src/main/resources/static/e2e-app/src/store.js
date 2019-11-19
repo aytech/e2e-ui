@@ -2,7 +2,7 @@ import { createStore } from "redux";
 import rootReducer from "./reducers/rootReducer";
 
 const initialState = {
-  formState: {
+  state: {
     email: '',
     buildInProgress: false,
     formError: false,
@@ -11,10 +11,7 @@ const initialState = {
     isStatusLoading: false,
     password: '',
     serverErrorState: false,
-    successfulRun: false
-  },
-  outputState: {
-    buildInProgress: false,
+    successfulRun: false,
     output: []
   }
 };

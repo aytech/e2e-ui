@@ -7,15 +7,17 @@ import StandardOutput from "./standard-output";
 class Output extends Component {
 
   render() {
+
     const {
       buildInProgress,
-      output
-    } = this.props.outputState;
+      output,
+      serverErrorState
+    } = this.props.state;
 
     return (
       <div className="jumbotron">
         <h1 className="display-3">Output:</h1>
-        <Title/>
+        <Title serverErrorState={ serverErrorState }/>
         <ProgressBar show={ buildInProgress }/>
         <StandardOutput output={ output }/>
       </div>

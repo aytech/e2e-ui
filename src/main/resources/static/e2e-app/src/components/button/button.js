@@ -32,11 +32,9 @@ const Button = (props) => {
       onClick={ onClick }
       disabled={ disabled === true }>
       <div className="fa-sm">
-        <i className={ errorClassName }/>
         <i className={ spinnerClassName }/>
-        <span className="button-text">
-            { text }
-          </span>
+        <span className="button-text">{ text }</span>
+        <i className={ errorClassName }/>
       </div>
     </button>
   )
