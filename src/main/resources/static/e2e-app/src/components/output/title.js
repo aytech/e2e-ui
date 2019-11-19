@@ -1,11 +1,9 @@
-import React, { Component } from 'react';
+import React  from 'react';
 
-export default class Title extends Component {
-  render() {
+export const Title = () => {
     return (
       <p className="text-warning">
         No builds are currently running. Previous output:
       </p>
     )
-  }
-}
+};
