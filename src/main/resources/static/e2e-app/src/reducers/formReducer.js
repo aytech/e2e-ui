@@ -4,8 +4,11 @@ import {
   SET_FORM_ERRORS,
   SET_LOADING,
   SET_LOADING_STATUS,
+  UPDATE_BUILD_STATUS,
   UPDATE_EMAIL,
-  UPDATE_PASSWORD
+  UPDATE_OUTPUT,
+  UPDATE_PASSWORD,
+  UPDATE_RUN_STATUS
 } from "../actions/constants";
 
 export default (state = {}, action) => {
@@ -44,6 +47,21 @@ export default (state = {}, action) => {
       return {
         ...state,
         serverErrorState: action.isError
+      };
+    case UPDATE_RUN_STATUS:
+      return {
+        ...state,
+        successfulRun: action.isSuccessful
+      };
+    case UPDATE_OUTPUT:
+      return {
+        ...state,
+        output: action.output
+      };
+    case UPDATE_BUILD_STATUS:
+      return {
+        ...state,
+        buildInProgress: action.isRunning
       };
     default:
       return state;
