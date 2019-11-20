@@ -14,10 +14,15 @@ import {
 } from "../../actions/formActions";
 import Button from "../button/button";
 import DockerService from "../../services/DockerService";
+import Alert from "./alert";
 
 class Form extends Component {
 
   dockerService = new DockerService();
+
+  componentDidMount() {
+    this.getE2EBuildStatus();
+  }
 
   updateUserEmail = (event) => {
     this.props.updateUserEmail(event.target.value);
@@ -29,42 +34,43 @@ class Form extends Component {
 
   runE2E = async (event) => {
     event.preventDefault();
-    this.validateForm().then(() => {
-      const {
-        email,
-        formError,
-        password
-      } = this.props.state;
+    this.validateForm()
+      .then(() => {
+        const {
+          email,
+          formError,
+          password
+        } = this.props.state;
 
-      if (formError !== true) {
-        this.props.updateLoading(true);
-        this.dockerService
-          .runE2ESuite({ email: email, password: password })
-          .then(response => {
-            if (response.status === 200) {
-              this.props.updateRunStatus(true);
-              this.props.updateUserEmail(null);
-              this.props.updateUserPassword(null);
-              this.timeoutID = setTimeout(() => {
-                this.getE2EBuildStatus();
-                clearTimeout(this.timeoutID);
-              }, 2000);
-            } else {
-              this.props.updateFormErrorBoolean(true);
-              this.props.updateFormErrors(response.errors);
-            }
-          })
-          .catch(() => {
-            this.props.updateServerErrorState(true);
-          })
-          .finally(() => {
-            this.props.updateLoading(false);
-          })
-      }
-    });
+        if (formError !== true) {
+          this.props.updateLoading(true);
+          this.dockerService
+            .runE2ESuite({ email: email, password: password })
+            .then(response => {
+              if (response.status === 200) {
+                this.props.updateRunStatus(true);
+                this.props.updateUserEmail(null);
+                this.props.updateUserPassword(null);
+                this.timeoutID = setTimeout(() => {
+                  this.getE2EBuildStatus();
+                  clearTimeout(this.timeoutID);
+                }, 2000);
+              } else {
+                this.props.updateFormErrorBoolean(true);
+                this.props.updateFormErrors([response.error]);
+              }
+            })
+            .catch((error) => {
+              this.props.updateServerErrorState(true);
+            })
+            .finally(() => {
+              this.props.updateLoading(false);
+            })
+        }
+      });
   };
 
-  getE2EBuildStatus = async (event) => {
+  getE2EBuildStatus = (event) => {
     if (event !== undefined) {
       event.preventDefault();
     }
@@ -90,6 +96,7 @@ class Form extends Component {
         this.props.updateBuildStatus(job.running);
       })
       .catch(() => {
+        this.props.updateFormErrorBoolean(false);
         this.props.updateServerErrorState(true);
         if (this.timerID === undefined) {
           this.timerID = setInterval(this.getE2EBuildStatus, 2000);
@@ -118,7 +125,6 @@ class Form extends Component {
   };
 
   render() {
-    let errorMessageClass, successMessageClass;
     const {
       email,
       password,
@@ -130,18 +136,6 @@ class Form extends Component {
       buildInProgress,
       serverErrorState
     } = this.props.state;
-
-    if (formError === true) {
-      errorMessageClass = 'alert alert-dismissible alert-danger';
-    } else {
-      errorMessageClass = 'alert alert-dismissible alert-danger hidden';
-    }
-
-    if (successfulRun === true) {
-      successMessageClass = 'alert alert-dismissible alert-success';
-    } else {
-      successMessageClass = 'alert alert-dismissible alert-success hidden';
-    }
 
     return (
       <div className="jumbotron">
@@ -167,23 +161,10 @@ class Form extends Component {
                      placeholder="Password" value={ password } onChange={ this.updateUserPassword }/>
             </div>
           </fieldset>
-          <div className={ errorMessageClass }>
-            <button type="button" className="close" data-dismiss="alert">&times;</button>
-            <h4 className="alert-heading">Error processing request</h4>
-            <p className="mb-0">
-              Please correct errors:
-              {
-                formErrorMessages.map(
-                  (line, index) => <li key={ index }>{ line }</li>
-                )
-              }
-            </p>
-          </div>
-          <div className={ successMessageClass }>
-            <button type="button" className="close" data-dismiss="alert">&times;</button>
-            <h4 className="alert-heading">Success!</h4>
-            Process has started, log output will print below
-          </div>
+          <Alert
+            error={ formError }
+            success={ successfulRun }
+            messages={ formErrorMessages }/>
           <Button
             text={ "Run E2E build" }
             type="submit"

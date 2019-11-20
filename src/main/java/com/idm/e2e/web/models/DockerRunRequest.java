@@ -1,15 +1,15 @@
 package com.idm.e2e.web.models;
 
 public class DockerRunRequest {
-    private String user;
+    private String email;
     private String password;
 
-    public String getUser() {
-        return user;
+    public String getEmail() {
+        return email;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setEmail(String user) {
+        this.email = user;
     }
 
     public String getPassword() {
@@ -21,6 +21,6 @@ public class DockerRunRequest {
     }
 
     public boolean isEmailValid() {
-        return user.matches("^\\w+\\.?\\w+@infor\\.com$");
+        return email.matches("^\\w+\\.?\\w+@infor\\.com$");
     }
 }

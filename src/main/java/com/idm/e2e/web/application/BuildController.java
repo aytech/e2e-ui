@@ -39,7 +39,7 @@ public class BuildController {
             ArrayList<DockerRunnable> jobs = new ArrayList<>();
             jobs.add(new DockerBuild());
             jobs.add(new DockerCompose());
-            configuration.setUser(request.getUser());
+            configuration.setUser(request.getEmail());
             configuration.setPassword(request.getPassword());
             FilesResource filesResource = new FilesResource(configuration);
 
