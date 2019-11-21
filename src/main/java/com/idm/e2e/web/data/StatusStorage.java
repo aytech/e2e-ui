@@ -34,6 +34,7 @@ public class StatusStorage {
         DockerBuildStatus status = new DockerBuildStatus();
         status.setRunning(false);
         status.setCommands(new ArrayList<>());
+        status.setMessages(new ArrayList<>());
         status.setStdInput(new ArrayList<>());
         status.setStdError(new ArrayList<>());
         return status;

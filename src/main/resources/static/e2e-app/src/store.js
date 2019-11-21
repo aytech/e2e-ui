@@ -3,12 +3,14 @@ import rootReducer from "./reducers/rootReducer";
 
 const initialState = {
   state: {
-    email: '',
     buildInProgress: false,
+    debugOutputEnabled: false,
+    email: '',
     formStatus: null,
     formMessages: [],
     isLoading: false,
     isStatusLoading: false,
+    messages: [],
     password: '',
     serverErrorState: false,
     stdErr: [],

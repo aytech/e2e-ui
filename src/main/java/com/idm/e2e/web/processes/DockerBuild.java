@@ -25,8 +25,12 @@ public class DockerBuild implements DockerRunnable {
         StatusStorage.getCurrentStatus().addCommand(command);
         StatusStorage.getCurrentStatus().setRunning(true);
         StatusStorage.getCurrentStatus().addMessage("Rebuilding Docker image...");
+
+        ProcessBuilder builder = new ProcessBuilder();
+        builder.command("docker", "build", "-f", file.getAbsolutePath(), "-t", "e2e", file.getParent());
+
         try {
-            process = Runtime.getRuntime().exec(command);
+            process = builder.start();
             BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
             BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
             String line;
@@ -38,6 +42,7 @@ public class DockerBuild implements DockerRunnable {
             }
         } catch (IOException e) {
             isFailed = true;
+            StatusStorage.getCurrentStatus().addStdErrorEntry(e.getMessage());
             e.printStackTrace();
         }
     }
@@ -58,6 +63,8 @@ public class DockerBuild implements DockerRunnable {
 
     @Override
     public void destroy() {
-        process.destroy();
+        if (process != null) {
+            process.destroy();
+        }
     }
 }

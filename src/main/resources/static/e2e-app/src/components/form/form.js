@@ -11,7 +11,7 @@ import {
   updateServerErrorState,
   updateUserEmail,
   updateUserPassword,
-  updateStdErr
+  updateStdErr, updateMessages
 } from "../../actions/formActions";
 import Button from "../button/button";
 import DockerService from "../../services/DockerService";
@@ -39,11 +39,11 @@ class Form extends Component {
       .then(() => {
         const {
           email,
-          formError,
+          formStatus,
           password
         } = this.props.state;
 
-        if (formError !== true) {
+        if (formStatus === true) {
           this.props.updateLoading(true);
           this.dockerService
             .runE2ESuite({ email: email, password: password })
@@ -90,10 +90,11 @@ class Form extends Component {
         } else {
           this.props.updateStdInput(job.messages);
         }
+        this.props.updateMessages(job.messages);
         this.props.updateStdErr(job.stdErr);
         this.props.updateStdInput(job.stdInput);
-        this.props.updateServerErrorState(false);
         this.props.updateBuildStatus(job.running);
+        this.props.updateServerErrorState(false);
       })
       .catch(() => {
         this.props.updateServerErrorState(true);
@@ -166,7 +167,7 @@ class Form extends Component {
             text={ "Run E2E build" }
             type="submit"
             styleType="primary"
-            error={ formStatus || serverErrorState }
+            error={ formStatus === false || serverErrorState }
             loading={ isLoading }
             disabled={ buildInProgress || isLoading }/>
           <Button
@@ -193,6 +194,7 @@ const mapDispatchToProps = dispatch => ({
   updateFormMessages: (messages) => dispatch(updateFormMessages(messages)),
   updateLoading: (isLoading) => dispatch(updateLoading(isLoading)),
   updateLoadingStatus: (isStatusLoading) => dispatch(updateLoadingStatus(isStatusLoading)),
+  updateMessages: (messages) => dispatch(updateMessages(messages)),
   updateStdErr: (error) => dispatch(updateStdErr(error)),
   updateStdInput: (input) => dispatch(updateStdInput(input)),
   updateRunStatus: (isSuccessful) => dispatch(updateRunStatus(isSuccessful)),

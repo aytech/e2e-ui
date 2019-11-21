@@ -5,7 +5,9 @@ import {
   SET_LOADING,
   SET_LOADING_STATUS,
   UPDATE_BUILD_STATUS,
+  TOGGLE_DEBUG_ENABLED,
   UPDATE_EMAIL,
+  UPDATE_MESSAGES,
   UPDATE_PASSWORD,
   UPDATE_RUN_STATUS,
   UPDATE_STD_ERR,
@@ -48,6 +50,16 @@ export default (state = {}, action) => {
       return {
         ...state,
         serverErrorState: action.isError
+      };
+    case TOGGLE_DEBUG_ENABLED:
+      return {
+        ...state,
+        debugOutputEnabled: !action.status
+      };
+    case UPDATE_MESSAGES:
+      return {
+        ...state,
+        messages: action.messages
       };
     case UPDATE_RUN_STATUS:
       return {

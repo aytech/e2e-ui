@@ -9,7 +9,8 @@ import {
   UPDATE_STD_INPUT,
   UPDATE_PASSWORD,
   UPDATE_RUN_STATUS,
-  UPDATE_STD_ERR
+  UPDATE_STD_ERR,
+  UPDATE_MESSAGES
 } from "./constants";
 
 export const updateBuildStatus = (isRunning) => ({ type: UPDATE_BUILD_STATUS, isRunning });
@@ -17,6 +18,7 @@ export const updateFormStatus = (status) => ({ type: SET_FORM_STATUS, status });
 export const updateFormMessages = (messages) => ({ type: SET_FORM_MESSAGES, messages });
 export const updateLoading = (isLoading) => ({ type: SET_LOADING, isLoading });
 export const updateLoadingStatus = (isStatusLoading) => ({ type: SET_LOADING_STATUS, isStatusLoading });
+export const updateMessages = (messages) => ({ type: UPDATE_MESSAGES, messages });
 export const updateStdErr = (error) => ({ type: UPDATE_STD_ERR, error });
 export const updateStdInput = (input) => ({ type: UPDATE_STD_INPUT, input });
 export const updateRunStatus = (isSuccessful) => ({ type: UPDATE_RUN_STATUS, isSuccessful });
