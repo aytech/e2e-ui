@@ -5,6 +5,7 @@ const initialState = {
   state: {
     buildInProgress: false,
     debugOutputEnabled: false,
+    errorOutputEnabled: false,
     email: '',
     formStatus: null,
     formMessages: [],

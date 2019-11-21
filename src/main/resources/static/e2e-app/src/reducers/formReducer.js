@@ -11,7 +11,7 @@ import {
   UPDATE_PASSWORD,
   UPDATE_RUN_STATUS,
   UPDATE_STD_ERR,
-  UPDATE_STD_INPUT
+  UPDATE_STD_INPUT, TOGGLE_ERROR_ENABLED
 } from "../actions/constants";
 
 export default (state = {}, action) => {
@@ -54,7 +54,12 @@ export default (state = {}, action) => {
     case TOGGLE_DEBUG_ENABLED:
       return {
         ...state,
-        debugOutputEnabled: !action.status
+        debugOutputEnabled: action.status
+      };
+    case TOGGLE_ERROR_ENABLED:
+      return {
+        ...state,
+        errorOutputEnabled: action.status
       };
     case UPDATE_MESSAGES:
       return {

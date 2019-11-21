@@ -3,15 +3,41 @@ import { connect } from "react-redux";
 import { ProgressBar } from "./progress";
 import { Title } from "./title";
 import StandardOutput from "./standard-output";
-import { toggleDebugEnabled } from "../../actions/outputActions";
+import { toggleDebugEnabled, toggleErrorEnabled } from "../../actions/outputActions";
+import './output.css';
 
 class Output extends Component {
+
+  toggleDebugEnabled = () => {
+    const {
+      state,
+      toggleDebugEnabled,
+      toggleErrorEnabled
+    } = this.props;
+    if (state.errorOutputEnabled === true && state.debugOutputEnabled === false) {
+      toggleErrorEnabled(false);
+    }
+    toggleDebugEnabled(!state.debugOutputEnabled);
+  };
+
+  toggleErrorEnabled = () => {
+    const {
+      state,
+      toggleDebugEnabled,
+      toggleErrorEnabled
+    } = this.props;
+    if (state.debugOutputEnabled === true && state.errorOutputEnabled === false) {
+      toggleDebugEnabled(false);
+    }
+    toggleErrorEnabled(!state.errorOutputEnabled);
+  };
 
   render() {
 
     const {
       buildInProgress,
       debugOutputEnabled,
+      errorOutputEnabled,
       messages,
       stdErr,
       stdInput,
@@ -22,19 +48,26 @@ class Output extends Component {
       <div className="jumbotron">
         <h1 className="display-3">Output:</h1>
         <div className="form-group">
-          <div className="custom-control custom-checkbox">
-            <input type="checkbox" className="custom-control-input" id="customCheck1" checked={ debugOutputEnabled }
-                   onChange={ () => {
-                     this.props.toggleDebugEnabled(debugOutputEnabled)
-                   } }/>
-            <label className="custom-control-label" htmlFor="customCheck1">Check this custom checkbox</label>
+          <div className="custom-control custom-switch">
+            <input type="checkbox" className="custom-control-input" id="debugSwitch" checked={ debugOutputEnabled }
+                   onChange={ this.toggleDebugEnabled }/>
+            <label className="custom-control-label" htmlFor="debugSwitch">Show debug output</label>
+          </div>
+          <div className="custom-control custom-switch">
+            <input type="checkbox" className="custom-control-input" id="errorSwitch" checked={ errorOutputEnabled }
+                   onChange={ this.toggleErrorEnabled }/>
+            <label className="custom-control-label" htmlFor="errorSwitch">Show errors</label>
           </div>
         </div>
         <Title
+          debug={ debugOutputEnabled }
+          error={ errorOutputEnabled }
           buildInProgress={ buildInProgress }
           serverErrorState={ serverErrorState }/>
         <ProgressBar show={ buildInProgress }/>
         <StandardOutput
+          debug={ debugOutputEnabled }
+          error={ errorOutputEnabled }
           messages={ messages }
           stdInput={ stdInput }
           stdErr={ stdErr }/>
@@ -49,6 +82,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   toggleDebugEnabled: (isEnabled) => dispatch(toggleDebugEnabled(isEnabled)),
+  toggleErrorEnabled: (isEnabled) => dispatch(toggleErrorEnabled(isEnabled)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Output);
