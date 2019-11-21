@@ -5,14 +5,15 @@ const initialState = {
   state: {
     email: '',
     buildInProgress: false,
-    formError: false,
-    formErrorMessages: [],
+    formStatus: null,
+    formMessages: [],
     isLoading: false,
     isStatusLoading: false,
     password: '',
     serverErrorState: false,
+    stdErr: [],
+    stdInput: [],
     successfulRun: false,
-    output: []
   }
 };
 

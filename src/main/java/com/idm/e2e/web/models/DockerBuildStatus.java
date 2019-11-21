@@ -6,7 +6,7 @@ public class DockerBuildStatus {
     private ArrayList<String> commands;
     private ArrayList<String> messages;
     private ArrayList<String> stdInput;
-    private ArrayList<String> stdError;
+    private ArrayList<String> stdErr;
     private Boolean isRunning;
 
     public void setRunning(Boolean running) {
@@ -62,18 +62,18 @@ public class DockerBuildStatus {
         stdInput.add(entry);
     }
 
-    public ArrayList<String> getStdError() {
-        return stdError;
+    public ArrayList<String> getStdErr() {
+        return stdErr;
     }
 
     public void setStdError(ArrayList<String> stdError) {
-        this.stdError = stdError;
+        this.stdErr = stdError;
     }
 
     public void addStdErrorEntry(String entry) {
-        if (stdError == null) {
-            stdError = new ArrayList<>();
+        if (stdErr == null) {
+            stdErr = new ArrayList<>();
         }
-        stdError.add(entry);
+        stdErr.add(entry);
     }
 }

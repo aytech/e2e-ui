@@ -1,14 +1,15 @@
 import {
-  IS_FORM_ERROR,
   IS_SERVER_ERROR,
-  SET_FORM_ERRORS,
+  SET_FORM_MESSAGES,
+  SET_FORM_STATUS,
   SET_LOADING,
   SET_LOADING_STATUS,
   UPDATE_BUILD_STATUS,
   UPDATE_EMAIL,
-  UPDATE_OUTPUT,
   UPDATE_PASSWORD,
-  UPDATE_RUN_STATUS
+  UPDATE_RUN_STATUS,
+  UPDATE_STD_ERR,
+  UPDATE_STD_INPUT
 } from "../actions/constants";
 
 export default (state = {}, action) => {
@@ -23,15 +24,15 @@ export default (state = {}, action) => {
         ...state,
         password: action.password
       };
-    case IS_FORM_ERROR:
+    case SET_FORM_STATUS:
       return {
         ...state,
-        formError: action.isError
+        formStatus: action.status
       };
-    case SET_FORM_ERRORS:
+    case SET_FORM_MESSAGES:
       return {
         ...state,
-        formErrorMessages: action.errors
+        formMessages: action.messages
       };
     case SET_LOADING:
       return {
@@ -53,10 +54,15 @@ export default (state = {}, action) => {
         ...state,
         successfulRun: action.isSuccessful
       };
-    case UPDATE_OUTPUT:
+    case UPDATE_STD_ERR:
       return {
         ...state,
-        output: action.output
+        stdErr: action.error
+      };
+    case UPDATE_STD_INPUT:
+      return {
+        ...state,
+        stdInput: action.input
       };
     case UPDATE_BUILD_STATUS:
       return {

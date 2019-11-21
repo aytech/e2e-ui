@@ -16,6 +16,7 @@ import static com.idm.e2e.web.configuration.AppConstants.*;
 
 public class DockerCompose implements DockerRunnable {
     private Process process;
+    private Boolean isFailed = false;
 
     @Override
     public Process getProcess() {
@@ -27,9 +28,15 @@ public class DockerCompose implements DockerRunnable {
         return process != null && process.isAlive();
     }
 
+    public Boolean isFailed() {
+        return isFailed;
+    }
+
     @Override
     public void destroy() {
-        process.destroy();
+        if (process != null) {
+            process.destroy();
+        }
     }
 
     @Override
@@ -69,6 +76,8 @@ public class DockerCompose implements DockerRunnable {
                 StatusStorage.getCurrentStatus().addStdErrorEntry(line);
             }
         } catch (IOException e) {
+            isFailed = true;
+            StatusStorage.getCurrentStatus().addStdErrorEntry(e.getMessage());
             e.printStackTrace();
         }
     }

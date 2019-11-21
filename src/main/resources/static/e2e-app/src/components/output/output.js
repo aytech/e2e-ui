@@ -10,7 +10,8 @@ class Output extends Component {
 
     const {
       buildInProgress,
-      output,
+      stdErr,
+      stdInput,
       serverErrorState
     } = this.props.state;
 
@@ -19,7 +20,7 @@ class Output extends Component {
         <h1 className="display-3">Output:</h1>
         <Title serverErrorState={ serverErrorState }/>
         <ProgressBar show={ buildInProgress }/>
-        <StandardOutput output={ output }/>
+        <StandardOutput stdInput={ stdInput } stdErr={ stdErr }/>
       </div>
     )
   }

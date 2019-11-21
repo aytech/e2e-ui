@@ -57,7 +57,7 @@ public class DockerRunner extends Thread {
     }
 
     private void waitForRunnableProcess(DockerRunnable runnable) {
-        while (runnable.getProcess() == null || runnable.getProcess().isAlive()) {
+        while ((runnable.getProcess() == null || runnable.getProcess().isAlive()) && !runnable.isFailed()) {
             try {
                 sleep(500);
             } catch (InterruptedException e) {

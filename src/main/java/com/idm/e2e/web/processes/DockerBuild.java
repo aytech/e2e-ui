@@ -12,6 +12,7 @@ import static com.idm.e2e.web.configuration.AppConstants.DOCKERFILE;
 
 public class DockerBuild implements DockerRunnable {
     private Process process;
+    private Boolean isFailed = false;
 
     @Override
     public void run() {
@@ -36,6 +37,7 @@ public class DockerBuild implements DockerRunnable {
                 StatusStorage.getCurrentStatus().addStdErrorEntry(line);
             }
         } catch (IOException e) {
+            isFailed = true;
             e.printStackTrace();
         }
     }
@@ -48,6 +50,10 @@ public class DockerBuild implements DockerRunnable {
     @Override
     public Boolean isAlive() {
         return process != null && process.isAlive();
+    }
+
+    public Boolean isFailed() {
+        return isFailed;
     }
 
     @Override
