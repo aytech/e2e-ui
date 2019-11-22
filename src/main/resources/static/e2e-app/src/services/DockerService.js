@@ -1,12 +1,13 @@
 export default class DockerService {
   apiBase = '/api';
+  reportZip = '/download/report';
   pathGetBuildStatus = '/build/status';
   pathRunE2E = '/build/run';
 
   async getResource(url, headers) {
     const resource = await fetch(`${ this.apiBase }${ url }`, headers);
     const response = await resource.json();
-    response.status = resource.status;
+    // response.status = resource.status;
     return response;
   }
 
@@ -23,4 +24,8 @@ export default class DockerService {
     };
     return await this.getResource(this.pathRunE2E, data)
   };
+
+  downloadReportZip = async () => {
+    return await this.getResource(this.reportZip)
+  }
 }

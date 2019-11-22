@@ -3,7 +3,10 @@ package com.idm.e2e.web.data;
 import com.idm.e2e.web.models.E2EConfiguration;
 
 import java.io.*;
-import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 
 import static com.idm.e2e.web.configuration.AppConstants.*;
 
@@ -17,8 +20,8 @@ public class FilesResource {
         this.configuration = configuration;
     }
 
-    public void writeNewConfigurationFile(String sourceFileName, String targetFileName) throws IOException {
-        setPrintWriter(sourceFileName, targetFileName);
+    public void writeNewConfigurationFile(String targetFileName) throws IOException {
+        setPrintWriter(targetFileName);
         printWriter.println(String.format("%s=%s", E2EConfiguration.ENV, configuration.getEnvironment()));
         printWriter.println(String.format("%s=%s", E2EConfiguration.URL, configuration.getUrl()));
         printWriter.println(String.format("%s=%s", E2EConfiguration.FILE_PRIMARY, configuration.getFilePrimary()));
@@ -30,22 +33,22 @@ public class FilesResource {
         close();
     }
 
-    public void writeNewCredentialsFile(String sourceFileName, String targetFileName) throws IOException {
-        setPrintWriter(sourceFileName, targetFileName);
+    public void writeNewCredentialsFile(String targetFileName) throws IOException {
+        setPrintWriter(targetFileName);
         printWriter.println(String.format("%s=%s", E2EConfiguration.USER, configuration.getUser()));
         printWriter.println(String.format("%s=%s", E2EConfiguration.PASSWORD, configuration.getPassword()));
         close();
     }
 
-    public void writeDockerFile(String sourceFileName, String targetFileName) throws IOException {
-        setPrintWriter(sourceFileName, targetFileName);
+    public void writeDockerFile(String targetFileName) throws IOException {
+        setPrintWriter(targetFileName);
         printWriter.println("FROM alpine as repository");
         printWriter.println(String.format("LABEL maintainer=\"%s\"", MAINTAINER));
         printWriter.println("WORKDIR app");
         printWriter.println("RUN apk update && \\");
         printWriter.println("\tapk upgrade && \\");
         printWriter.println("\tapk add git openssh");
-        printWriter.println("COPY ./keys/id_rsa_teamcity-e2e /root/.ssh/");
+        printWriter.println("COPY ./id_rsa_teamcity-e2e /root/.ssh/");
         printWriter.println("RUN chmod 400 /root/.ssh/id_rsa_teamcity-e2e");
         printWriter.println("RUN mkdir -p /root/.ssh");
         printWriter.println("RUN ssh-keyscan -p 7999 oxfordssh.awsdev.infor.com >> ~/.ssh/known_hosts");
@@ -65,18 +68,37 @@ public class FilesResource {
         close();
     }
 
-    public static File getFile(String fileName) {
-        ClassLoader loader = FilesResource.class.getClassLoader();
-        URL url = loader.getResource(fileName);
-        if (url != null) {
-            return new File(url.getFile());
+    public void copyConfigurationFiles() throws IOException {
+        String homeDirectory = System.getProperty("user.home");
+        String configurationDirectory = String.format("%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY);
+
+        InputStream sourceCompose = getClass().getResourceAsStream(String.format("%s%s", File.separator, DOCKER_COMPOSE_FILE));
+        InputStream sourceRSA = getClass().getResourceAsStream(String.format("%s%s%s%s", File.separator, RSA_DIR, File.separator, RSA_FILE));
+
+        String targetCompose = String.format("%s%s%s", configurationDirectory, File.separator, DOCKER_COMPOSE_FILE);
+        String targetRSA = String.format("%s%s%s", configurationDirectory, File.separator, RSA_FILE);
+
+        Files.copy(sourceCompose, Paths.get(targetCompose), StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(sourceRSA, Paths.get(targetRSA), StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    public static File getFile(String fileName) throws IOException {
+        String homeDirectory = System.getProperty("user.home");
+        String filePath = String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, fileName);
+        File file = new File(filePath);
+        if (!file.exists()) {
+            if (file.createNewFile()) {
+                System.out.println(String.format("%s file created", filePath));
+            } else {
+                System.out.println(String.format("Failed to create %s file", filePath));
+            }
         }
-        return null;
+        return file;
     }
 
     public static String getReportsPath() {
         String homeDirectory = System.getProperty("user.home");
-        String reportsDirectory = String.format("%s%s%s", homeDirectory, File.separator, REPORTS_DIR);
+        String reportsDirectory = String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, REPORTS_DIR);
         File file = new File(reportsDirectory);
         if (!file.exists()) {
             if (file.mkdir()) {
@@ -89,16 +111,48 @@ public class FilesResource {
         return reportsDirectory;
     }
 
+    public void createConfigurationDirectory() {
+        String homeDirectory = System.getProperty("user.home");
+        String configurationDirectory = String.format("%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY);
+        File directory = new File(configurationDirectory);
+        if (!directory.exists()) {
+            if (directory.mkdir()) {
+                System.out.println(String.format("%s directory created", configurationDirectory));
+            } else {
+                System.out.println(String.format("Failed to create %s directory", configurationDirectory));
+            }
+        } else {
+            if (directory.delete()) {
+                createConfigurationDirectory();
+            }
+        }
+    }
+
+    public void cleanFileSystem() {
+        String homeDirectory = System.getProperty("user.home");
+        ArrayList<String> paths = new ArrayList<>();
+        paths.add(String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, CONFIGURATION));
+        paths.add(String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, CREDENTIALS));
+        paths.add(String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, DOCKERFILE));
+
+        for (String path : paths) {
+            System.out.println("Removing " + path);
+            File file = new File(path);
+            if (file.exists()) {
+                if (file.delete()) {
+                    System.out.println(String.format("File %s was removed", file.getName()));
+                }
+            }
+        }
+    }
+
     private void close() throws IOException {
         fileWriter.close();
         printWriter.close();
     }
 
-    private void setPrintWriter(String sourceFileName, String targetFileName) throws IOException {
-        File file = getFile(sourceFileName);
-        if (file == null) {
-            throw new IOException(String.format("%s file not found", sourceFileName));
-        }
+    private void setPrintWriter(String targetFileName) throws IOException {
+        File file = getFile(targetFileName);
         fileWriter = new FileWriter(String.format("%s%s%s", file.getParent(), File.separator, targetFileName));
         printWriter = new PrintWriter(fileWriter);
     }

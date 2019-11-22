@@ -1,18 +1,25 @@
 package com.idm.e2e.web.application;
 
-import com.idm.e2e.web.data.FilesResource;
 import com.idm.e2e.web.data.StatusStorage;
+import com.idm.e2e.web.data.ZipResource;
 import com.idm.e2e.web.interfaces.DockerRunnable;
 import com.idm.e2e.web.models.*;
 import com.idm.e2e.web.processes.DockerBuild;
 import com.idm.e2e.web.processes.DockerCompose;
 import com.idm.e2e.web.processes.DockerRunner;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.idm.e2e.web.processes.FileSystemConfiguration;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
+import javax.print.attribute.standard.Media;
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import static com.idm.e2e.web.configuration.AppConstants.*;
@@ -35,29 +42,48 @@ public class BuildController {
     public HttpEntity<DockerRunResponse> runSuite(@RequestBody DockerRunRequest request) {
         DockerRunResponse response = new DockerRunResponse();
         if (request.isEmailValid()) {
-            E2EConfiguration configuration = new E2EConfiguration();
-            ArrayList<DockerRunnable> jobs = new ArrayList<>();
-            jobs.add(new DockerBuild());
-            jobs.add(new DockerCompose());
-            configuration.setUser(request.getEmail());
-            configuration.setPassword(request.getPassword());
-            FilesResource filesResource = new FilesResource(configuration);
-
-            try {
-                filesResource.writeNewConfigurationFile(CONFIGURATION_SAMPLE, CONFIGURATION);
-                filesResource.writeNewCredentialsFile(CREDENTIALS_SAMPLE, CREDENTIALS);
-                filesResource.writeDockerFile(DOCKERFILE_SAMPLE, DOCKERFILE);
-                DockerRunner.getInstance().run(jobs);
-            } catch (IOException | IllegalStateException e) {
-                System.out.println("Can't add configuration: " + e.getMessage());
-                e.printStackTrace();
-            }
-            response.setValid(true);
+            ZipResource.zipE2EReports();
+//            E2EConfiguration configuration = new E2EConfiguration();
+//            configuration.setUser(request.getEmail());
+//            configuration.setPassword(request.getPassword());
+//            ArrayList<DockerRunnable> jobs = new ArrayList<>();
+//            jobs.add(new FileSystemConfiguration(configuration));
+//            jobs.add(new DockerBuild());
+//            jobs.add(new DockerCompose());
+//
+//            try {
+//                DockerRunner.getInstance().run(jobs);
+//            } catch (IllegalStateException e) {
+//                System.out.println("Can't add configuration: " + e.getMessage());
+//                e.printStackTrace();
+//            }
+//            response.setValid(true);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             response.setValid(false);
             response.addError("Enter valid email");
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = URI_DOWNLOAD_REPORT)
+    public ResponseEntity<Resource> downloadReport(HttpServletRequest request) {
+        String homeDirectory = System.getProperty("user.home");
+        String zipFile = String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, "report.zip");
+        Path path = Paths.get(zipFile);
+        try {
+            Resource resource = new UrlResource(path.toUri());
+            String contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename())
+                    .body(resource);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

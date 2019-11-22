@@ -41,23 +41,19 @@ public class DockerCompose implements DockerRunnable {
 
     @Override
     public void run() {
-        File dockerComposeFile = FilesResource.getFile(DOCKER_COMPOSE);
-        if (dockerComposeFile == null) {
-            System.out.println(String.format("%s file not found", DOCKER_COMPOSE));
-            return;
-        }
-        String commandFormat = "docker-compose -f %s up --build --abort-on-container-exit";
-        String command = String.format(commandFormat, dockerComposeFile.getAbsolutePath());
-        StatusStorage.getCurrentStatus().addCommand(command);
-        StatusStorage.getCurrentStatus().setRunning(true);
-        StatusStorage.getCurrentStatus().addMessage("Running E2E test suite...");
-
-        ProcessBuilder builder = new ProcessBuilder();
-        Map<String, String> environment = builder.environment();
-        environment.put("report_directory", FilesResource.getReportsPath());
-        builder.command("docker-compose", "-f", dockerComposeFile.getAbsolutePath(), "up", "--build", "--abort-on-container-exit");
-
         try {
+            File dockerComposeFile = FilesResource.getFile(DOCKER_COMPOSE_FILE);
+            String commandFormat = "docker-compose -f %s up --build --abort-on-container-exit";
+            String command = String.format(commandFormat, dockerComposeFile.getAbsolutePath());
+            StatusStorage.getCurrentStatus().addCommand(command);
+            StatusStorage.getCurrentStatus().setRunning(true);
+            StatusStorage.getCurrentStatus().addMessage("Running E2E test suite...");
+
+            ProcessBuilder builder = new ProcessBuilder();
+            Map<String, String> environment = builder.environment();
+            environment.put("report_directory", FilesResource.getReportsPath());
+            builder.command("docker-compose", "-f", dockerComposeFile.getAbsolutePath(), "up", "--build", "--abort-on-container-exit");
+
             process = builder.start();
             BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
             BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));

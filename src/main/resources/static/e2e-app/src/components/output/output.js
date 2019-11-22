@@ -5,8 +5,11 @@ import { Title } from "./title";
 import StandardOutput from "./standard-output";
 import { toggleDebugEnabled, toggleErrorEnabled } from "../../actions/outputActions";
 import './output.css';
+import DockerService from "../../services/DockerService";
 
 class Output extends Component {
+
+  dockerService = new DockerService();
 
   toggleDebugEnabled = () => {
     const {
@@ -30,6 +33,15 @@ class Output extends Component {
       toggleDebugEnabled(false);
     }
     toggleErrorEnabled(!state.errorOutputEnabled);
+  };
+
+  downloadReportZip = () => {
+    this.dockerService
+      .downloadReportZip()
+      .then(response => {
+        console.log('Response: ', response);
+        return response;
+      });
   };
 
   render() {
@@ -58,6 +70,15 @@ class Output extends Component {
                    onChange={ this.toggleErrorEnabled }/>
             <label className="custom-control-label" htmlFor="errorSwitch">Show errors</label>
           </div>
+        </div>
+        <div className="form-group">
+          <button type="button" className="btn btn-primary btn-lg inline" onClick={ this.downloadReportZip }>
+            Download report
+          </button>
+          <button type="button" className="btn btn-primary btn-lg inline" data-toggle="tooltip" data-placement="top"
+                  data-original-title="Clean all configuration files generated during tests">
+            Clean configuration
+          </button>
         </div>
         <Title
           debug={ debugOutputEnabled }

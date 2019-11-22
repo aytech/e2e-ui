@@ -1,3 +1,7 @@
+.btn.inline {
+  margin-right: 1rem;
+}
+
 .custom-control {
   user-select: none;
 }

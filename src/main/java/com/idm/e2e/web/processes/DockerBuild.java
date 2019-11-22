@@ -16,20 +16,16 @@ public class DockerBuild implements DockerRunnable {
 
     @Override
     public void run() {
-        File file = FilesResource.getFile(DOCKERFILE);
-        if (file == null) {
-            System.out.println(String.format("%s file not found", DOCKERFILE));
-            return;
-        }
-        String command = String.format("docker build -f %s -t e2e %s", file.getAbsolutePath(), file.getParent());
-        StatusStorage.getCurrentStatus().addCommand(command);
-        StatusStorage.getCurrentStatus().setRunning(true);
-        StatusStorage.getCurrentStatus().addMessage("Rebuilding Docker image...");
-
-        ProcessBuilder builder = new ProcessBuilder();
-        builder.command("docker", "build", "-f", file.getAbsolutePath(), "-t", "e2e", file.getParent());
-
         try {
+            File file = FilesResource.getFile(DOCKERFILE);
+            String command = String.format("docker build -f %s -t e2e %s", file.getAbsolutePath(), file.getParent());
+            StatusStorage.getCurrentStatus().addCommand(command);
+            StatusStorage.getCurrentStatus().setRunning(true);
+            StatusStorage.getCurrentStatus().addMessage("Rebuilding Docker image...");
+
+            ProcessBuilder builder = new ProcessBuilder();
+            builder.command("docker", "build", "-f", file.getAbsolutePath(), "-t", "e2e", file.getParent());
+
             process = builder.start();
             BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
             BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
