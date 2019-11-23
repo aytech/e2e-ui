@@ -11,7 +11,7 @@ import {
   UPDATE_PASSWORD,
   UPDATE_RUN_STATUS,
   UPDATE_STD_ERR,
-  UPDATE_STD_INPUT, TOGGLE_ERROR_ENABLED
+  UPDATE_STD_INPUT, TOGGLE_ERROR_ENABLED, UPDATE_REPORT_LOADING, UPDATE_REPORT_STATUS
 } from "../actions/constants";
 
 export default (state = {}, action) => {
@@ -65,6 +65,16 @@ export default (state = {}, action) => {
       return {
         ...state,
         messages: action.messages
+      };
+    case UPDATE_REPORT_LOADING:
+      return {
+        ...state,
+        isReportLoading: action.isLoading
+      };
+    case UPDATE_REPORT_STATUS:
+      return {
+        ...state,
+        isReportAvailable: action.status
       };
     case UPDATE_RUN_STATUS:
       return {

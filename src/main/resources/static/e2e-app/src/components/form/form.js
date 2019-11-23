@@ -11,7 +11,7 @@ import {
   updateServerErrorState,
   updateUserEmail,
   updateUserPassword,
-  updateStdErr, updateMessages
+  updateStdErr, updateMessages, updateReportStatus
 } from "../../actions/formActions";
 import Button from "../button/button";
 import DockerService from "../../services/DockerService";
@@ -95,6 +95,7 @@ class Form extends Component {
         this.props.updateStdInput(job.stdInput);
         this.props.updateBuildStatus(job.running);
         this.props.updateServerErrorState(false);
+        this.props.updateReportStatus(job.reportAvailable);
       })
       .catch(() => {
         this.props.updateServerErrorState(true);
@@ -166,14 +167,14 @@ class Form extends Component {
           <Button
             text={ "Run E2E build" }
             type="submit"
-            styleType="primary"
+            className="btn btn-block btn-primary"
             error={ formStatus === false || serverErrorState }
             loading={ isLoading }
             disabled={ buildInProgress || isLoading }/>
           <Button
             text={ "Get build status" }
-            styleType="primary"
             type="button"
+            className="btn btn-block btn-primary"
             error={ serverErrorState }
             disabled={ buildInProgress || isStatusLoading }
             loading={ isStatusLoading }
@@ -195,6 +196,7 @@ const mapDispatchToProps = dispatch => ({
   updateLoading: (isLoading) => dispatch(updateLoading(isLoading)),
   updateLoadingStatus: (isStatusLoading) => dispatch(updateLoadingStatus(isStatusLoading)),
   updateMessages: (messages) => dispatch(updateMessages(messages)),
+  updateReportStatus: (status) => dispatch(updateReportStatus(status)),
   updateStdErr: (error) => dispatch(updateStdErr(error)),
   updateStdInput: (input) => dispatch(updateStdInput(input)),
   updateRunStatus: (isSuccessful) => dispatch(updateRunStatus(isSuccessful)),

@@ -1,5 +1,7 @@
 package com.idm.e2e.web.models;
 
+import com.idm.e2e.web.data.ZipResource;
+
 import java.util.ArrayList;
 
 public class DockerBuildStatus {
@@ -7,6 +9,7 @@ public class DockerBuildStatus {
     private ArrayList<String> messages;
     private ArrayList<String> stdInput;
     private ArrayList<String> stdErr;
+    private Boolean isReportAvailable;
     private Boolean isRunning;
 
     public void setRunning(Boolean running) {
@@ -75,5 +78,13 @@ public class DockerBuildStatus {
             stdErr = new ArrayList<>();
         }
         stdErr.add(entry);
+    }
+
+    public Boolean isReportAvailable() {
+        return isReportAvailable;
+    }
+
+    public void setReportAvailable(Boolean reportAvailable) {
+        isReportAvailable = reportAvailable;
     }
 }

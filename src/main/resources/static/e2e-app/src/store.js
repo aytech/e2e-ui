@@ -10,6 +10,8 @@ const initialState = {
     formStatus: null,
     formMessages: [],
     isLoading: false,
+    isReportAvailable: false,
+    isReportLoading: false,
     isStatusLoading: false,
     messages: [],
     password: '',

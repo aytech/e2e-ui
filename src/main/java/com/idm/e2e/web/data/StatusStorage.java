@@ -30,6 +30,13 @@ public class StatusStorage {
         StatusStorage.currentStatus = currentStatus;
     }
 
+    public static DockerBuildStatus getStatus() {
+        if (getCurrentStatus().isRunning()) {
+            return getCurrentStatus();
+        }
+        return getPreviousStatus();
+    }
+
     private static DockerBuildStatus getNewStatus() {
         DockerBuildStatus status = new DockerBuildStatus();
         status.setRunning(false);

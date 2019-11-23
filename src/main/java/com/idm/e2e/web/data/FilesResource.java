@@ -69,71 +69,56 @@ public class FilesResource {
     }
 
     public void copyConfigurationFiles() throws IOException {
-        String homeDirectory = System.getProperty("user.home");
-        String configurationDirectory = String.format("%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY);
+        File configurationDirectory = getConfigurationDirectory(null);
 
         InputStream sourceCompose = getClass().getResourceAsStream(String.format("%s%s", File.separator, DOCKER_COMPOSE_FILE));
         InputStream sourceRSA = getClass().getResourceAsStream(String.format("%s%s%s%s", File.separator, RSA_DIR, File.separator, RSA_FILE));
 
-        String targetCompose = String.format("%s%s%s", configurationDirectory, File.separator, DOCKER_COMPOSE_FILE);
-        String targetRSA = String.format("%s%s%s", configurationDirectory, File.separator, RSA_FILE);
+        String targetCompose = String.format("%s%s%s", configurationDirectory.getPath(), File.separator, DOCKER_COMPOSE_FILE);
+        String targetRSA = String.format("%s%s%s", configurationDirectory.getPath(), File.separator, RSA_FILE);
 
         Files.copy(sourceCompose, Paths.get(targetCompose), StandardCopyOption.REPLACE_EXISTING);
         Files.copy(sourceRSA, Paths.get(targetRSA), StandardCopyOption.REPLACE_EXISTING);
     }
 
     public static File getFile(String fileName) throws IOException {
-        String homeDirectory = System.getProperty("user.home");
-        String filePath = String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, fileName);
-        File file = new File(filePath);
+        File file = getConfigurationDirectory(fileName);
         if (!file.exists()) {
             if (file.createNewFile()) {
-                System.out.println(String.format("%s file created", filePath));
+                System.out.println(String.format("%s file created", file.getPath()));
             } else {
-                System.out.println(String.format("Failed to create %s file", filePath));
+                System.out.println(String.format("Failed to create %s file", file.getPath()));
             }
         }
         return file;
     }
 
     public static String getReportsPath() {
-        String homeDirectory = System.getProperty("user.home");
-        String reportsDirectory = String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, REPORTS_DIR);
-        File file = new File(reportsDirectory);
-        if (!file.exists()) {
-            if (file.mkdir()) {
-                System.out.println(String.format("%s directory created", reportsDirectory));
-            } else {
-                System.out.println(String.format("Failed to create %s directory", reportsDirectory));
-                reportsDirectory = homeDirectory;
-            }
-        }
-        return reportsDirectory;
+        createConfigurationDirectory(REPORT_DIR);
+        return getConfigurationDirectory(REPORT_DIR).getPath();
     }
 
-    public void createConfigurationDirectory() {
-        String homeDirectory = System.getProperty("user.home");
-        String configurationDirectory = String.format("%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY);
-        File directory = new File(configurationDirectory);
+    public static void createConfigurationDirectory(String subDirectory) {
+        File directory = getConfigurationDirectory(subDirectory);
         if (!directory.exists()) {
             if (directory.mkdir()) {
-                System.out.println(String.format("%s directory created", configurationDirectory));
+                System.out.println(String.format("%s directory created", directory.getPath()));
             } else {
-                System.out.println(String.format("Failed to create %s directory", configurationDirectory));
+                System.out.println(String.format("Failed to create %s directory", directory.getPath()));
             }
         } else {
             if (directory.delete()) {
-                createConfigurationDirectory();
+                createConfigurationDirectory(subDirectory);
             }
         }
     }
 
-    public void cleanFileSystem() {
-        String homeDirectory = System.getProperty("user.home");
+    public static void cleanFileSystem() {
+        String configurationDirectory = getConfigurationDirectory(null).getPath();
         ArrayList<String> paths = new ArrayList<>();
-        paths.add(String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, CONFIGURATION));
-        paths.add(String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, CREDENTIALS));
-        paths.add(String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, DOCKERFILE));
+        paths.add(String.format("%s%s%s", configurationDirectory, File.separator, CONFIGURATION));
+        paths.add(String.format("%s%s%s", configurationDirectory, File.separator, CREDENTIALS));
+        paths.add(String.format("%s%s%s", configurationDirectory, File.separator, DOCKERFILE));
 
         for (String path : paths) {
             System.out.println("Removing " + path);
@@ -144,6 +129,17 @@ public class FilesResource {
                 }
             }
         }
+    }
+
+    /*
+    * Get configuration directory in format <home directory>/e2e
+     */
+    public static File getConfigurationDirectory(String subDirectory) {
+        String homeDirectory = System.getProperty("user.home");
+        if (subDirectory == null) {
+            return new File(String.format("%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY));
+        }
+        return new File(String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, subDirectory));
     }
 
     private void close() throws IOException {

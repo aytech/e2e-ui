@@ -1,5 +1,6 @@
 package com.idm.e2e.web.application;
 
+import com.idm.e2e.web.data.FilesResource;
 import com.idm.e2e.web.data.StatusStorage;
 import com.idm.e2e.web.data.ZipResource;
 import com.idm.e2e.web.interfaces.DockerRunnable;
@@ -30,19 +31,16 @@ public class BuildController {
 
     @RequestMapping(method = RequestMethod.GET, value = URI_BUILD_STATUS)
     public HttpEntity<DockerBuildStatus> getStatus() {
-        DockerBuildStatus status = StatusStorage.getCurrentStatus();
-        if (status.isRunning()) {
-            return new ResponseEntity<>(status, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(StatusStorage.getPreviousStatus(), HttpStatus.OK);
-        }
+        DockerBuildStatus status = StatusStorage.getStatus();
+        status.setReportAvailable(ZipResource.isReportAvailable());
+        return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = URI_RUN_E2E)
     public HttpEntity<DockerRunResponse> runSuite(@RequestBody DockerRunRequest request) {
         DockerRunResponse response = new DockerRunResponse();
         if (request.isEmailValid()) {
-            ZipResource.zipE2EReports();
+            FilesResource.cleanFileSystem();
 //            E2EConfiguration configuration = new E2EConfiguration();
 //            configuration.setUser(request.getEmail());
 //            configuration.setPassword(request.getPassword());
@@ -68,6 +66,7 @@ public class BuildController {
 
     @RequestMapping(method = RequestMethod.GET, value = URI_DOWNLOAD_REPORT)
     public ResponseEntity<Resource> downloadReport(HttpServletRequest request) {
+        ZipResource.zipE2EReports();
         String homeDirectory = System.getProperty("user.home");
         String zipFile = String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, "report.zip");
         Path path = Paths.get(zipFile);

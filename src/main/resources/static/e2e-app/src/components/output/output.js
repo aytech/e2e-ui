@@ -6,6 +6,7 @@ import StandardOutput from "./standard-output";
 import { toggleDebugEnabled, toggleErrorEnabled } from "../../actions/outputActions";
 import './output.css';
 import DockerService from "../../services/DockerService";
+import Button from "../button/button";
 
 class Output extends Component {
 
@@ -36,12 +37,29 @@ class Output extends Component {
   };
 
   downloadReportZip = () => {
-    this.dockerService
-      .downloadReportZip()
-      .then(response => {
-        console.log('Response: ', response);
-        return response;
-      });
+    if (this.props.state.isReportAvailable) {
+      this.dockerService
+        .downloadReportZip()
+        .then(response => {
+          if (response.status === 200) {
+            return response.blob();
+          }
+          return null;
+        })
+        .then(blob => {
+          if (blob !== null) {
+            let url = window.URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = 'e2e_report.zip';
+            a.click();
+          }
+        })
+    }
+  };
+
+  cleanConfiguration = () => {
+    console.log('Cleaning config');
   };
 
   render() {
@@ -50,10 +68,11 @@ class Output extends Component {
       buildInProgress,
       debugOutputEnabled,
       errorOutputEnabled,
+      isReportAvailable,
       messages,
+      serverErrorState,
       stdErr,
       stdInput,
-      serverErrorState
     } = this.props.state;
 
     return (
@@ -72,13 +91,15 @@ class Output extends Component {
           </div>
         </div>
         <div className="form-group">
-          <button type="button" className="btn btn-primary btn-lg inline" onClick={ this.downloadReportZip }>
-            Download report
-          </button>
-          <button type="button" className="btn btn-primary btn-lg inline" data-toggle="tooltip" data-placement="top"
-                  data-original-title="Clean all configuration files generated during tests">
-            Clean configuration
-          </button>
+          <Button
+            className="btn btn-primary btn-lg inline"
+            text={ 'Download report' }
+            onClick={ this.downloadReportZip }
+            show={ isReportAvailable }/>
+          <Button
+            className="btn btn-primary btn-lg inline"
+            text="Clean configuration"
+            onClick={ this.cleanConfiguration }/>
         </div>
         <Title
           debug={ debugOutputEnabled }

@@ -2,15 +2,27 @@ import React from 'react';
 import './button.css';
 
 const Button = (props) => {
-  const { loading, disabled, type, text, styleType, error, onClick } = props;
-  let style = 'btn btn-block';
+  const {
+    className,
+    disabled,
+    error,
+    loading,
+    onClick,
+    show,
+    text,
+    type
+  } = props;
+
+  if (show === false) {
+    return null;
+  }
+
+  let buttonType = type;
   let spinnerClassName;
   let errorClassName;
 
-  if (styleType === 'primary') {
-    style += ' btn-primary';
-  } else {
-    style += ' btn-default';
+  if (type === undefined) {
+    buttonType = 'button';
   }
 
   if (loading === true) {
@@ -27,8 +39,8 @@ const Button = (props) => {
 
   return (
     <button
-      type={ type }
-      className={ style }
+      type={ buttonType }
+      className={ className }
       onClick={ onClick }
       disabled={ disabled === true }>
       <div className="fa-sm">

@@ -4,13 +4,13 @@ import java.io.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static com.idm.e2e.web.configuration.AppConstants.CONFIGURATION_DIRECTORY;
+import static com.idm.e2e.web.configuration.AppConstants.*;
 
 public class ZipResource {
     public static void zipE2EReports() {
         String homeDirectory = System.getProperty("user.home");
-        String reportsDirectory = String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, "report");
-        String zipFile = String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, "report.zip");
+        String reportsDirectory = String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, REPORT_DIR);
+        String zipFile = String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, REPORT_ZIP);
 
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(zipFile);
@@ -50,5 +50,11 @@ public class ZipResource {
             zipOutputStream.write(bytes, 0, length);
         }
         fileInputStream.close();
+    }
+
+    public static Boolean isReportAvailable() {
+        String homeDirectory = System.getProperty("user.home");
+        String reportsDirectory = String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, REPORT_DIR);
+        return new File(reportsDirectory).exists();
     }
 }
