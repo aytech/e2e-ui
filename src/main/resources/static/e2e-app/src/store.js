@@ -13,6 +13,7 @@ const initialState = {
     isReportAvailable: false,
     isReportLoading: false,
     isStatusLoading: false,
+    hasOldConfiguration: false,
     messages: [],
     password: '',
     serverErrorState: false,

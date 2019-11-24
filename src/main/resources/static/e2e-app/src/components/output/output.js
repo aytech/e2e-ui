@@ -3,7 +3,11 @@ import { connect } from "react-redux";
 import { ProgressBar } from "./progress";
 import { Title } from "./title";
 import StandardOutput from "./standard-output";
-import { toggleDebugEnabled, toggleErrorEnabled } from "../../actions/outputActions";
+import {
+  toggleDebugEnabled,
+  toggleErrorEnabled,
+  updateHasConfiguration
+} from "../../actions/outputActions";
 import './output.css';
 import DockerService from "../../services/DockerService";
 import Button from "../button/button";
@@ -37,7 +41,7 @@ class Output extends Component {
   };
 
   downloadReportZip = () => {
-    if (this.props.state.isReportAvailable) {
+    if (this.props.state.isReportAvailable === true) {
       this.dockerService
         .downloadReportZip()
         .then(response => {
@@ -59,7 +63,13 @@ class Output extends Component {
   };
 
   cleanConfiguration = () => {
-    console.log('Cleaning config');
+    if (this.props.state.hasOldConfiguration === true) {
+      this.dockerService
+        .cleanConfiguration()
+        .then(data => {
+          this.props.updateHasConfiguration(data.hasOldConfiguration)
+        });
+    }
   };
 
   render() {
@@ -69,6 +79,7 @@ class Output extends Component {
       debugOutputEnabled,
       errorOutputEnabled,
       isReportAvailable,
+      hasOldConfiguration,
       messages,
       serverErrorState,
       stdErr,
@@ -94,11 +105,12 @@ class Output extends Component {
           <Button
             className="btn btn-primary btn-lg inline"
             text={ 'Download report' }
-            onClick={ this.downloadReportZip }
-            show={ isReportAvailable }/>
+            show={ isReportAvailable && !buildInProgress }
+            onClick={ this.downloadReportZip }/>
           <Button
             className="btn btn-primary btn-lg inline"
             text="Clean configuration"
+            show={ hasOldConfiguration && !buildInProgress }
             onClick={ this.cleanConfiguration }/>
         </div>
         <Title
@@ -125,6 +137,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   toggleDebugEnabled: (isEnabled) => dispatch(toggleDebugEnabled(isEnabled)),
   toggleErrorEnabled: (isEnabled) => dispatch(toggleErrorEnabled(isEnabled)),
+  updateHasConfiguration: (hasConfiguration) => dispatch(updateHasConfiguration(hasConfiguration))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Output);

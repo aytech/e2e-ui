@@ -1,6 +1,7 @@
 export default class DockerService {
   apiBase = '/api';
   reportZip = '/download/report';
+  pathCleanConfig = '/config/clean';
   pathGetBuildStatus = '/build/status';
   pathRunE2E = '/build/run';
 
@@ -9,11 +10,6 @@ export default class DockerService {
     const response = await resource.json();
     response.status = resource.status;
     return response;
-  }
-
-  async getBlob(url, headers) {
-    const resource = await fetch(`${ this.apiBase }${ url }`, headers);
-    return await resource.blob();
   }
 
   getDockerBuildStatus = async () => {
@@ -32,5 +28,9 @@ export default class DockerService {
 
   downloadReportZip = async () => {
     return await fetch(`${ this.apiBase }${ this.reportZip }`);
-  }
+  };
+
+  cleanConfiguration = async () => {
+    return await this.getResource(this.pathCleanConfig);
+  };
 }

@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.idm.e2e.web.configuration.AppConstants.*;
 
@@ -71,8 +72,8 @@ public class FilesResource {
     public void copyConfigurationFiles() throws IOException {
         File configurationDirectory = getConfigurationDirectory(null);
 
-        InputStream sourceCompose = getClass().getResourceAsStream(String.format("%s%s", File.separator, DOCKER_COMPOSE_FILE));
-        InputStream sourceRSA = getClass().getResourceAsStream(String.format("%s%s%s%s", File.separator, RSA_DIR, File.separator, RSA_FILE));
+        InputStream sourceCompose = FilesResource.class.getResourceAsStream(String.format("%s%s", File.separator, DOCKER_COMPOSE_FILE));
+        InputStream sourceRSA = FilesResource.class.getResourceAsStream(String.format("%s%s%s%s", File.separator, RSA_DIR, File.separator, RSA_FILE));
 
         String targetCompose = String.format("%s%s%s", configurationDirectory.getPath(), File.separator, DOCKER_COMPOSE_FILE);
         String targetRSA = String.format("%s%s%s", configurationDirectory.getPath(), File.separator, RSA_FILE);
@@ -113,28 +114,41 @@ public class FilesResource {
         }
     }
 
-    public static void cleanFileSystem() {
+    public static void cleanConfigurationFiles() {
+        for (String path : getConfigurationFiles()) {
+            System.out.println("Removing " + path);
+            File file = new File(path);
+            if (file.exists() && file.delete()) {
+                System.out.println(String.format("File %s was removed", file.getName()));
+            }
+        }
+    }
+
+    public static Boolean hasOldConfigurationFiles() {
+        for (String path : getConfigurationFiles()) {
+            File file = new File(path);
+            if (file.exists()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static List<String> getConfigurationFiles() {
         String configurationDirectory = getConfigurationDirectory(null).getPath();
         ArrayList<String> paths = new ArrayList<>();
         paths.add(String.format("%s%s%s", configurationDirectory, File.separator, CONFIGURATION));
         paths.add(String.format("%s%s%s", configurationDirectory, File.separator, CREDENTIALS));
         paths.add(String.format("%s%s%s", configurationDirectory, File.separator, DOCKERFILE));
-
-        for (String path : paths) {
-            System.out.println("Removing " + path);
-            File file = new File(path);
-            if (file.exists()) {
-                if (file.delete()) {
-                    System.out.println(String.format("File %s was removed", file.getName()));
-                }
-            }
-        }
+        paths.add(String.format("%s%s%s", configurationDirectory, File.separator, DOCKER_COMPOSE_FILE));
+        paths.add(String.format("%s%s%s", configurationDirectory, File.separator, RSA_FILE));
+        return paths;
     }
 
     /*
-    * Get configuration directory in format <home directory>/e2e
+     * Get configuration directory in format <home directory>/e2e
      */
-    public static File getConfigurationDirectory(String subDirectory) {
+    private static File getConfigurationDirectory(String subDirectory) {
         String homeDirectory = System.getProperty("user.home");
         if (subDirectory == null) {
             return new File(String.format("%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY));

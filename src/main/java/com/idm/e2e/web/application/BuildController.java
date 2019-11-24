@@ -14,11 +14,9 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
-import javax.print.attribute.standard.Media;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -33,6 +31,7 @@ public class BuildController {
     public HttpEntity<DockerBuildStatus> getStatus() {
         DockerBuildStatus status = StatusStorage.getStatus();
         status.setReportAvailable(ZipResource.isReportAvailable());
+        status.setHasOldConfiguration(FilesResource.hasOldConfigurationFiles());
         return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
@@ -40,22 +39,21 @@ public class BuildController {
     public HttpEntity<DockerRunResponse> runSuite(@RequestBody DockerRunRequest request) {
         DockerRunResponse response = new DockerRunResponse();
         if (request.isEmailValid()) {
-            FilesResource.cleanFileSystem();
-//            E2EConfiguration configuration = new E2EConfiguration();
-//            configuration.setUser(request.getEmail());
-//            configuration.setPassword(request.getPassword());
-//            ArrayList<DockerRunnable> jobs = new ArrayList<>();
-//            jobs.add(new FileSystemConfiguration(configuration));
-//            jobs.add(new DockerBuild());
-//            jobs.add(new DockerCompose());
-//
-//            try {
-//                DockerRunner.getInstance().run(jobs);
-//            } catch (IllegalStateException e) {
-//                System.out.println("Can't add configuration: " + e.getMessage());
-//                e.printStackTrace();
-//            }
-//            response.setValid(true);
+            E2EConfiguration configuration = new E2EConfiguration();
+            configuration.setUser(request.getEmail());
+            configuration.setPassword(request.getPassword());
+            ArrayList<DockerRunnable> jobs = new ArrayList<>();
+            jobs.add(new FileSystemConfiguration(configuration));
+            jobs.add(new DockerBuild());
+            jobs.add(new DockerCompose());
+
+            try {
+                DockerRunner.getInstance().run(jobs);
+            } catch (IllegalStateException e) {
+                System.out.println("Can't add configuration: " + e.getMessage());
+                e.printStackTrace();
+            }
+            response.setValid(true);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             response.setValid(false);
@@ -84,5 +82,14 @@ public class BuildController {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = URI_CLEAN_CONFIG)
+    public HttpEntity<DockerBuildStatus> cleanConfigurationFiles() {
+        FilesResource.cleanConfigurationFiles();
+        DockerBuildStatus status = StatusStorage.getStatus();
+        status.setReportAvailable(ZipResource.isReportAvailable());
+        status.setHasOldConfiguration(FilesResource.hasOldConfigurationFiles());
+        return new ResponseEntity<>(status, HttpStatus.OK);
     }
 }

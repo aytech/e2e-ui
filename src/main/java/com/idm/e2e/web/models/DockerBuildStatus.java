@@ -1,7 +1,5 @@
 package com.idm.e2e.web.models;
 
-import com.idm.e2e.web.data.ZipResource;
-
 import java.util.ArrayList;
 
 public class DockerBuildStatus {
@@ -10,15 +8,8 @@ public class DockerBuildStatus {
     private ArrayList<String> stdInput;
     private ArrayList<String> stdErr;
     private Boolean isReportAvailable;
+    private Boolean hasOldConfiguration;
     private Boolean isRunning;
-
-    public void setRunning(Boolean running) {
-        isRunning = running;
-    }
-
-    public Boolean isRunning() {
-        return isRunning;
-    }
 
     public ArrayList<String> getCommands() {
         return commands;
@@ -80,11 +71,27 @@ public class DockerBuildStatus {
         stdErr.add(entry);
     }
 
-    public Boolean isReportAvailable() {
+    public Boolean getReportAvailable() {
         return isReportAvailable;
     }
 
     public void setReportAvailable(Boolean reportAvailable) {
         isReportAvailable = reportAvailable;
+    }
+
+    public Boolean getHasOldConfiguration() {
+        return hasOldConfiguration;
+    }
+
+    public void setHasOldConfiguration(Boolean hasOldConfiguration) {
+        this.hasOldConfiguration = hasOldConfiguration;
+    }
+
+    public Boolean isRunning() {
+        return isRunning;
+    }
+
+    public void setRunning(Boolean running) {
+        isRunning = running;
     }
 }

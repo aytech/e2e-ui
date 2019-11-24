@@ -39,7 +39,7 @@ public class FileSystemConfiguration implements DockerRunnable {
     public void run() {
         isAlive = true;
         FilesResource resource = new FilesResource(configuration);
-        resource.createConfigurationDirectory();
+        FilesResource.createConfigurationDirectory(null);
         try {
             resource.copyConfigurationFiles();
             resource.writeNewConfigurationFile(CONFIGURATION);
