@@ -52,7 +52,7 @@ class Form extends Component {
             .runE2ESuite({ email: email, password: password })
             .then(response => {
               if (response.status === 200) {
-                this.props.updateFormMessages(['Process has started, log output will print below']);
+                this.props.updateFormMessages([ 'Process has started, log output will print below' ]);
                 this.props.updateRunStatus(true);
                 this.timeoutID = setTimeout(() => {
                   this.getE2EBuildStatus();
@@ -154,7 +154,8 @@ class Form extends Component {
             <div className="form-group">
               <label htmlFor="email">Email address</label>
               <input type="email" className="form-control" id="email" name="email" aria-describedby="emailHelp"
-                     placeholder="Enter email" value={ email } onChange={ this.updateUserEmail }/>
+                     placeholder="Enter email" autoComplete="username" value={ email }
+                     onChange={ this.updateUserEmail }/>
               <small id="emailHelp" className="form-text text-muted">
                 Email address that has valid Infor OS access.
               </small>
@@ -162,7 +163,8 @@ class Form extends Component {
             <div className="form-group">
               <label htmlFor="password">Password</label>
               <input type="password" className="form-control" id="password" name="password"
-                     placeholder="Password" value={ password } onChange={ this.updateUserPassword }/>
+                     placeholder="Password" autoComplete="current-password" value={ password }
+                     onChange={ this.updateUserPassword }/>
             </div>
           </fieldset>
           <Alert

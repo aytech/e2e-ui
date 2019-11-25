@@ -72,8 +72,19 @@ public class FilesResource {
     public void copyConfigurationFiles() throws IOException {
         File configurationDirectory = getConfigurationDirectory(null);
 
-        InputStream sourceCompose = FilesResource.class.getResourceAsStream(String.format("%s%s", File.separator, DOCKER_COMPOSE_FILE));
-        InputStream sourceRSA = FilesResource.class.getResourceAsStream(String.format("%s%s%s%s", File.separator, RSA_DIR, File.separator, RSA_FILE));
+        String sourceFile = String.format("/%s", DOCKER_COMPOSE_FILE);
+        InputStream sourceCompose = FilesResource.class.getResourceAsStream(sourceFile);
+
+        if (sourceCompose == null) {
+            throw new IOException("Cannot get source file at " + sourceFile);
+        }
+
+        sourceFile = String.format("/%s/%s", RSA_DIR, RSA_FILE);
+        InputStream sourceRSA = FilesResource.class.getResourceAsStream(sourceFile);
+
+        if (sourceRSA == null) {
+            throw new IOException("Cannot get source file at " + sourceFile);
+        }
 
         String targetCompose = String.format("%s%s%s", configurationDirectory.getPath(), File.separator, DOCKER_COMPOSE_FILE);
         String targetRSA = String.format("%s%s%s", configurationDirectory.getPath(), File.separator, RSA_FILE);
