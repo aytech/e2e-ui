@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import static com.idm.e2e.web.configuration.AppConstants.DOCKERFILE;
+import static com.idm.e2e.web.configuration.DockerConstants.DOCKERFILE;
 
 public class DockerBuild implements DockerRunnable {
     private Process process;

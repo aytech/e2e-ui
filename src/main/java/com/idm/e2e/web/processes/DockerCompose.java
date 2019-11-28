@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.idm.e2e.web.configuration.AppConstants.*;
+import static com.idm.e2e.web.configuration.DockerConstants.DOCKER_COMPOSE_FILE;
 
 public class DockerCompose implements DockerRunnable {
     private Process process;

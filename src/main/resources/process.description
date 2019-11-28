@@ -1,0 +1,19 @@
+Manage multi-container environment:
+
+Main controller - Docker Pool (DP)
+
+Responsibilities of DP:
+1. Start Selenium Grid:
+    - Before start, check if not started already
+    - If not started, start
+2. Stop Selenium Grid. Should be available via API call only
+3. Restart Selenium Grid. No scenario yet, maybe no need to implement yet.
+
+4. Run E2E:
+    - Generate random number (RN)
+    - Build E2E Docker image with tag e2e-<RN>
+    - Check if Grid is running. If not, start. This might occur if container was manually stopped on the system
+    - Run Chrome node with name chrome-<RN>
+    - Run generated E2E image with container name e2e-node-<RN>
+    - Wait for the process to finish
+    - After the process is finished, destroy Chrome container, remove generated image, run prune
