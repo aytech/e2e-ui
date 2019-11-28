@@ -4,8 +4,6 @@ public class AppConstants {
     public static final String CONFIGURATION = "configuration";
     public static final String CONFIGURATION_DIRECTORY = "e2e";
     public static final String CREDENTIALS = "credentials";
-    public static final String DOCKER_COMPOSE_FILE = "docker-compose.yaml";
-    public static final String DOCKERFILE = "Dockerfile";
     public static final String MAINTAINER = "Oleg Yapparov <oleg.yapparov@infor.com>";
     public static final String REPORT_DIR = "report";
     public static final String REPORT_ZIP = "report.zip";
