@@ -1,10 +1,16 @@
 package com.idm.e2e.web.configuration;
 
+import org.apache.commons.lang3.RandomStringUtils;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import static com.idm.e2e.web.configuration.DockerConstants.*;
 
 public class DockerCommands {
+
+    private static HashSet<String> nodes;
 
     public static ProcessBuilder networkCreate() {
         ProcessBuilder builder = new ProcessBuilder();
@@ -37,13 +43,71 @@ public class DockerCommands {
         arguments.add(DOCKER_GRID_CONTAINER_NAME);
         arguments.add(String.format("--network=%s", DOCKER_NETWORK_NAME));
         arguments.add("-p");
-        arguments.add("4444:4444");
+        arguments.add(String.format("%s:%s", DOCKER_GRID_CONTAINER_PORT, DOCKER_GRID_CONTAINER_PORT));
         arguments.add("-e");
         arguments.add("GRID_TIMEOUT=3000");
         arguments.add("-e");
         arguments.add("GRID_BROWSER_TIMEOUT=0");
         arguments.add("-d");
         arguments.add(SELENIUM_GRID_IMAGE);
+        builder.command(arguments);
+        return builder;
+    }
+
+    public static ProcessBuilder buildImage(String dockerFile, String node, String contextPath) {
+        ProcessBuilder builder = new ProcessBuilder();
+        ArrayList<String> arguments = getArguments();
+        arguments.add("build");
+        arguments.add("-f");
+        arguments.add(dockerFile);
+        arguments.add("-t");
+        arguments.add(node);
+        arguments.add(contextPath);
+        builder.command(arguments);
+        return builder;
+    }
+
+    private static ProcessBuilder stopNodeProcess(String nodeID) {
+        ProcessBuilder builder = new ProcessBuilder();
+        ArrayList<String> arguments = getArguments();
+        arguments.add("stop");
+        arguments.add(nodeID);
+        builder.command(arguments);
+        return builder;
+    }
+
+    public static ProcessBuilder runChromeNode(String nodeID) {
+        ProcessBuilder builder = new ProcessBuilder();
+        ArrayList<String> arguments = getArguments();
+        arguments.add("run");
+        arguments.add("--name");
+        arguments.add(nodeID);
+        arguments.add(String.format("--network=%s", DOCKER_NETWORK_NAME));
+        arguments.add("-v");
+        arguments.add("/dev/shm:/dev/shm");
+        arguments.add("-e");
+        arguments.add(String.format("HUB_HOST=%s", DOCKER_GRID_CONTAINER_NAME));
+        arguments.add("-e");
+        arguments.add(String.format("HUB_PORT=%s", DOCKER_GRID_CONTAINER_PORT));
+        arguments.add("-e");
+        arguments.add("SCREEN_WIDTH=1920");
+        arguments.add("-e");
+        arguments.add("SCREEN_HEIGHT=1080");
+        arguments.add("-e");
+        arguments.add("SCREEN_DEPTH=32");
+        arguments.add("-d");
+        arguments.add(CHROME_IMAGE);
+        builder.command(arguments);
+        return builder;
+    }
+
+    public static ProcessBuilder prune() {
+        ProcessBuilder builder = new ProcessBuilder();
+        ArrayList<String> arguments = getArguments();
+        arguments.add("system");
+        arguments.add("prune");
+        arguments.add("--force");
+        builder.command(arguments);
         return builder;
     }
 
@@ -51,5 +115,42 @@ public class DockerCommands {
         ArrayList<String> arguments = new ArrayList<>();
         arguments.add("docker");
         return arguments;
+    }
+
+    private static String getNewNodeID(String prefix) {
+        return String.format("%s-%s", prefix, RandomStringUtils.random(10, false, true));
+    }
+
+    private static void addNode(String node) {
+        if (nodes == null) {
+            nodes = new HashSet<>();
+        }
+        nodes.add(node);
+    }
+
+    public static String getNewE2ENode() {
+        String node = getNewNodeID("e2e-node");
+        addNode(node);
+        return node;
+    }
+
+    public static String getNewChromeNode() {
+        String node = getNewNodeID("chrome");
+        addNode(node);
+        return node;
+    }
+
+    public static void stopNode(String nodeID) {
+        for (String node : nodes) {
+            if (node.equals(nodeID)) {
+                ProcessBuilder process = stopNodeProcess(node);
+                try {
+                    System.out.println("Stopping: " + process.command().toString());
+                    process.start();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

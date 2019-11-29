@@ -25,8 +25,10 @@ public class E2EApplication {
             BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = input.readLine()) != null) {
+                // Response from Docker is 'true' or 'false'
                 if (!Boolean.parseBoolean(line.replaceAll("'", ""))) {
-                    createDockerNetwork();
+                    dockerPrune();
+                    dockerCreateNetwork();
                     startSeleniumGridContainer();
                 } else {
                     System.out.println("Kill the setup");
@@ -37,18 +39,29 @@ public class E2EApplication {
         }
     }
 
-    private void createDockerNetwork() {
+    private void dockerPrune() {
         try {
-            DockerCommands.networkCreate().start();
-        } catch (IOException e) {
+            Process process = DockerCommands.prune().start();
+            process.waitFor();
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void dockerCreateNetwork() {
+        try {
+            Process process = DockerCommands.networkCreate().start();
+            process.waitFor();
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
 
     private void startSeleniumGridContainer() {
         try {
-            DockerCommands.startSeleniumGrid().start();
-        } catch (IOException e) {
+            Process process = DockerCommands.startSeleniumGrid().start();
+            process.waitFor();
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

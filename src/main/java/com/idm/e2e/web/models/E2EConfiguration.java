@@ -33,6 +33,7 @@ public class E2EConfiguration {
     private String user;
     private String password;
     private String branch;
+    private String nodeID;
 
     public E2EConfiguration() {
         defaultEnvironment = "staging";
@@ -155,5 +156,13 @@ public class E2EConfiguration {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getNodeID() {
+        return nodeID;
+    }
+
+    public void setNodeID(String nodeID) {
+        this.nodeID = nodeID;
     }
 }

@@ -1,8 +1,11 @@
 package com.idm.e2e.web.processes;
 
+import com.idm.e2e.web.configuration.DockerCommands;
 import com.idm.e2e.web.data.FilesResource;
 import com.idm.e2e.web.data.StatusStorage;
 import com.idm.e2e.web.interfaces.DockerRunnable;
+import com.idm.e2e.web.models.E2EConfiguration;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -11,20 +14,24 @@ import java.io.InputStreamReader;
 import static com.idm.e2e.web.configuration.DockerConstants.DOCKERFILE;
 
 public class DockerBuild implements DockerRunnable {
+    private E2EConfiguration configuration;
     private Process process;
     private Boolean isFailed = false;
+    private String node;
+
+    public DockerBuild(E2EConfiguration configuration) {
+        this.configuration = configuration;
+    }
 
     @Override
     public void run() {
         try {
             File file = FilesResource.getFile(DOCKERFILE);
-            String command = String.format("docker build -f %s -t e2e %s", file.getAbsolutePath(), file.getParent());
-            StatusStorage.getCurrentStatus().addCommand(command);
-            StatusStorage.getCurrentStatus().setRunning(true);
-            StatusStorage.getCurrentStatus().addMessage("Rebuilding Docker image...");
+            node = configuration.getNodeID();
+            ProcessBuilder builder = DockerCommands.buildImage(file.getAbsolutePath(), node, file.getParent());
 
-            ProcessBuilder builder = new ProcessBuilder();
-            builder.command("docker", "build", "-f", file.getAbsolutePath(), "-t", "e2e", file.getParent());
+            StatusStorage.getCurrentStatus().setRunning(true);
+            StatusStorage.getCurrentStatus().addCommand(builder.command().toString());
 
             process = builder.start();
             BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -62,5 +69,10 @@ public class DockerBuild implements DockerRunnable {
         if (process != null) {
             process.destroy();
         }
+    }
+
+    @Override
+    public void setNode(String node) {
+        this.node = node;
     }
 }

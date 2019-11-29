@@ -1,24 +1,23 @@
 package com.idm.e2e.web.application;
 
+import com.idm.e2e.web.configuration.DockerCommands;
 import com.idm.e2e.web.data.FilesResource;
 import com.idm.e2e.web.data.StatusStorage;
 import com.idm.e2e.web.data.ZipResource;
 import com.idm.e2e.web.interfaces.DockerRunnable;
 import com.idm.e2e.web.models.*;
 import com.idm.e2e.web.processes.DockerBuild;
-import com.idm.e2e.web.processes.DockerCompose;
-import com.idm.e2e.web.processes.DockerRunner;
+import com.idm.e2e.web.processes.DockerRun;
 import com.idm.e2e.web.processes.FileSystemConfiguration;
+import com.idm.e2e.web.processes.ThreadRunner;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -44,13 +43,15 @@ public class BuildController {
             E2EConfiguration configuration = new E2EConfiguration();
             configuration.setUser(request.getEmail());
             configuration.setPassword(request.getPassword());
+            configuration.setNodeID(DockerCommands.getNewE2ENode());
+
             ArrayList<DockerRunnable> jobs = new ArrayList<>();
             jobs.add(new FileSystemConfiguration(configuration));
-            jobs.add(new DockerBuild());
-            jobs.add(new DockerCompose());
+            jobs.add(new DockerBuild(configuration));
+            jobs.add(new DockerRun(configuration));
 
             try {
-                DockerRunner.getInstance().run(jobs);
+                ThreadRunner.getInstance().run(jobs);
             } catch (IllegalStateException e) {
                 System.out.println("Can't add configuration: " + e.getMessage());
                 e.printStackTrace();

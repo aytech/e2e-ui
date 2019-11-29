@@ -5,19 +5,19 @@ import com.idm.e2e.web.interfaces.DockerRunnable;
 
 import java.util.ArrayList;
 
-public class DockerRunner extends Thread {
-    private static DockerRunner instance;
+public class ThreadRunner extends Thread {
+    private static ThreadRunner instance;
     private ArrayList<DockerRunnable> runnableList;
 
-    public static DockerRunner getInstance() {
+    public static ThreadRunner getInstance() {
         if (instance == null) {
-            instance = new DockerRunner();
+            instance = new ThreadRunner();
             instance.start();
         }
         return instance;
     }
 
-    private DockerRunner() {
+    private ThreadRunner() {
         runnableList = new ArrayList<>();
     }
 

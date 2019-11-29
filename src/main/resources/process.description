@@ -11,7 +11,7 @@ Responsibilities of DP:
 
 4. Run E2E:
     - Generate random number (RN)
-    - Build E2E Docker image with tag e2e-<RN>
+    - Build E2E Docker image with tag e2e-node-<RN>
     - Check if Grid is running. If not, start. This might occur if container was manually stopped on the system
     - Run Chrome node with name chrome-<RN>
     - Run generated E2E image with container name e2e-node-<RN>

@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.idm.e2e.web.configuration.AppConstants.*;
+import static com.idm.e2e.web.configuration.DockerConstants.DOCKERFILE;
+import static com.idm.e2e.web.configuration.DockerConstants.DOCKER_COMPOSE_FILE;
 
 public class FilesResource {
 

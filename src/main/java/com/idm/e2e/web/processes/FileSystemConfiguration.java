@@ -7,6 +7,7 @@ import com.idm.e2e.web.models.E2EConfiguration;
 import java.io.IOException;
 
 import static com.idm.e2e.web.configuration.AppConstants.*;
+import static com.idm.e2e.web.configuration.DockerConstants.DOCKERFILE;
 
 public class FileSystemConfiguration implements DockerRunnable {
     private boolean isAlive = false;
@@ -33,6 +34,10 @@ public class FileSystemConfiguration implements DockerRunnable {
 
     @Override
     public void destroy() {
+    }
+
+    @Override
+    public void setNode(String node) {
     }
 
     @Override
