@@ -1,4 +1,4 @@
-package com.idm.e2e.web.application;
+package com.idm.e2e.web.rest;
 
 import com.idm.e2e.web.configuration.DockerCommands;
 import com.idm.e2e.web.data.FilesResource;

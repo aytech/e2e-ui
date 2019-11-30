@@ -1,14 +1,12 @@
 package com.idm.e2e;
 
 import com.idm.e2e.web.configuration.DockerCommands;
+import com.idm.e2e.web.data.ProcessLogger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 @SpringBootApplication
 public class E2EApplication {
@@ -19,20 +17,13 @@ public class E2EApplication {
 
     @EventListener(ApplicationReadyEvent.class)
     public void applicationStartUp() {
-        ProcessBuilder builder = DockerCommands.getRunningStatus();
         try {
-            Process process = builder.start();
-            BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = input.readLine()) != null) {
-                // Response from Docker is 'true' or 'false'
-                if (!Boolean.parseBoolean(line.replaceAll("'", ""))) {
-                    dockerPrune();
-                    dockerCreateNetwork();
-                    startSeleniumGridContainer();
-                } else {
-                    System.out.println("Kill the setup");
-                }
+            Process process = DockerCommands.getRunningStatus().start();
+            ProcessLogger logger = new ProcessLogger(process);
+            if (!logger.getLogBoolean()) {
+                dockerPrune();
+                dockerCreateNetwork();
+                startSeleniumGridContainer();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -42,6 +33,8 @@ public class E2EApplication {
     private void dockerPrune() {
         try {
             Process process = DockerCommands.prune().start();
+            ProcessLogger logger = new ProcessLogger(process);
+            logger.log();
             process.waitFor();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -51,6 +44,8 @@ public class E2EApplication {
     private void dockerCreateNetwork() {
         try {
             Process process = DockerCommands.networkCreate().start();
+            ProcessLogger logger = new ProcessLogger(process);
+            logger.log();
             process.waitFor();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -60,6 +55,8 @@ public class E2EApplication {
     private void startSeleniumGridContainer() {
         try {
             Process process = DockerCommands.startSeleniumGrid().start();
+            ProcessLogger logger = new ProcessLogger(process);
+            logger.log();
             process.waitFor();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

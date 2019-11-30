@@ -13,30 +13,25 @@ public class DockerCommands {
     private static HashSet<String> nodes;
 
     public static ProcessBuilder networkCreate() {
-        ProcessBuilder builder = new ProcessBuilder();
         ArrayList<String> arguments = getArguments();
         arguments.add("network");
         arguments.add("create");
         arguments.add("--driver");
         arguments.add("bridge");
         arguments.add(DOCKER_NETWORK_NAME);
-        builder.command(arguments);
-        return builder;
+        return getBuilder(arguments);
     }
 
     public static ProcessBuilder getRunningStatus() {
-        ProcessBuilder builder = new ProcessBuilder();
         ArrayList<String> arguments = getArguments();
         arguments.add("inspect");
         arguments.add("-f");
         arguments.add("'{{.State.Running}}'");
         arguments.add(DOCKER_GRID_CONTAINER_NAME);
-        builder.command(arguments);
-        return builder;
+        return getBuilder(arguments);
     }
 
     public static ProcessBuilder startSeleniumGrid() {
-        ProcessBuilder builder = new ProcessBuilder();
         ArrayList<String> arguments = getArguments();
         arguments.add("run");
         arguments.add("--name");
@@ -50,12 +45,10 @@ public class DockerCommands {
         arguments.add("GRID_BROWSER_TIMEOUT=0");
         arguments.add("-d");
         arguments.add(SELENIUM_GRID_IMAGE);
-        builder.command(arguments);
-        return builder;
+        return getBuilder(arguments);
     }
 
     public static ProcessBuilder buildImage(String dockerFile, String node, String contextPath) {
-        ProcessBuilder builder = new ProcessBuilder();
         ArrayList<String> arguments = getArguments();
         arguments.add("build");
         arguments.add("-f");
@@ -63,21 +56,17 @@ public class DockerCommands {
         arguments.add("-t");
         arguments.add(node);
         arguments.add(contextPath);
-        builder.command(arguments);
-        return builder;
+        return getBuilder(arguments);
     }
 
     private static ProcessBuilder stopNodeProcess(String nodeID) {
-        ProcessBuilder builder = new ProcessBuilder();
         ArrayList<String> arguments = getArguments();
         arguments.add("stop");
         arguments.add(nodeID);
-        builder.command(arguments);
-        return builder;
+        return getBuilder(arguments);
     }
 
     public static ProcessBuilder runChromeNode(String nodeID) {
-        ProcessBuilder builder = new ProcessBuilder();
         ArrayList<String> arguments = getArguments();
         arguments.add("run");
         arguments.add("--name");
@@ -97,24 +86,27 @@ public class DockerCommands {
         arguments.add("SCREEN_DEPTH=32");
         arguments.add("-d");
         arguments.add(CHROME_IMAGE);
-        builder.command(arguments);
-        return builder;
+        return getBuilder(arguments);
     }
 
     public static ProcessBuilder prune() {
-        ProcessBuilder builder = new ProcessBuilder();
         ArrayList<String> arguments = getArguments();
         arguments.add("system");
         arguments.add("prune");
         arguments.add("--force");
-        builder.command(arguments);
-        return builder;
+        return getBuilder(arguments);
     }
 
     private static ArrayList<String> getArguments() {
         ArrayList<String> arguments = new ArrayList<>();
         arguments.add("docker");
         return arguments;
+    }
+
+    public static ProcessBuilder getBuilder(ArrayList<String> command) {
+        ProcessBuilder builder = new ProcessBuilder();
+        builder.command(command);
+        return builder;
     }
 
     private static String getNewNodeID(String prefix) {
