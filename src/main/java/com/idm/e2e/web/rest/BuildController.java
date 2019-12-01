@@ -1,7 +1,6 @@
 package com.idm.e2e.web.rest;
 
 import com.idm.e2e.web.configuration.DockerCommands;
-import com.idm.e2e.web.data.FilesResource;
 import com.idm.e2e.web.data.StatusStorage;
 import com.idm.e2e.web.data.ZipResource;
 import com.idm.e2e.web.interfaces.DockerRunnable;
@@ -16,7 +15,6 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,8 +33,7 @@ public class BuildController {
     )
     public HttpEntity<DockerBuildStatus> getStatus(@RequestParam("node") String nodeID) {
         DockerBuildStatus status = StatusStorage.getStatus(nodeID);
-        status.setReportAvailable(ZipResource.isReportAvailable());
-        status.setHasOldConfiguration(FilesResource.hasOldConfigurationFiles());
+        status.setReportAvailable(ZipResource.isReportAvailable(nodeID));
         return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
@@ -44,22 +41,24 @@ public class BuildController {
     public HttpEntity<DockerRunResponse> runSuite(@RequestBody DockerRunRequest request) {
         DockerRunResponse response = new DockerRunResponse();
         if (request.isEmailValid()) {
+            String nodeID = DockerCommands.getNewE2ENode();
             E2EConfiguration configuration = new E2EConfiguration();
             configuration.setUser(request.getEmail());
             configuration.setPassword(request.getPassword());
-            configuration.setNodeID(DockerCommands.getNewE2ENode());
+            configuration.setNodeID(nodeID);
+            StatusStorage.setStatus(nodeID);
 
-//            ArrayList<DockerRunnable> jobs = new ArrayList<>();
-//            jobs.add(new FileSystemConfiguration(configuration));
-//            jobs.add(new DockerBuild(configuration));
-//            jobs.add(new DockerRun(configuration));
-//
-//            try {
-//                ThreadRunner.getInstance().run(jobs);
-//            } catch (IllegalStateException e) {
-//                System.out.println("Can't run job: " + e.getMessage());
-//                e.printStackTrace();
-//            }
+            ArrayList<DockerRunnable> jobs = new ArrayList<>();
+            jobs.add(new FileSystemConfiguration(configuration));
+            jobs.add(new DockerBuild(configuration));
+            jobs.add(new DockerRun(configuration));
+
+            try {
+                new ThreadRunner(jobs, nodeID).start();
+            } catch (IllegalStateException e) {
+                System.out.println("Can't run jobs: " + e.getMessage());
+                e.printStackTrace();
+            }
             response.setNodeID(configuration.getNodeID());
             response.setValid(true);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -70,12 +69,17 @@ public class BuildController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = URI_DOWNLOAD_REPORT)
-    public ResponseEntity<Resource> downloadReport(HttpServletRequest request) {
-        ZipResource.zipE2EReports();
-        String homeDirectory = System.getProperty("user.home");
-        String zipFile = String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, "report.zip");
-        Path path = Paths.get(zipFile);
+    @RequestMapping(
+            method = RequestMethod.GET,
+            value = URI_DOWNLOAD_REPORT,
+            params = {"node"}
+    )
+    public ResponseEntity<Resource> downloadReport(
+            HttpServletRequest request,
+            @RequestParam("node") String nodeID
+    ) {
+        String zipFilePath = ZipResource.zipE2EReports(nodeID);
+        Path path = Paths.get(zipFilePath);
         try {
             Resource resource = new UrlResource(path.toUri());
             String contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
@@ -90,14 +94,5 @@ public class BuildController {
             e.printStackTrace();
         }
         return null;
-    }
-
-    @RequestMapping(method = RequestMethod.GET, value = URI_CLEAN_CONFIG)
-    public HttpEntity<DockerBuildStatus> cleanConfigurationFiles() {
-        FilesResource.cleanConfigurationFiles();
-        // DockerBuildStatus status = StatusStorage.getStatus();
-        // status.setReportAvailable(ZipResource.isReportAvailable());
-        // status.setHasOldConfiguration(FilesResource.hasOldConfigurationFiles());
-        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 }

@@ -4,7 +4,6 @@ import com.idm.e2e.web.models.DockerBuildStatus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class StatusStorage {
     private static HashMap<String, DockerBuildStatus> statuses;
@@ -17,8 +16,11 @@ public class StatusStorage {
         return status == null ? getDefaultStatus() : status;
     }
 
-    public static void setStatus(String node, DockerBuildStatus status) {
-        statuses.put(node, status);
+    public static void setStatus(String node) {
+        if (statuses == null) {
+            statuses = new HashMap<>();
+        }
+        statuses.put(node, getDefaultStatus());
     }
 
     private static DockerBuildStatus getDefaultStatus() {

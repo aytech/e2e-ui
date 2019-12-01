@@ -29,4 +29,4 @@ services:
 docker run --name chrome-<random number> --network=e2e-network -v /dev/shm:/dev/shm -e HUB_HOST=selenium-hub
   -e HUB_PORT=4444 -e SCREEN_WIDTH=1920 -e SCREEN_HEIGHT=1080 -e SCREEN_DEPTH=32 -d selenium/node-chrome:3.141.59-vanadium
 
-docker run --name e2e-node-1 --network=e2e-network -v $(pwd):/home/gradle/app/build/reports/ -p 8888:4444 -e HUB_HOST=hub -e HUB_PORT=4444 -d e2e-1
+docker run --name e2e-node-1 --network=e2e-network -v $(pwd):/home/gradle/app/build/reports/ -e HUB_HOST=hub -e HUB_PORT=4444 -d e2e-1

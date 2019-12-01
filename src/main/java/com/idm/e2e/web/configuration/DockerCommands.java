@@ -1,5 +1,6 @@
 package com.idm.e2e.web.configuration;
 
+import com.idm.e2e.web.data.ProcessLogger;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.io.IOException;
@@ -31,12 +32,8 @@ public class DockerCommands {
         return getBuilder(arguments);
     }
 
-    public static ProcessBuilder startSeleniumGrid() {
-        ArrayList<String> arguments = getArguments();
-        arguments.add("run");
-        arguments.add("--name");
-        arguments.add(DOCKER_GRID_CONTAINER_NAME);
-        arguments.add(String.format("--network=%s", DOCKER_NETWORK_NAME));
+    public static ProcessBuilder startSeleniumGrid(String nodeID) {
+        ArrayList<String> arguments = getRunArguments(nodeID);
         arguments.add("-p");
         arguments.add(String.format("%s:%s", DOCKER_GRID_CONTAINER_PORT, DOCKER_GRID_CONTAINER_PORT));
         arguments.add("-e");
@@ -67,17 +64,7 @@ public class DockerCommands {
     }
 
     public static ProcessBuilder runChromeNode(String nodeID) {
-        ArrayList<String> arguments = getArguments();
-        arguments.add("run");
-        arguments.add("--name");
-        arguments.add(nodeID);
-        arguments.add(String.format("--network=%s", DOCKER_NETWORK_NAME));
-        arguments.add("-v");
-        arguments.add("/dev/shm:/dev/shm");
-        arguments.add("-e");
-        arguments.add(String.format("HUB_HOST=%s", DOCKER_GRID_CONTAINER_NAME));
-        arguments.add("-e");
-        arguments.add(String.format("HUB_PORT=%s", DOCKER_GRID_CONTAINER_PORT));
+        ArrayList<String> arguments = getNodeArguments(nodeID, DOCKER_CHROME_VOLUME, DOCKER_CHROME_VOLUME);
         arguments.add("-e");
         arguments.add("SCREEN_WIDTH=1920");
         arguments.add("-e");
@@ -86,6 +73,12 @@ public class DockerCommands {
         arguments.add("SCREEN_DEPTH=32");
         arguments.add("-d");
         arguments.add(CHROME_IMAGE);
+        return getBuilder(arguments);
+    }
+
+    public static ProcessBuilder runE2ENode(String nodeID, String reportsPath) {
+        ArrayList<String> arguments = getNodeArguments(nodeID, reportsPath, DOCKER_REPORTS_PATH);
+        arguments.add(nodeID);
         return getBuilder(arguments);
     }
 
@@ -100,6 +93,26 @@ public class DockerCommands {
     private static ArrayList<String> getArguments() {
         ArrayList<String> arguments = new ArrayList<>();
         arguments.add("docker");
+        return arguments;
+    }
+
+    private static ArrayList<String> getRunArguments(String nodeID) {
+        ArrayList<String> arguments = getArguments();
+        arguments.add("run");
+        arguments.add("--name");
+        arguments.add(nodeID);
+        arguments.add(String.format("--network=%s", DOCKER_NETWORK_NAME));
+        return arguments;
+    }
+
+    private static ArrayList<String> getNodeArguments(String nodeId, String volumeHost, String volumeContainer) {
+        ArrayList<String> arguments = getRunArguments(nodeId);
+        arguments.add("-v");
+        arguments.add(String.format("%s:%s", volumeHost, volumeContainer));
+        arguments.add("-e");
+        arguments.add(String.format("HUB_HOST=%s", DOCKER_GRID_CONTAINER_NAME));
+        arguments.add("-e");
+        arguments.add(String.format("HUB_PORT=%s", DOCKER_GRID_CONTAINER_PORT));
         return arguments;
     }
 
@@ -121,13 +134,13 @@ public class DockerCommands {
     }
 
     public static String getNewE2ENode() {
-        String node = getNewNodeID("e2e-node");
+        String node = getNewNodeID(DOCKER_E2E_NODE_PREFIX);
         addNode(node);
         return node;
     }
 
     public static String getNewChromeNode() {
-        String node = getNewNodeID("chrome");
+        String node = getNewNodeID(DOCKER_CHROME_NODE_PREFIX);
         addNode(node);
         return node;
     }
@@ -135,11 +148,12 @@ public class DockerCommands {
     public static void stopNode(String nodeID) {
         for (String node : nodes) {
             if (node.equals(nodeID)) {
-                ProcessBuilder process = stopNodeProcess(node);
                 try {
-                    System.out.println("Stopping: " + process.command().toString());
-                    process.start();
-                } catch (IOException e) {
+                    Process process = stopNodeProcess(node).start();
+                    ProcessLogger logger = new ProcessLogger(process);
+                    logger.log(node);
+                    process.waitFor();
+                } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
                 }
             }

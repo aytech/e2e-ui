@@ -11,16 +11,17 @@ import java.util.List;
 
 import static com.idm.e2e.web.configuration.AppConstants.*;
 import static com.idm.e2e.web.configuration.DockerConstants.DOCKERFILE;
-import static com.idm.e2e.web.configuration.DockerConstants.DOCKER_COMPOSE_FILE;
 
 public class FilesResource {
 
     private E2EConfiguration configuration;
     private PrintWriter printWriter;
     private FileWriter fileWriter;
+    private String nodeID;
 
     public FilesResource(E2EConfiguration configuration) {
         this.configuration = configuration;
+        nodeID = configuration.getNodeID();
     }
 
     public void writeNewConfigurationFile(String targetFileName) throws IOException {
@@ -73,29 +74,18 @@ public class FilesResource {
 
     public void copyConfigurationFiles() throws IOException {
         File configurationDirectory = getConfigurationDirectory(null);
-
-        String sourceFile = String.format("/%s", DOCKER_COMPOSE_FILE);
-        InputStream sourceCompose = FilesResource.class.getResourceAsStream(sourceFile);
-
-        if (sourceCompose == null) {
-            throw new IOException("Cannot get source file at " + sourceFile);
-        }
-
-        sourceFile = String.format("/%s/%s", RSA_DIR, RSA_FILE);
+        String sourceFile = String.format("/%s/%s", RSA_DIR, RSA_FILE);
         InputStream sourceRSA = FilesResource.class.getResourceAsStream(sourceFile);
 
         if (sourceRSA == null) {
             throw new IOException("Cannot get source file at " + sourceFile);
         }
 
-        String targetCompose = String.format("%s%s%s", configurationDirectory.getPath(), File.separator, DOCKER_COMPOSE_FILE);
         String targetRSA = String.format("%s%s%s", configurationDirectory.getPath(), File.separator, RSA_FILE);
-
-        Files.copy(sourceCompose, Paths.get(targetCompose), StandardCopyOption.REPLACE_EXISTING);
         Files.copy(sourceRSA, Paths.get(targetRSA), StandardCopyOption.REPLACE_EXISTING);
     }
 
-    public static File getFile(String fileName) throws IOException {
+    public File getFile(String fileName) throws IOException {
         File file = getConfigurationDirectory(fileName);
         if (!file.exists()) {
             if (file.createNewFile()) {
@@ -107,12 +97,12 @@ public class FilesResource {
         return file;
     }
 
-    public static String getReportsPath() {
-        createConfigurationDirectory(REPORT_DIR);
-        return getConfigurationDirectory(REPORT_DIR).getPath();
+    public String getReportsPath() {
+        createConfigurationDirectory(null);
+        return getConfigurationDirectory(null).getPath();
     }
 
-    public static void createConfigurationDirectory(String subDirectory) {
+    public void createConfigurationDirectory(String subDirectory) {
         File directory = getConfigurationDirectory(subDirectory);
         if (!directory.exists()) {
             if (directory.mkdir()) {
@@ -127,9 +117,8 @@ public class FilesResource {
         }
     }
 
-    public static void cleanConfigurationFiles() {
+    public void cleanConfigurationFiles() {
         for (String path : getConfigurationFiles()) {
-            System.out.println("Removing " + path);
             File file = new File(path);
             if (file.exists() && file.delete()) {
                 System.out.println(String.format("File %s was removed", file.getName()));
@@ -137,23 +126,12 @@ public class FilesResource {
         }
     }
 
-    public static Boolean hasOldConfigurationFiles() {
-        for (String path : getConfigurationFiles()) {
-            File file = new File(path);
-            if (file.exists()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static List<String> getConfigurationFiles() {
+    private List<String> getConfigurationFiles() {
         String configurationDirectory = getConfigurationDirectory(null).getPath();
         ArrayList<String> paths = new ArrayList<>();
         paths.add(String.format("%s%s%s", configurationDirectory, File.separator, CONFIGURATION));
         paths.add(String.format("%s%s%s", configurationDirectory, File.separator, CREDENTIALS));
         paths.add(String.format("%s%s%s", configurationDirectory, File.separator, DOCKERFILE));
-        paths.add(String.format("%s%s%s", configurationDirectory, File.separator, DOCKER_COMPOSE_FILE));
         paths.add(String.format("%s%s%s", configurationDirectory, File.separator, RSA_FILE));
         return paths;
     }
@@ -161,12 +139,20 @@ public class FilesResource {
     /*
      * Get configuration directory in format <home directory>/e2e
      */
-    private static File getConfigurationDirectory(String subDirectory) {
+    private File getConfigurationDirectory(String subDirectory) {
         String homeDirectory = System.getProperty("user.home");
+        String basePath = String.format(
+                "%s%s%s%s%s",
+                homeDirectory,
+                File.separator,
+                CONFIGURATION_DIRECTORY,
+                File.separator,
+                nodeID
+        );
         if (subDirectory == null) {
-            return new File(String.format("%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY));
+            return new File(basePath);
         }
-        return new File(String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, subDirectory));
+        return new File(String.format("%s%s%s", basePath, File.separator, subDirectory));
     }
 
     private void close() throws IOException {

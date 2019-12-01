@@ -6,19 +6,12 @@ import com.idm.e2e.web.interfaces.DockerRunnable;
 import java.util.ArrayList;
 
 public class ThreadRunner extends Thread {
-    private static ThreadRunner instance;
     private ArrayList<DockerRunnable> runnableList;
+    private String nodeID;
 
-    public static ThreadRunner getInstance() {
-        if (instance == null) {
-            instance = new ThreadRunner();
-            instance.start();
-        }
-        return instance;
-    }
-
-    private ThreadRunner() {
-        runnableList = new ArrayList<>();
+    public ThreadRunner(ArrayList<DockerRunnable> runnableList, String nodeID) {
+        this.runnableList = runnableList;
+        this.nodeID = nodeID;
     }
 
     public void run(ArrayList<DockerRunnable> runnableList) {
@@ -31,6 +24,7 @@ public class ThreadRunner extends Thread {
     public void run() {
         waitForRunnable();
         for (DockerRunnable runnable : runnableList) {
+            StatusStorage.getStatus(nodeID).setRunning(true);
             runnable.run();
             waitForRunnableProcess(runnable);
             runnable.destroy();
@@ -39,11 +33,8 @@ public class ThreadRunner extends Thread {
     }
 
     private void cleanup() {
-        // StatusStorage.getCurrentStatus().setRunning(false);
-        // StatusStorage.setPreviousStatus(StatusStorage.getCurrentStatus());
-        // StatusStorage.setCurrentStatus(null);
+        StatusStorage.getStatus(nodeID).setRunning(false);
         runnableList = null;
-        instance = null;
     }
 
     private void waitForRunnable() {

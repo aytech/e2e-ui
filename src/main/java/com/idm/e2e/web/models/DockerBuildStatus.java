@@ -8,7 +8,6 @@ public class DockerBuildStatus {
     private ArrayList<String> stdInput;
     private ArrayList<String> stdErr;
     private Boolean isReportAvailable;
-    private Boolean hasOldConfiguration;
     private Boolean isRunning;
 
     public ArrayList<String> getCommands() {
@@ -77,14 +76,6 @@ public class DockerBuildStatus {
 
     public void setReportAvailable(Boolean reportAvailable) {
         isReportAvailable = reportAvailable;
-    }
-
-    public Boolean getHasOldConfiguration() {
-        return hasOldConfiguration;
-    }
-
-    public void setHasOldConfiguration(Boolean hasOldConfiguration) {
-        this.hasOldConfiguration = hasOldConfiguration;
     }
 
     public Boolean isRunning() {

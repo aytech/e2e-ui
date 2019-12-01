@@ -6,7 +6,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+
 import java.io.IOException;
+
+import static com.idm.e2e.web.configuration.DockerConstants.DOCKER_GRID_CONTAINER_NAME;
 
 @SpringBootApplication
 public class E2EApplication {
@@ -34,7 +37,7 @@ public class E2EApplication {
         try {
             Process process = DockerCommands.prune().start();
             ProcessLogger logger = new ProcessLogger(process);
-            logger.log();
+            logger.log(null);
             process.waitFor();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -45,7 +48,7 @@ public class E2EApplication {
         try {
             Process process = DockerCommands.networkCreate().start();
             ProcessLogger logger = new ProcessLogger(process);
-            logger.log();
+            logger.log(null);
             process.waitFor();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -54,9 +57,10 @@ public class E2EApplication {
 
     private void startSeleniumGridContainer() {
         try {
-            Process process = DockerCommands.startSeleniumGrid().start();
+            String nodeID = DOCKER_GRID_CONTAINER_NAME;
+            Process process = DockerCommands.startSeleniumGrid(nodeID).start();
             ProcessLogger logger = new ProcessLogger(process);
-            logger.log();
+            logger.log(nodeID);
             process.waitFor();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

@@ -7,10 +7,30 @@ import java.util.zip.ZipOutputStream;
 import static com.idm.e2e.web.configuration.AppConstants.*;
 
 public class ZipResource {
-    public static void zipE2EReports() {
+    public static String zipE2EReports(String nodeID) {
         String homeDirectory = System.getProperty("user.home");
-        String reportsDirectory = String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, REPORT_DIR);
-        String zipFile = String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, REPORT_ZIP);
+        String reportsDirectory =
+                String.format(
+                        "%s%s%s%s%s%s%s",
+                        homeDirectory,
+                        File.separator,
+                        CONFIGURATION_DIRECTORY,
+                        File.separator,
+                        nodeID,
+                        File.separator,
+                        REPORT_DIR
+                );
+        String zipFile =
+                String.format(
+                        "%s%s%s%s%s%s%s",
+                        homeDirectory,
+                        File.separator,
+                        CONFIGURATION_DIRECTORY,
+                        File.separator,
+                        nodeID,
+                        File.separator,
+                        REPORT_ZIP
+                );
 
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(zipFile);
@@ -22,6 +42,7 @@ public class ZipResource {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return zipFile;
     }
 
     private static void zipFile(File fileToZip, String fileName, ZipOutputStream zipOutputStream) throws IOException {
@@ -52,9 +73,12 @@ public class ZipResource {
         fileInputStream.close();
     }
 
-    public static Boolean isReportAvailable() {
+    public static Boolean isReportAvailable(String nodeID) {
+        if (nodeID == null) {
+            return false;
+        }
         String homeDirectory = System.getProperty("user.home");
-        String reportsDirectory = String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, REPORT_DIR);
+        String reportsDirectory = String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, nodeID);
         return new File(reportsDirectory).exists();
     }
 }

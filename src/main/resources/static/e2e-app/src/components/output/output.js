@@ -5,8 +5,7 @@ import { Title } from "./title";
 import StandardOutput from "./standard-output";
 import {
   toggleDebugEnabled,
-  toggleErrorEnabled,
-  updateHasConfiguration
+  toggleErrorEnabled
 } from "../../actions/outputActions";
 import './output.css';
 import DockerService from "../../services/DockerService";
@@ -62,16 +61,6 @@ class Output extends Component {
     }
   };
 
-  cleanConfiguration = () => {
-    if (this.props.state.hasOldConfiguration === true) {
-      this.dockerService
-        .cleanConfiguration()
-        .then(data => {
-          this.props.updateHasConfiguration(data.hasOldConfiguration)
-        });
-    }
-  };
-
   render() {
 
     const {
@@ -79,7 +68,6 @@ class Output extends Component {
       debugOutputEnabled,
       errorOutputEnabled,
       isReportAvailable,
-      hasOldConfiguration,
       messages,
       serverErrorState,
       stdErr,
@@ -107,11 +95,6 @@ class Output extends Component {
             text={ 'Download report' }
             show={ isReportAvailable && !buildInProgress }
             onClick={ this.downloadReportZip }/>
-          <Button
-            className="btn btn-primary btn-lg inline"
-            text="Clean configuration"
-            show={ hasOldConfiguration && !buildInProgress }
-            onClick={ this.cleanConfiguration }/>
         </div>
         <Title
           debug={ debugOutputEnabled }
@@ -136,8 +119,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   toggleDebugEnabled: (isEnabled) => dispatch(toggleDebugEnabled(isEnabled)),
-  toggleErrorEnabled: (isEnabled) => dispatch(toggleErrorEnabled(isEnabled)),
-  updateHasConfiguration: (hasConfiguration) => dispatch(updateHasConfiguration(hasConfiguration))
+  toggleErrorEnabled: (isEnabled) => dispatch(toggleErrorEnabled(isEnabled))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Output);

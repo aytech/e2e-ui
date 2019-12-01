@@ -4,9 +4,9 @@ import { E2E_NODE } from "../constants/application";
 export default class DockerService {
   apiBase = '/api';
   reportZip = '/download/report';
-  pathCleanConfig = '/config/clean';
   pathGetBuildStatus = '/build/status';
   pathRunE2E = '/build/run';
+  cookies = new Cookies();
 
   async getResource(url, headers) {
     const resource = await fetch(`${ this.apiBase }${ url }`, headers);
@@ -16,12 +16,9 @@ export default class DockerService {
   }
 
   getDockerBuildStatus = async () => {
-    const cookies = new Cookies();
-    const nodeCookie = cookies.get(E2E_NODE);
-    let path = this.pathGetBuildStatus;
-    if (nodeCookie !== undefined) {
-      path = `${ this.pathGetBuildStatus }?node=${ nodeCookie }`;
-    }
+    const nodeCookie = this.cookies.get(E2E_NODE);
+    const node = nodeCookie === undefined ? '' : nodeCookie;
+    const path = `${ this.pathGetBuildStatus }?node=${ node }`;
     return await this.getResource(path)
   };
 
@@ -36,10 +33,9 @@ export default class DockerService {
   };
 
   downloadReportZip = async () => {
-    return await fetch(`${ this.apiBase }${ this.reportZip }`);
-  };
-
-  cleanConfiguration = async () => {
-    return await this.getResource(this.pathCleanConfig);
+    const nodeCookie = this.cookies.get(E2E_NODE);
+    const node = nodeCookie === undefined ? '' : nodeCookie;
+    const path = `${ this.apiBase }${ this.reportZip }?node=${ node }`;
+    return await fetch(path);
   };
 }

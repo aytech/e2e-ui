@@ -5,12 +5,11 @@ public class AppConstants {
     public static final String CONFIGURATION_DIRECTORY = "e2e";
     public static final String CREDENTIALS = "credentials";
     public static final String MAINTAINER = "Oleg Yapparov <oleg.yapparov@infor.com>";
-    public static final String REPORT_DIR = "report";
+    public static final String REPORT_DIR = "tests";
     public static final String REPORT_ZIP = "report.zip";
     public static final String RSA_DIR = "keys";
     public static final String RSA_FILE = "id_rsa_teamcity-e2e";
     public static final String URI_BUILD_STATUS = "/build/status";
-    public static final String URI_CLEAN_CONFIG = "/config/clean";
     public static final String URI_DOWNLOAD_REPORT = "/download/report";
     public static final String URI_RUN_E2E = "/build/run";
 }

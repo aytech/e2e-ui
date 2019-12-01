@@ -13,8 +13,7 @@ import {
   updateUserPassword,
   updateStdErr,
   updateMessages,
-  updateReportStatus,
-  updateHasConfiguration
+  updateReportStatus
 } from "../../actions/formActions";
 import Button from "../button/button";
 import DockerService from "../../services/DockerService";
@@ -104,7 +103,6 @@ class Form extends Component {
         this.props.updateBuildStatus(job.running);
         this.props.updateServerErrorState(false);
         this.props.updateReportStatus(job.reportAvailable);
-        this.props.updateHasConfiguration(job.hasOldConfiguration);
       })
       .catch(() => {
         this.props.updateServerErrorState(true);
@@ -204,7 +202,6 @@ const mapDispatchToProps = dispatch => ({
   updateBuildStatus: (isRunning) => dispatch(updateBuildStatus(isRunning)),
   updateFormStatus: (status) => dispatch(updateFormStatus(status)),
   updateFormMessages: (messages) => dispatch(updateFormMessages(messages)),
-  updateHasConfiguration: (hasConfiguration) => dispatch(updateHasConfiguration(hasConfiguration)),
   updateLoading: (isLoading) => dispatch(updateLoading(isLoading)),
   updateLoadingStatus: (isStatusLoading) => dispatch(updateLoadingStatus(isStatusLoading)),
   updateMessages: (messages) => dispatch(updateMessages(messages)),
