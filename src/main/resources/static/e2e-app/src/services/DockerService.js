@@ -1,3 +1,6 @@
+import Cookies from "universal-cookie/lib";
+import { E2E_NODE } from "../constants/application";
+
 export default class DockerService {
   apiBase = '/api';
   reportZip = '/download/report';
@@ -13,7 +16,13 @@ export default class DockerService {
   }
 
   getDockerBuildStatus = async () => {
-    return await this.getResource(this.pathGetBuildStatus)
+    const cookies = new Cookies();
+    const nodeCookie = cookies.get(E2E_NODE);
+    let path = this.pathGetBuildStatus;
+    if (nodeCookie !== undefined) {
+      path = `${ this.pathGetBuildStatus }?node=${ nodeCookie }`;
+    }
+    return await this.getResource(path)
   };
 
   runE2ESuite = async (request) => {

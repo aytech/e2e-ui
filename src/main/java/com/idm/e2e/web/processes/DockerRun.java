@@ -55,9 +55,9 @@ public class DockerRun implements DockerRunnable {
         // Map<String, String> environment = builder.environment();
         // environment.put("report_directory", FilesResource.getReportsPath());
 
-        StatusStorage.getCurrentStatus().addMessage("Running Chrome node " + chromeNode);
+        // StatusStorage.getCurrentStatus().addMessage("Running Chrome node " + chromeNode);
         // StatusStorage.getCurrentStatus().setRunning(true);
-        StatusStorage.getCurrentStatus().addCommand(chromeBuilder.command().toString());
+        // StatusStorage.getCurrentStatus().addCommand(chromeBuilder.command().toString());
 
         try {
             Process chromeProcess = chromeBuilder.start();
@@ -81,7 +81,7 @@ public class DockerRun implements DockerRunnable {
             }
         } catch (IOException e) {
             failed = true;
-            StatusStorage.getCurrentStatus().addStdErrorEntry(e.getMessage());
+            // StatusStorage.getCurrentStatus().addStdErrorEntry(e.getMessage());
             e.printStackTrace();
         }
     }

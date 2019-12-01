@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class DockerRunResponse {
     private boolean isValid;
     private ArrayList<String> errors;
+    private String nodeID;
 
     public DockerRunResponse() {
         errors = new ArrayList<>();
@@ -24,5 +25,13 @@ public class DockerRunResponse {
 
     public void addError(String error) {
         this.errors.add(error);
+    }
+
+    public String getNodeID() {
+        return nodeID;
+    }
+
+    public void setNodeID(String nodeID) {
+        this.nodeID = nodeID;
     }
 }

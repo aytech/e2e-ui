@@ -19,6 +19,8 @@ import {
 import Button from "../button/button";
 import DockerService from "../../services/DockerService";
 import Alert from "./alert";
+import Cookies from "universal-cookie/lib";
+import { E2E_NODE } from "../../constants/application";
 
 class Form extends Component {
 
@@ -52,6 +54,8 @@ class Form extends Component {
             .runE2ESuite({ email: email, password: password })
             .then(response => {
               if (response.status === 200) {
+                const cookies = new Cookies();
+                cookies.set(E2E_NODE, response.nodeID, { path: '/' });
                 this.props.updateFormMessages([ 'Process has started, log output will print below' ]);
                 this.props.updateRunStatus(true);
                 this.timeoutID = setTimeout(() => {
@@ -59,6 +63,7 @@ class Form extends Component {
                   clearTimeout(this.timeoutID);
                 }, 2000);
               } else {
+                console.log("error response: ", response);
               }
             })
             .catch(() => {

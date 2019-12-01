@@ -28,9 +28,13 @@ import static com.idm.e2e.web.configuration.AppConstants.*;
 @RequestMapping(value = "/api")
 public class BuildController {
 
-    @RequestMapping(method = RequestMethod.GET, value = URI_BUILD_STATUS)
-    public HttpEntity<DockerBuildStatus> getStatus() {
-        DockerBuildStatus status = StatusStorage.getStatus();
+    @RequestMapping(
+            method = RequestMethod.GET,
+            value = URI_BUILD_STATUS,
+            params = {"node"}
+    )
+    public HttpEntity<DockerBuildStatus> getStatus(@RequestParam("node") String nodeID) {
+        DockerBuildStatus status = StatusStorage.getStatus(nodeID);
         status.setReportAvailable(ZipResource.isReportAvailable());
         status.setHasOldConfiguration(FilesResource.hasOldConfigurationFiles());
         return new ResponseEntity<>(status, HttpStatus.OK);
@@ -45,17 +49,18 @@ public class BuildController {
             configuration.setPassword(request.getPassword());
             configuration.setNodeID(DockerCommands.getNewE2ENode());
 
-            ArrayList<DockerRunnable> jobs = new ArrayList<>();
-            jobs.add(new FileSystemConfiguration(configuration));
-            jobs.add(new DockerBuild(configuration));
-            jobs.add(new DockerRun(configuration));
-
-            try {
-                ThreadRunner.getInstance().run(jobs);
-            } catch (IllegalStateException e) {
-                System.out.println("Can't add configuration: " + e.getMessage());
-                e.printStackTrace();
-            }
+//            ArrayList<DockerRunnable> jobs = new ArrayList<>();
+//            jobs.add(new FileSystemConfiguration(configuration));
+//            jobs.add(new DockerBuild(configuration));
+//            jobs.add(new DockerRun(configuration));
+//
+//            try {
+//                ThreadRunner.getInstance().run(jobs);
+//            } catch (IllegalStateException e) {
+//                System.out.println("Can't run job: " + e.getMessage());
+//                e.printStackTrace();
+//            }
+            response.setNodeID(configuration.getNodeID());
             response.setValid(true);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
@@ -90,9 +95,9 @@ public class BuildController {
     @RequestMapping(method = RequestMethod.GET, value = URI_CLEAN_CONFIG)
     public HttpEntity<DockerBuildStatus> cleanConfigurationFiles() {
         FilesResource.cleanConfigurationFiles();
-        DockerBuildStatus status = StatusStorage.getStatus();
-        status.setReportAvailable(ZipResource.isReportAvailable());
-        status.setHasOldConfiguration(FilesResource.hasOldConfigurationFiles());
-        return new ResponseEntity<>(status, HttpStatus.OK);
+        // DockerBuildStatus status = StatusStorage.getStatus();
+        // status.setReportAvailable(ZipResource.isReportAvailable());
+        // status.setHasOldConfiguration(FilesResource.hasOldConfigurationFiles());
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 }

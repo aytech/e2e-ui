@@ -39,9 +39,9 @@ public class ThreadRunner extends Thread {
     }
 
     private void cleanup() {
-        StatusStorage.getCurrentStatus().setRunning(false);
-        StatusStorage.setPreviousStatus(StatusStorage.getCurrentStatus());
-        StatusStorage.setCurrentStatus(null);
+        // StatusStorage.getCurrentStatus().setRunning(false);
+        // StatusStorage.setPreviousStatus(StatusStorage.getCurrentStatus());
+        // StatusStorage.setCurrentStatus(null);
         runnableList = null;
         instance = null;
     }

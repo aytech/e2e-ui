@@ -2,6 +2,7 @@ package com.idm.e2e.web.processes;
 
 import com.idm.e2e.web.configuration.DockerCommands;
 import com.idm.e2e.web.data.FilesResource;
+import com.idm.e2e.web.data.ProcessLogger;
 import com.idm.e2e.web.data.StatusStorage;
 import com.idm.e2e.web.interfaces.DockerRunnable;
 import com.idm.e2e.web.models.E2EConfiguration;
@@ -28,24 +29,11 @@ public class DockerBuild implements DockerRunnable {
         try {
             File file = FilesResource.getFile(DOCKERFILE);
             node = configuration.getNodeID();
-            ProcessBuilder builder = DockerCommands.buildImage(file.getAbsolutePath(), node, file.getParent());
-
-            StatusStorage.getCurrentStatus().setRunning(true);
-            StatusStorage.getCurrentStatus().addCommand(builder.command().toString());
-
-            process = builder.start();
-            BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-            String line;
-            while ((line = input.readLine()) != null) {
-                StatusStorage.getCurrentStatus().addStdInputEntry(line);
-            }
-            while ((line = error.readLine()) != null) {
-                StatusStorage.getCurrentStatus().addStdErrorEntry(line);
-            }
+            process = DockerCommands.buildImage(file.getAbsolutePath(), node, file.getParent()).start();
+            ProcessLogger logger = new ProcessLogger(process);
+            logger.log();
         } catch (IOException e) {
             isFailed = true;
-            StatusStorage.getCurrentStatus().addStdErrorEntry(e.getMessage());
             e.printStackTrace();
         }
     }

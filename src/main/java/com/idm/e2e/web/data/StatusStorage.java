@@ -3,41 +3,25 @@ package com.idm.e2e.web.data;
 import com.idm.e2e.web.models.DockerBuildStatus;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class StatusStorage {
-    private static DockerBuildStatus previousStatus;
-    private static DockerBuildStatus currentStatus;
+    private static HashMap<String, DockerBuildStatus> statuses;
 
-    public static DockerBuildStatus getPreviousStatus() {
-        if (previousStatus == null) {
-            previousStatus = getNewStatus();
+    public static DockerBuildStatus getStatus(String node) {
+        if (statuses == null) {
+            return getDefaultStatus();
         }
-        return previousStatus;
+        DockerBuildStatus status = statuses.get(node);
+        return status == null ? getDefaultStatus() : status;
     }
 
-    public static DockerBuildStatus getCurrentStatus() {
-        if (currentStatus == null) {
-            currentStatus = getNewStatus();
-        }
-        return currentStatus;
+    public static void setStatus(String node, DockerBuildStatus status) {
+        statuses.put(node, status);
     }
 
-    public static void setPreviousStatus(DockerBuildStatus previousStatus) {
-        StatusStorage.previousStatus = previousStatus;
-    }
-
-    public static void setCurrentStatus(DockerBuildStatus currentStatus) {
-        StatusStorage.currentStatus = currentStatus;
-    }
-
-    public static DockerBuildStatus getStatus() {
-        if (getCurrentStatus().isRunning()) {
-            return getCurrentStatus();
-        }
-        return getPreviousStatus();
-    }
-
-    private static DockerBuildStatus getNewStatus() {
+    private static DockerBuildStatus getDefaultStatus() {
         DockerBuildStatus status = new DockerBuildStatus();
         status.setRunning(false);
         status.setCommands(new ArrayList<>());
