@@ -1,5 +1,7 @@
 package com.idm.e2e.web.models;
 
+import static com.idm.e2e.web.configuration.DockerConstants.DOCKER_WORK_DIRECTORY;
+
 public class E2EConfiguration {
     public static final String ENV = "idm.environment";
     public static final String URL = "idm.client.staging.url";
@@ -38,8 +40,8 @@ public class E2EConfiguration {
     public E2EConfiguration() {
         defaultEnvironment = "staging";
         defaultUrl = "https://nlbavwidm1.infor.com/infor";
-        defaultFilePrimary = "/e2e/1.jpg";
-        defaultFileSecondary = "/e2e/2.jpg";
+        defaultFilePrimary = String.format("%s/1.jpg", DOCKER_WORK_DIRECTORY);
+        defaultFileSecondary = String.format("%s/2.jpg", DOCKER_WORK_DIRECTORY);
         defaultDocumentType = "Document";
         defaultDocumentTypeNew = "File";
         defaultDownloadPath = "/home";

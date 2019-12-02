@@ -23,17 +23,17 @@ public class DockerCommands {
         return getBuilder(arguments);
     }
 
-    public static ProcessBuilder getRunningStatus() {
+    public static ProcessBuilder getRunningStatus(String containerName) {
         ArrayList<String> arguments = getArguments();
         arguments.add("inspect");
         arguments.add("-f");
         arguments.add("'{{.State.Running}}'");
-        arguments.add(DOCKER_GRID_CONTAINER_NAME);
+        arguments.add(containerName);
         return getBuilder(arguments);
     }
 
-    public static ProcessBuilder startSeleniumGrid(String nodeID) {
-        ArrayList<String> arguments = getRunArguments(nodeID);
+    public static ProcessBuilder startSeleniumGrid() {
+        ArrayList<String> arguments = getRunArguments(DOCKER_GRID_CONTAINER_NAME);
         arguments.add("-p");
         arguments.add(String.format("%s:%s", DOCKER_GRID_CONTAINER_PORT, DOCKER_GRID_CONTAINER_PORT));
         arguments.add("-e");

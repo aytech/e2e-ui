@@ -2,7 +2,6 @@ package com.idm.e2e.web.processes;
 
 import com.idm.e2e.web.configuration.DockerCommands;
 import com.idm.e2e.web.data.FilesResource;
-import com.idm.e2e.web.data.ProcessLogger;
 import com.idm.e2e.web.data.StatusStorage;
 import com.idm.e2e.web.interfaces.DockerRunnable;
 import com.idm.e2e.web.models.E2EConfiguration;
@@ -16,13 +15,14 @@ public class DockerRun implements DockerRunnable {
     private Boolean failed = false;
     private String chromeNodeID;
     private String e2eNodeID;
-    private String reportsPath;
+    private FilesResource filesResource;
+    private DockerUtility dockerUtility;
 
     public DockerRun(E2EConfiguration configuration) {
         e2eNodeID = configuration.getNodeID();
         chromeNodeID = DockerCommands.getNewChromeNode();
-        FilesResource filesResource = new FilesResource(configuration);
-        reportsPath = filesResource.getReportsPath();
+        filesResource = new FilesResource(configuration);
+        dockerUtility = new DockerUtility();
     }
 
     @Override
@@ -44,8 +44,12 @@ public class DockerRun implements DockerRunnable {
         if (chromeProcess != null) {
             chromeProcess.destroy();
         }
+        if (e2eProcess != null) {
+            e2eProcess.destroy();
+        }
         DockerCommands.stopNode(chromeNodeID);
         DockerCommands.stopNode(e2eNodeID);
+        filesResource.cleanConfigurationFiles();
     }
 
     @Override
@@ -56,18 +60,12 @@ public class DockerRun implements DockerRunnable {
     @Override
     public void run() {
         ProcessBuilder chromeBuilder = DockerCommands.runChromeNode(chromeNodeID);
-        ProcessBuilder e2eBuilder = DockerCommands.runE2ENode(e2eNodeID, reportsPath);
+        ProcessBuilder e2eBuilder = DockerCommands.runE2ENode(e2eNodeID, filesResource.getReportsPath());
 
         try {
-            chromeProcess = chromeBuilder.start();
-            ProcessLogger logger = new ProcessLogger(chromeProcess);
-            logger.log(e2eNodeID);
-            chromeProcess.waitFor();
-
-            e2eProcess = e2eBuilder.start();
-            logger = new ProcessLogger(e2eProcess);
-            logger.log(e2eNodeID, Pattern.compile(".*Scenario.*"));
-            e2eProcess.waitFor();
+            dockerUtility.startSeleniumGridContainer();
+            chromeProcess = dockerUtility.startContainer(chromeBuilder, e2eNodeID);
+            e2eProcess = dockerUtility.startContainer(e2eBuilder, e2eNodeID, Pattern.compile(".*Scenario.*"));
         } catch (IOException | InterruptedException e) {
             failed = true;
             StatusStorage.getStatus(e2eNodeID).addStdErrorEntry(e.getMessage());

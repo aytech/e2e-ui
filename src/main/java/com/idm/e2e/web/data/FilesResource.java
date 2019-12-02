@@ -11,17 +11,16 @@ import java.util.List;
 
 import static com.idm.e2e.web.configuration.AppConstants.*;
 import static com.idm.e2e.web.configuration.DockerConstants.DOCKERFILE;
+import static com.idm.e2e.web.configuration.DockerConstants.DOCKER_WORK_DIRECTORY;
 
 public class FilesResource {
 
     private E2EConfiguration configuration;
     private PrintWriter printWriter;
     private FileWriter fileWriter;
-    private String nodeID;
 
     public FilesResource(E2EConfiguration configuration) {
         this.configuration = configuration;
-        nodeID = configuration.getNodeID();
     }
 
     public void writeNewConfigurationFile(String targetFileName) throws IOException {
@@ -62,12 +61,12 @@ public class FilesResource {
         printWriter.println("");
         printWriter.println("FROM gradle:5.6.2-jdk8");
         printWriter.println("WORKDIR app");
-        printWriter.println("COPY ./configuration /home/gradle/app");
-        printWriter.println("COPY ./credentials /home/gradle/app");
-        printWriter.println("COPY --from=repository /app/idm-e2e/src /home/gradle/app/src");
-        printWriter.println("COPY --from=repository /app/idm-e2e/build.gradle /home/gradle/app");
-        printWriter.println("COPY --from=repository /app/idm-e2e/src/test/resources/Upload/1.jpg /home/gradle/app");
-        printWriter.println("COPY --from=repository /app/idm-e2e/src/test/resources/Upload/2.jpg /home/gradle/app");
+        printWriter.println(String.format("COPY ./configuration %s", DOCKER_WORK_DIRECTORY));
+        printWriter.println(String.format("COPY ./credentials %s", DOCKER_WORK_DIRECTORY));
+        printWriter.println(String.format("COPY --from=repository /app/idm-e2e/src %s/src", DOCKER_WORK_DIRECTORY));
+        printWriter.println(String.format("COPY --from=repository /app/idm-e2e/build.gradle %s", DOCKER_WORK_DIRECTORY));
+        printWriter.println(String.format("COPY --from=repository /app/idm-e2e/src/test/resources/Upload/1.jpg %s", DOCKER_WORK_DIRECTORY));
+        printWriter.println(String.format("COPY --from=repository /app/idm-e2e/src/test/resources/Upload/2.jpg %s", DOCKER_WORK_DIRECTORY));
         printWriter.println("ENTRYPOINT gradle --rerun-tasks chrome -Pidm.configuration.path=/home/gradle/app/configuration -Pidm.credentials.path=/home/gradle/app/credentials -Premote=http://selenium-hub:4444/wd/hub");
         close();
     }
@@ -147,7 +146,7 @@ public class FilesResource {
                 File.separator,
                 CONFIGURATION_DIRECTORY,
                 File.separator,
-                nodeID
+                configuration.getNodeID()
         );
         if (subDirectory == null) {
             return new File(basePath);
