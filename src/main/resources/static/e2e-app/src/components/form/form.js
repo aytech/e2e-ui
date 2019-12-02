@@ -159,7 +159,9 @@ class Form extends Component {
 
     return (
       <div className="jumbotron">
-        <h1 className="display-3">Run</h1>
+        <h1 className="display-3">
+          Selenium Runner
+        </h1>
         <p className="lead">
           Rebuild E2E image or run test suite using controls below.
         </p>

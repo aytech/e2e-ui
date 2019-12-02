@@ -1,2 +1,1 @@
-IDM E2E runner UI
-
+Selenium Runner for Infor Document Management
