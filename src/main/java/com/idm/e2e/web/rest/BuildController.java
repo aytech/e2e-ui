@@ -45,6 +45,7 @@ public class BuildController {
             E2EConfiguration configuration = new E2EConfiguration();
             configuration.setUser(request.getEmail());
             configuration.setPassword(request.getPassword());
+            configuration.setBranch(request.getBranch());
             configuration.setNodeID(nodeID);
             StatusStorage.setStatus(nodeID);
 

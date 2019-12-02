@@ -11,10 +11,10 @@ import static com.idm.e2e.web.configuration.DockerConstants.DOCKERFILE;
 
 public class FileSystemConfiguration implements DockerRunnable {
     private boolean isAlive = false;
-    private E2EConfiguration configuration;
+    private FilesResource fileResource;
 
     public FileSystemConfiguration(E2EConfiguration configuration) {
-        this.configuration = configuration;
+        fileResource = new FilesResource(configuration);
     }
 
     @Override
@@ -43,13 +43,12 @@ public class FileSystemConfiguration implements DockerRunnable {
     @Override
     public void run() {
         isAlive = true;
-        FilesResource resource = new FilesResource(configuration);
-        resource.createConfigurationDirectory(null);
+        fileResource.createConfigurationDirectory(null);
         try {
-            resource.copyConfigurationFiles();
-            resource.writeNewConfigurationFile(CONFIGURATION);
-            resource.writeNewCredentialsFile(CREDENTIALS);
-            resource.writeDockerFile(DOCKERFILE);
+            fileResource.copyConfigurationFiles();
+            fileResource.writeNewConfigurationFile(CONFIGURATION);
+            fileResource.writeNewCredentialsFile(CREDENTIALS);
+            fileResource.writeDockerFile(DOCKERFILE);
         } catch (IOException e) {
             System.out.println("Configuration error: " + e);
             e.printStackTrace();

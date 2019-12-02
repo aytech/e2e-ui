@@ -13,7 +13,8 @@ import {
   updateUserPassword,
   updateStdErr,
   updateMessages,
-  updateReportStatus
+  updateReportStatus,
+  updateBranch
 } from "../../actions/formActions";
 import Button from "../button/button";
 import DockerService from "../../services/DockerService";
@@ -37,11 +38,16 @@ class Form extends Component {
     this.props.updateUserPassword(event.target.value);
   };
 
+  updateBranch = (event) => {
+    this.props.updateBranch(event.target.value);
+  };
+
   runE2E = async (event) => {
     event.preventDefault();
     this.validateForm()
       .then(() => {
         const {
+          branch,
           email,
           formStatus,
           password
@@ -50,7 +56,11 @@ class Form extends Component {
         if (formStatus === true) {
           this.props.updateLoading(true);
           this.dockerService
-            .runE2ESuite({ email: email, password: password })
+            .runE2ESuite({
+              branch: branch,
+              email: email,
+              password: password
+            })
             .then(response => {
               if (response.status === 200) {
                 const cookies = new Cookies();
@@ -105,7 +115,9 @@ class Form extends Component {
         this.props.updateReportStatus(job.reportAvailable);
       })
       .catch(() => {
+        this.props.updateBuildStatus(false);
         this.props.updateServerErrorState(true);
+        this.props.updateReportStatus(false);
         if (this.timerID === undefined) {
           this.timerID = setInterval(this.getE2EBuildStatus, 2000);
         }
@@ -134,6 +146,7 @@ class Form extends Component {
 
   render() {
     const {
+      branch,
       email,
       password,
       formStatus,
@@ -169,6 +182,12 @@ class Form extends Component {
                      placeholder="Password" autoComplete="current-password" value={ password }
                      onChange={ this.updateUserPassword }/>
             </div>
+            <div className="form-group">
+              <label htmlFor="branch">Branch name</label>
+              <input type="text" className="form-control" id="branch" name="branch"
+                     placeholder="Branch name" value={ branch }
+                     onChange={ this.updateBranch }/>
+            </div>
           </fieldset>
           <Alert
             status={ formStatus }
@@ -199,6 +218,7 @@ const mapStateToProps = state => ({
   ...state
 });
 const mapDispatchToProps = dispatch => ({
+  updateBranch: (branch) => dispatch(updateBranch(branch)),
   updateBuildStatus: (isRunning) => dispatch(updateBuildStatus(isRunning)),
   updateFormStatus: (status) => dispatch(updateFormStatus(status)),
   updateFormMessages: (messages) => dispatch(updateFormMessages(messages)),

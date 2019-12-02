@@ -118,6 +118,10 @@ public class E2EConfiguration {
         return branch;
     }
 
+    public void setBranch(String branch) {
+        this.branch = branch;
+    }
+
     public void setEnvironment(String idmEnvironment) {
         this.environment = idmEnvironment;
     }

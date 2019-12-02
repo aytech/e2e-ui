@@ -3,6 +3,15 @@ package com.idm.e2e.web.models;
 public class DockerRunRequest {
     private String email;
     private String password;
+    private String branch;
+
+    public String getBranch() {
+        return branch;
+    }
+
+    public void setBranch(String branch) {
+        this.branch = branch;
+    }
 
     public String getEmail() {
         return email;

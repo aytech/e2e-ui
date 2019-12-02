@@ -14,7 +14,8 @@ import {
   UPDATE_STD_INPUT,
   TOGGLE_ERROR_ENABLED,
   UPDATE_REPORT_LOADING,
-  UPDATE_REPORT_STATUS
+  UPDATE_REPORT_STATUS,
+  UPDATE_BRANCH
 } from "../actions/constants";
 
 export default (state = {}, action) => {
@@ -63,6 +64,11 @@ export default (state = {}, action) => {
       return {
         ...state,
         errorOutputEnabled: action.status
+      };
+    case UPDATE_BRANCH:
+      return {
+        ...state,
+        branch: action.branch
       };
     case UPDATE_MESSAGES:
       return {

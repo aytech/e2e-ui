@@ -8,6 +8,7 @@ import com.idm.e2e.web.interfaces.DockerRunnable;
 import com.idm.e2e.web.models.E2EConfiguration;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 public class DockerRun implements DockerRunnable {
     private Process chromeProcess;
@@ -65,7 +66,7 @@ public class DockerRun implements DockerRunnable {
 
             e2eProcess = e2eBuilder.start();
             logger = new ProcessLogger(e2eProcess);
-            logger.log(e2eNodeID);
+            logger.log(e2eNodeID, Pattern.compile(".*Scenario.*"));
             e2eProcess.waitFor();
         } catch (IOException | InterruptedException e) {
             failed = true;

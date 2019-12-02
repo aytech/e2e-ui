@@ -3,6 +3,7 @@ import rootReducer from "./reducers/rootReducer";
 
 const initialState = {
   state: {
+    branch: '',
     buildInProgress: false,
     debugOutputEnabled: false,
     errorOutputEnabled: false,
