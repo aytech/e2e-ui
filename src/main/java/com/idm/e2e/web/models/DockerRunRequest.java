@@ -4,6 +4,7 @@ public class DockerRunRequest {
     private String email;
     private String password;
     private String branch;
+    private String documentType;
 
     public String getBranch() {
         return branch;
@@ -31,5 +32,13 @@ public class DockerRunRequest {
 
     public boolean isEmailValid() {
         return email.matches("^\\w+\\.?\\w+@infor\\.com$");
+    }
+
+    public String getDocumentType() {
+        return documentType;
+    }
+
+    public void setDocumentType(String documentType) {
+        this.documentType = documentType;
     }
 }

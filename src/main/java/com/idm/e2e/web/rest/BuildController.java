@@ -47,6 +47,7 @@ public class BuildController {
             configuration.setPassword(request.getPassword());
             configuration.setBranch(request.getBranch());
             configuration.setNodeID(nodeID);
+            configuration.setDocumentType(request.getDocumentType());
             StatusStorage.setStatus(nodeID);
 
             ArrayList<DockerRunnable> jobs = new ArrayList<>();

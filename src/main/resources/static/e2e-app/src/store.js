@@ -6,6 +6,7 @@ const initialState = {
     branch: '',
     buildInProgress: false,
     debugOutputEnabled: false,
+    documentType: '',
     errorOutputEnabled: false,
     email: '',
     formStatus: null,

@@ -12,11 +12,13 @@ import {
   UPDATE_STD_ERR,
   UPDATE_MESSAGES,
   UPDATE_REPORT_STATUS,
-  UPDATE_BRANCH
+  UPDATE_BRANCH,
+  UPDATE_DOCUMENT_TYPE
 } from "./constants";
 
 export const updateBranch = (branch) => ({ type: UPDATE_BRANCH, branch });
 export const updateBuildStatus = (isRunning) => ({ type: UPDATE_BUILD_STATUS, isRunning });
+export const updateDocumentType = (documentType) => ({ type: UPDATE_DOCUMENT_TYPE, documentType });
 export const updateFormMessages = (messages) => ({ type: SET_FORM_MESSAGES, messages });
 export const updateFormStatus = (status) => ({ type: SET_FORM_STATUS, status });
 export const updateLoading = (isLoading) => ({ type: SET_LOADING, isLoading });

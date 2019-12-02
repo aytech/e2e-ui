@@ -15,7 +15,8 @@ import {
   TOGGLE_ERROR_ENABLED,
   UPDATE_REPORT_LOADING,
   UPDATE_REPORT_STATUS,
-  UPDATE_BRANCH
+  UPDATE_BRANCH,
+  UPDATE_DOCUMENT_TYPE
 } from "../actions/constants";
 
 export default (state = {}, action) => {
@@ -69,6 +70,11 @@ export default (state = {}, action) => {
       return {
         ...state,
         branch: action.branch
+      };
+    case UPDATE_DOCUMENT_TYPE:
+      return {
+        ...state,
+        documentType: action.documentType
       };
     case UPDATE_MESSAGES:
       return {

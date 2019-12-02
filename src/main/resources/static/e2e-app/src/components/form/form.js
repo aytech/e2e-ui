@@ -14,7 +14,8 @@ import {
   updateStdErr,
   updateMessages,
   updateReportStatus,
-  updateBranch
+  updateBranch,
+  updateDocumentType
 } from "../../actions/formActions";
 import Button from "../button/button";
 import DockerService from "../../services/DockerService";
@@ -42,12 +43,17 @@ class Form extends Component {
     this.props.updateBranch(event.target.value);
   };
 
+  updateDocumentType = (event) => {
+    this.props.updateDocumentType(event.target.value);
+  };
+
   runE2E = async (event) => {
     event.preventDefault();
     this.validateForm()
       .then(() => {
         const {
           branch,
+          documentType,
           email,
           formStatus,
           password
@@ -58,6 +64,7 @@ class Form extends Component {
           this.dockerService
             .runE2ESuite({
               branch: branch,
+              documentType: documentType,
               email: email,
               password: password
             })
@@ -148,6 +155,7 @@ class Form extends Component {
     const {
       branch,
       email,
+      documentType,
       password,
       formStatus,
       formMessages,
@@ -190,6 +198,12 @@ class Form extends Component {
                      placeholder="Branch name" value={ branch }
                      onChange={ this.updateBranch }/>
             </div>
+            <div className="form-group">
+              <label htmlFor="branch">Document type</label>
+              <input type="text" className="form-control" id="docType" name="docType"
+                     placeholder="Document type name" value={ documentType }
+                     onChange={ this.updateDocumentType }/>
+            </div>
           </fieldset>
           <Alert
             status={ formStatus }
@@ -222,6 +236,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   updateBranch: (branch) => dispatch(updateBranch(branch)),
   updateBuildStatus: (isRunning) => dispatch(updateBuildStatus(isRunning)),
+  updateDocumentType: (documentType) => dispatch(updateDocumentType(documentType)),
   updateFormStatus: (status) => dispatch(updateFormStatus(status)),
   updateFormMessages: (messages) => dispatch(updateFormMessages(messages)),
   updateLoading: (isLoading) => dispatch(updateLoading(isLoading)),
