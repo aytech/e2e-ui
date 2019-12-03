@@ -17,12 +17,12 @@ const Button = (props) => {
     return null;
   }
 
-  let buttonType = type;
-  let spinnerClassName;
-  let errorClassName;
+  let buttonType = type,
+    spinnerClassName,
+    errorClassName;
 
   if (type === undefined) {
-    buttonType = 'button';
+    buttonType = 'button'
   }
 
   if (loading === true) {
@@ -32,9 +32,9 @@ const Button = (props) => {
   }
 
   if (error === true) {
-    errorClassName = 'fas fa-exclamation-circle visible';
+    errorClassName = 'fas fa-exclamation-circle visible'
   } else {
-    errorClassName = 'fas fa-exclamation-circle';
+    errorClassName = 'fas fa-exclamation-circle'
   }
 
   return (

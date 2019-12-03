@@ -16,7 +16,9 @@ import {
   UPDATE_REPORT_LOADING,
   UPDATE_REPORT_STATUS,
   UPDATE_BRANCH,
-  UPDATE_DOCUMENT_TYPE, UPDATE_STOP_LOADING
+  UPDATE_DOCUMENT_TYPE,
+  UPDATE_STOP_LOADING,
+  UPDATE_MODAL_OPEN
 } from "../actions/constants";
 
 export default (state = {}, action) => {
@@ -75,6 +77,11 @@ export default (state = {}, action) => {
       return {
         ...state,
         messages: action.messages
+      };
+    case UPDATE_MODAL_OPEN:
+      return {
+        ...state,
+        isModalOpen: action.status
       };
     case UPDATE_PASSWORD:
       return {

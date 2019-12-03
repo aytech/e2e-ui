@@ -12,6 +12,7 @@ const initialState = {
     formStatus: null,
     formMessages: [],
     isLoading: false,
+    isModalOpen: false,
     isReportAvailable: false,
     isReportLoading: false,
     isStatusLoading: false,

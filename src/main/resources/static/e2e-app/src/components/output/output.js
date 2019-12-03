@@ -6,12 +6,14 @@ import StandardOutput from "./standard-output";
 import {
   updateDebugEnabled,
   updateErrorEnabled,
+  updateModalOpen,
   updateReportLoading,
   updateStopProcessLoading
 } from "../../actions/outputActions";
 import './output.css';
 import DockerService from "../../services/DockerService";
 import Button from "../button/button";
+import ModalDialog from "../modal/modal";
 
 class Output extends Component {
 
@@ -41,11 +43,17 @@ class Output extends Component {
     toggleErrorEnabled(!state.errorOutputEnabled);
   };
 
+  openModal = () => {
+    this.props.updateModalOpen(true);
+  };
+
+  closeModal = () => {
+    this.props.updateModalOpen(false);
+  };
+
   downloadReportZip = () => {
-    const { updateReportLoading } = this.props;
-    const { isReportAvailable } = this.props.state;
-    updateReportLoading(true);
-    if (isReportAvailable === true) {
+    this.props.updateReportLoading(true);
+    if (this.props.isReportAvailable === true) {
       this.dockerService
         .downloadReportZip()
         .then(blob => {
@@ -58,12 +66,13 @@ class Output extends Component {
           }
         })
         .finally(() => {
-          updateReportLoading(false);
+          this.props.updateReportLoading(false);
         });
     }
   };
 
   stopRunningProcess = () => {
+    this.props.updateModalOpen(false);
     this.props.updateStopProcessLoading(true);
     this.dockerService
       .stopProcess()
@@ -88,6 +97,7 @@ class Output extends Component {
       serverErrorState,
       stdErr,
       stdInput,
+      isModalOpen
     } = this.props.state;
 
     return (
@@ -111,7 +121,7 @@ class Output extends Component {
             loading={ isStopProcessLoading }
             text={ 'Stop test' }
             show={ !buildInProgress }
-            onClick={ this.stopRunningProcess }/>
+            onClick={ this.openModal }/>
           <Button
             className="btn btn-primary btn-lg inline"
             loading={ isReportLoading }
@@ -131,6 +141,13 @@ class Output extends Component {
           messages={ messages }
           stdInput={ stdInput }
           stdErr={ stdErr }/>
+        <ModalDialog
+          show={ isModalOpen }
+          title="Confirm stop"
+          body="Stop test? This will stop all running tests, report will not be available"
+          actionText="Stop test"
+          onCancel={ this.closeModal }
+          onOk={ this.stopRunningProcess }/>
       </div>
     )
   }
@@ -143,6 +160,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   toggleDebugEnabled: (isEnabled) => dispatch(updateDebugEnabled(isEnabled)),
   toggleErrorEnabled: (isEnabled) => dispatch(updateErrorEnabled(isEnabled)),
+  updateModalOpen: (isOpen) => dispatch(updateModalOpen(isOpen)),
   updateReportLoading: (isLoading) => dispatch(updateReportLoading(isLoading)),
   updateStopProcessLoading: (isLoading) => dispatch(updateStopProcessLoading(isLoading))
 });
