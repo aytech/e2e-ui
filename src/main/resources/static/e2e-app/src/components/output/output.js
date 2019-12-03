@@ -44,17 +44,10 @@ class Output extends Component {
   downloadReportZip = () => {
     const { updateReportLoading } = this.props;
     const { isReportAvailable } = this.props.state;
-
     updateReportLoading(true);
     if (isReportAvailable === true) {
       this.dockerService
         .downloadReportZip()
-        .then(response => {
-          if (response.status === 200) {
-            return response.blob();
-          }
-          return null;
-        })
         .then(blob => {
           if (blob !== null) {
             let url = window.URL.createObjectURL(blob);
@@ -72,9 +65,14 @@ class Output extends Component {
 
   stopRunningProcess = () => {
     this.props.updateStopProcessLoading(true);
-    setTimeout(() => {
-      this.props.updateStopProcessLoading(false);
-    }, 2000);
+    this.dockerService
+      .stopProcess()
+      .then(data => {
+        console.log("Data: ", data);
+      })
+      .finally(() => {
+        this.props.updateStopProcessLoading(false);
+      });
   };
 
   render() {

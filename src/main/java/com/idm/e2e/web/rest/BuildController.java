@@ -97,4 +97,14 @@ public class BuildController {
         }
         return null;
     }
+
+    @RequestMapping(
+            method = RequestMethod.GET,
+            value = URI_STOP_PROCESS,
+            params = {"node"}
+    )
+    public ResponseEntity<DockerStopResponse> stopTest(@RequestParam("node") String nodeID) {
+        DockerStopResponse response = new DockerStopResponse(nodeID);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
