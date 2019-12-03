@@ -37,10 +37,6 @@ public class FileSystemConfiguration implements DockerRunnable {
     }
 
     @Override
-    public void setNode(String node) {
-    }
-
-    @Override
     public void run() {
         isAlive = true;
         fileResource.createConfigurationDirectory(null);

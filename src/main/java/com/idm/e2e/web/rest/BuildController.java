@@ -61,7 +61,7 @@ public class BuildController {
                 System.out.println("Can't run jobs: " + e.getMessage());
                 e.printStackTrace();
             }
-            response.setNodeID(configuration.getNodeID());
+            response.setNodeID(nodeID);
             response.setValid(true);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {

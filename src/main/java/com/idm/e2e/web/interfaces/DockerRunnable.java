@@ -5,5 +5,4 @@ public interface DockerRunnable extends Runnable {
     Boolean isAlive();
     Boolean isFailed();
     void destroy();
-    void setNode(String node);
 }

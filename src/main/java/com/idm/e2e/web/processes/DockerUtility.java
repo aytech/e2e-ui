@@ -42,18 +42,18 @@ public class DockerUtility {
         process.waitFor();
     }
 
-    public Process startContainer(ProcessBuilder builder, String nodeID) throws IOException, InterruptedException {
+    public Process startContainer(ProcessBuilder builder, String logID) throws IOException, InterruptedException {
         Process process = builder.start();
         ProcessLogger logger = new ProcessLogger(process);
-        logger.log(nodeID);
+        logger.log(logID);
         process.waitFor();
         return process;
     }
 
-    public Process startContainer(ProcessBuilder builder, String nodeID, Pattern pattern) throws IOException, InterruptedException {
+    public Process startContainer(ProcessBuilder builder, String logID, Pattern pattern) throws IOException, InterruptedException {
         Process process = builder.start();
         ProcessLogger logger = new ProcessLogger(process);
-        logger.log(nodeID, pattern);
+        logger.log(logID, pattern);
         process.waitFor();
         return process;
     }

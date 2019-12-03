@@ -45,13 +45,13 @@ public class DockerCommands {
         return getBuilder(arguments);
     }
 
-    public static ProcessBuilder buildImage(String dockerFile, String node, String contextPath) {
+    public static ProcessBuilder buildImage(String dockerFile, String imageTag, String contextPath) {
         ArrayList<String> arguments = getArguments();
         arguments.add("build");
         arguments.add("-f");
         arguments.add(dockerFile);
         arguments.add("-t");
-        arguments.add(node);
+        arguments.add(imageTag);
         arguments.add(contextPath);
         return getBuilder(arguments);
     }
@@ -122,8 +122,8 @@ public class DockerCommands {
         return builder;
     }
 
-    private static String getNewNodeID(String prefix) {
-        return String.format("%s-%s", prefix, RandomStringUtils.random(10, false, true));
+    private static String getNewNodeID() {
+        return RandomStringUtils.random(10, false, true);
     }
 
     private static void addNode(String node) {
@@ -134,13 +134,7 @@ public class DockerCommands {
     }
 
     public static String getNewE2ENode() {
-        String node = getNewNodeID(DOCKER_E2E_NODE_PREFIX);
-        addNode(node);
-        return node;
-    }
-
-    public static String getNewChromeNode() {
-        String node = getNewNodeID(DOCKER_CHROME_NODE_PREFIX);
+        String node = getNewNodeID();
         addNode(node);
         return node;
     }
