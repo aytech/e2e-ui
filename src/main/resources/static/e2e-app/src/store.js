@@ -15,6 +15,7 @@ const initialState = {
     isReportAvailable: false,
     isReportLoading: false,
     isStatusLoading: false,
+    isStopProcessLoading: false,
     messages: [],
     password: '',
     serverErrorState: false,

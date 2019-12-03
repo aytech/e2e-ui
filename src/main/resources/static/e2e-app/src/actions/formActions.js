@@ -1,9 +1,9 @@
 import {
-  IS_SERVER_ERROR,
-  SET_FORM_MESSAGES,
-  SET_FORM_STATUS,
-  SET_LOADING,
-  SET_LOADING_STATUS,
+  UPDATE_SERVER_ERROR,
+  UPDATE_FORM_MESSAGES,
+  UPDATE_FORM_STATUS,
+  UPDATE_LOADING,
+  UPDATE_LOADING_STATUS,
   UPDATE_BUILD_STATUS,
   UPDATE_EMAIL,
   UPDATE_STD_INPUT,
@@ -19,15 +19,15 @@ import {
 export const updateBranch = (branch) => ({ type: UPDATE_BRANCH, branch });
 export const updateBuildStatus = (isRunning) => ({ type: UPDATE_BUILD_STATUS, isRunning });
 export const updateDocumentType = (documentType) => ({ type: UPDATE_DOCUMENT_TYPE, documentType });
-export const updateFormMessages = (messages) => ({ type: SET_FORM_MESSAGES, messages });
-export const updateFormStatus = (status) => ({ type: SET_FORM_STATUS, status });
-export const updateLoading = (isLoading) => ({ type: SET_LOADING, isLoading });
-export const updateLoadingStatus = (isStatusLoading) => ({ type: SET_LOADING_STATUS, isStatusLoading });
+export const updateFormMessages = (messages) => ({ type: UPDATE_FORM_MESSAGES, messages });
+export const updateFormStatus = (status) => ({ type: UPDATE_FORM_STATUS, status });
+export const updateLoading = (isLoading) => ({ type: UPDATE_LOADING, isLoading });
+export const updateLoadingStatus = (isStatusLoading) => ({ type: UPDATE_LOADING_STATUS, isStatusLoading });
 export const updateMessages = (messages) => ({ type: UPDATE_MESSAGES, messages });
 export const updateStdErr = (error) => ({ type: UPDATE_STD_ERR, error });
 export const updateStdInput = (input) => ({ type: UPDATE_STD_INPUT, input });
 export const updateReportStatus = (status) => ({ type: UPDATE_REPORT_STATUS, status });
 export const updateRunStatus = (isSuccessful) => ({ type: UPDATE_RUN_STATUS, isSuccessful });
-export const updateServerErrorState = (isError) => ({ type: IS_SERVER_ERROR, isError });
+export const updateServerErrorState = (isError) => ({ type: UPDATE_SERVER_ERROR, isError });
 export const updateUserEmail = (email) => ({ type: UPDATE_EMAIL, email });
 export const updateUserPassword = (password) => ({ type: UPDATE_PASSWORD, password });

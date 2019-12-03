@@ -1,7 +1,10 @@
 import {
-  TOGGLE_DEBUG_ENABLED,
-  TOGGLE_ERROR_ENABLED
+  UPDATE_DEBUG_ENABLED,
+  UPDATE_ERROR_ENABLED, UPDATE_REPORT_LOADING,
+  UPDATE_STOP_LOADING
 } from "./constants";
 
-export const toggleDebugEnabled = (status) => ({ type: TOGGLE_DEBUG_ENABLED, status });
-export const toggleErrorEnabled = (status) => ({ type: TOGGLE_ERROR_ENABLED, status });
+export const updateDebugEnabled = (status) => ({ type: UPDATE_DEBUG_ENABLED, status });
+export const updateErrorEnabled = (status) => ({ type: UPDATE_ERROR_ENABLED, status });
+export const updateReportLoading = (status) => ({ type: UPDATE_REPORT_LOADING, status });
+export const updateStopProcessLoading = (status) => ({ type: UPDATE_STOP_LOADING, status });

@@ -4,8 +4,10 @@ import { ProgressBar } from "./progress";
 import { Title } from "./title";
 import StandardOutput from "./standard-output";
 import {
-  toggleDebugEnabled,
-  toggleErrorEnabled
+  updateDebugEnabled,
+  updateErrorEnabled,
+  updateReportLoading,
+  updateStopProcessLoading
 } from "../../actions/outputActions";
 import './output.css';
 import DockerService from "../../services/DockerService";
@@ -40,7 +42,11 @@ class Output extends Component {
   };
 
   downloadReportZip = () => {
-    if (this.props.state.isReportAvailable === true) {
+    const { updateReportLoading } = this.props;
+    const { isReportAvailable } = this.props.state;
+
+    updateReportLoading(true);
+    if (isReportAvailable === true) {
       this.dockerService
         .downloadReportZip()
         .then(response => {
@@ -58,7 +64,17 @@ class Output extends Component {
             a.click();
           }
         })
+        .finally(() => {
+          updateReportLoading(false);
+        });
     }
+  };
+
+  stopRunningProcess = () => {
+    this.props.updateStopProcessLoading(true);
+    setTimeout(() => {
+      this.props.updateStopProcessLoading(false);
+    }, 2000);
   };
 
   render() {
@@ -68,6 +84,8 @@ class Output extends Component {
       debugOutputEnabled,
       errorOutputEnabled,
       isReportAvailable,
+      isReportLoading,
+      isStopProcessLoading,
       messages,
       serverErrorState,
       stdErr,
@@ -92,6 +110,13 @@ class Output extends Component {
         <div className="form-group">
           <Button
             className="btn btn-primary btn-lg inline"
+            loading={ isStopProcessLoading }
+            text={ 'Stop test' }
+            show={ !buildInProgress }
+            onClick={ this.stopRunningProcess }/>
+          <Button
+            className="btn btn-primary btn-lg inline"
+            loading={ isReportLoading }
             text={ 'Download report' }
             show={ isReportAvailable && !buildInProgress }
             onClick={ this.downloadReportZip }/>
@@ -118,8 +143,10 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  toggleDebugEnabled: (isEnabled) => dispatch(toggleDebugEnabled(isEnabled)),
-  toggleErrorEnabled: (isEnabled) => dispatch(toggleErrorEnabled(isEnabled))
+  toggleDebugEnabled: (isEnabled) => dispatch(updateDebugEnabled(isEnabled)),
+  toggleErrorEnabled: (isEnabled) => dispatch(updateErrorEnabled(isEnabled)),
+  updateReportLoading: (isLoading) => dispatch(updateReportLoading(isLoading)),
+  updateStopProcessLoading: (isLoading) => dispatch(updateStopProcessLoading(isLoading))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Output);
