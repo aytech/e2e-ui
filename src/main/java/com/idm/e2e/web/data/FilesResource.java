@@ -125,6 +125,16 @@ public class FilesResource {
         }
     }
 
+    public void removeReportsDirectory() {
+        String directory = getConfigurationDirectory(REPORT_DIR).getPath();
+        File file = new File(directory);
+        if (file.exists() && file.delete()) {
+            System.out.println(String.format("Directory %s was removed", file.getName()));
+        } else {
+            System.out.println(String.format("Error removing directory %s", file.getPath()));
+        }
+    }
+
     private List<String> getConfigurationFiles() {
         String configurationDirectory = getConfigurationDirectory(null).getPath();
         ArrayList<String> paths = new ArrayList<>();
@@ -138,7 +148,7 @@ public class FilesResource {
     /*
      * Get configuration directory in format <home directory>/e2e
      */
-    private File getConfigurationDirectory(String subDirectory) {
+    public File getConfigurationDirectory(String subDirectory) {
         String homeDirectory = System.getProperty("user.home");
         String basePath = String.format(
                 "%s%s%s%s%s",

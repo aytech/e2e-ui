@@ -7,6 +7,8 @@ import com.idm.e2e.web.interfaces.DockerRunnable;
 import com.idm.e2e.web.models.E2EConfiguration;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import static com.idm.e2e.web.configuration.DockerConstants.DOCKER_CHROME_NODE;
@@ -27,7 +29,7 @@ public class DockerRun implements DockerRunnable {
         chromeNodeID = String.format(DOCKER_CHROME_NODE, configuration.getNodeID());
         logID = configuration.getNodeID();
         filesResource = new FilesResource(configuration);
-        dockerUtility = new DockerUtility();
+        dockerUtility = new DockerUtility(e2eNodeID);
     }
 
     @Override
@@ -52,9 +54,16 @@ public class DockerRun implements DockerRunnable {
         if (e2eProcess != null) {
             e2eProcess.destroy();
         }
-        DockerCommands.stopNode(chromeNodeID);
-        DockerCommands.stopNode(e2eNodeID);
+        List<String> nodes = new ArrayList<>();
+        nodes.add(chromeNodeID);
+        nodes.add(e2eNodeID);
+        dockerUtility.stopNodes(nodes);
+
+        System.out.println("Exit status: " + dockerUtility.getContainerExitStatus());
         filesResource.cleanConfigurationFiles();
+        if (dockerUtility.getContainerExitStatus() > 0) {
+            filesResource.removeReportsDirectory();
+        }
     }
 
     @Override

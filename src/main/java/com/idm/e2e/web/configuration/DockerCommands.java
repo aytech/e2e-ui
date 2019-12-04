@@ -32,6 +32,15 @@ public class DockerCommands {
         return getBuilder(arguments);
     }
 
+    public static ProcessBuilder getContainerExitStatus(String containerName) {
+        ArrayList<String> arguments = getArguments();
+        arguments.add("inspect");
+        arguments.add("-f");
+        arguments.add("'{{.State.ExitCode}}'");
+        arguments.add(containerName);
+        return getBuilder(arguments);
+    }
+
     public static ProcessBuilder startSeleniumGrid() {
         ArrayList<String> arguments = getRunArguments(DOCKER_GRID_CONTAINER_NAME);
         arguments.add("-p");
@@ -56,7 +65,7 @@ public class DockerCommands {
         return getBuilder(arguments);
     }
 
-    private static ProcessBuilder stopNodeProcess(String nodeID) {
+    public static ProcessBuilder getStopNodeProcess(String nodeID) {
         ArrayList<String> arguments = getArguments();
         arguments.add("stop");
         arguments.add(nodeID);
@@ -137,20 +146,5 @@ public class DockerCommands {
         String node = getNewNodeID();
         addNode(node);
         return node;
-    }
-
-    public static void stopNode(String nodeID) {
-        for (String node : nodes) {
-            if (node.equals(nodeID)) {
-                try {
-                    Process process = stopNodeProcess(node).start();
-                    ProcessLogger logger = new ProcessLogger(process);
-                    logger.log(node);
-                    process.waitFor();
-                } catch (IOException | InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 }

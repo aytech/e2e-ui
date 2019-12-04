@@ -4,28 +4,44 @@ import com.idm.e2e.web.configuration.DockerCommands;
 import com.idm.e2e.web.data.ProcessLogger;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.regex.Pattern;
 
-import static com.idm.e2e.web.configuration.DockerConstants.DOCKER_GRID_CONTAINER_NAME;
-
 public class DockerUtility {
+    private String containerName;
+
+    public DockerUtility(String containerName) {
+        this.containerName = containerName;
+    }
+
     public void startSeleniumGridContainer() {
         try {
-            String container = DOCKER_GRID_CONTAINER_NAME;
-            if (!isContainerRunning(container)) {
+            System.out.println(String.format("Container %s running: %b", containerName, isContainerRunning()));
+            if (!isContainerRunning()) {
                 prune();
                 createNetwork();
-                startContainer(DockerCommands.startSeleniumGrid(), container);
+                startContainer(DockerCommands.startSeleniumGrid(), containerName);
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    private Boolean isContainerRunning(String containerName) throws IOException {
+    private Boolean isContainerRunning() throws IOException {
         Process process = DockerCommands.getRunningStatus(containerName).start();
         ProcessLogger logger = new ProcessLogger(process);
         return logger.getLogBoolean();
+    }
+
+    public Integer getContainerExitStatus() {
+        try {
+            Process process = DockerCommands.getContainerExitStatus(containerName).start();
+            ProcessLogger logger = new ProcessLogger(process);
+            return logger.getLogNumber();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     private void prune() throws IOException, InterruptedException {
@@ -56,5 +72,18 @@ public class DockerUtility {
         logger.log(logID, pattern);
         process.waitFor();
         return process;
+    }
+
+    public void stopNodes(List<String> nodeIDs) {
+        for (String nodeID : nodeIDs) {
+            try {
+                Process process = DockerCommands.getStopNodeProcess(nodeID).start();
+                ProcessLogger logger = new ProcessLogger(process);
+                logger.log(nodeID);
+                process.waitFor();
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

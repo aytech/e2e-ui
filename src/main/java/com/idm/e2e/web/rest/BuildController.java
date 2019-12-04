@@ -5,10 +5,7 @@ import com.idm.e2e.web.data.StatusStorage;
 import com.idm.e2e.web.data.ZipResource;
 import com.idm.e2e.web.interfaces.DockerRunnable;
 import com.idm.e2e.web.models.*;
-import com.idm.e2e.web.processes.DockerBuild;
-import com.idm.e2e.web.processes.DockerRun;
-import com.idm.e2e.web.processes.FileSystemConfiguration;
-import com.idm.e2e.web.processes.ThreadRunner;
+import com.idm.e2e.web.processes.*;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
@@ -19,11 +16,14 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.idm.e2e.web.configuration.AppConstants.*;
+import static com.idm.e2e.web.configuration.DockerConstants.DOCKER_CHROME_NODE;
+import static com.idm.e2e.web.configuration.DockerConstants.DOCKER_E2E_NODE;
 
 @RestController
-@RequestMapping(value = "/api")
+@RequestMapping(value = URI_BASE)
 public class BuildController {
 
     @RequestMapping(
@@ -33,7 +33,10 @@ public class BuildController {
     )
     public HttpEntity<DockerBuildStatus> getStatus(@RequestParam("node") String nodeID) {
         DockerBuildStatus status = StatusStorage.getStatus(nodeID);
-        status.setReportAvailable(ZipResource.isReportAvailable(nodeID));
+        E2EConfiguration configuration = new E2EConfiguration();
+        configuration.setNodeID(nodeID);
+        ZipResource resource = new ZipResource(configuration);
+        status.setReportAvailable(resource.isReportAvailable());
         return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
@@ -80,7 +83,10 @@ public class BuildController {
             HttpServletRequest request,
             @RequestParam("node") String nodeID
     ) {
-        String zipFilePath = ZipResource.zipE2EReports(nodeID);
+        E2EConfiguration configuration = new E2EConfiguration();
+        configuration.setNodeID(nodeID);
+        ZipResource zipResource = new ZipResource(configuration);
+        String zipFilePath = zipResource.zipE2EReports();
         Path path = Paths.get(zipFilePath);
         try {
             Resource resource = new UrlResource(path.toUri());
@@ -105,6 +111,18 @@ public class BuildController {
     )
     public ResponseEntity<DockerStopResponse> stopTest(@RequestParam("node") String nodeID) {
         DockerStopResponse response = new DockerStopResponse(nodeID);
+        DockerUtility dockerUtility = new DockerUtility(String.format(DOCKER_E2E_NODE, nodeID));
+//        E2EConfiguration configuration = new E2EConfiguration();
+//        configuration.setNodeID(nodeID);
+//        FilesResource filesResource = new FilesResource(configuration);
+
+        List<String> nodes = new ArrayList<>();
+        nodes.add(String.format(DOCKER_CHROME_NODE, nodeID));
+        nodes.add(String.format(DOCKER_E2E_NODE, nodeID));
+
+        dockerUtility.stopNodes(nodes);
+//        filesResource.removeConfigurationDirectory();
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -52,8 +52,9 @@ class Output extends Component {
   };
 
   downloadReportZip = () => {
-    this.props.updateReportLoading(true);
-    if (this.props.isReportAvailable === true) {
+    console.log('Report available: ', this.props.state.isReportAvailable);
+    if (this.props.state.isReportAvailable === true) {
+      this.props.updateReportLoading(true);
       this.dockerService
         .downloadReportZip()
         .then(blob => {
@@ -100,6 +101,7 @@ class Output extends Component {
       isModalOpen
     } = this.props.state;
 
+
     return (
       <div className="jumbotron">
         <h1 className="display-3">Output:</h1>
@@ -120,13 +122,13 @@ class Output extends Component {
             className="btn btn-primary btn-lg inline"
             loading={ isStopProcessLoading }
             text={ 'Stop test' }
-            show={ !buildInProgress }
+            show={ buildInProgress }
             onClick={ this.openModal }/>
           <Button
             className="btn btn-primary btn-lg inline"
             loading={ isReportLoading }
             text={ 'Download report' }
-            show={ isReportAvailable && !buildInProgress }
+            show={ buildInProgress === false && isReportAvailable === true }
             onClick={ this.downloadReportZip }/>
         </div>
         <Title

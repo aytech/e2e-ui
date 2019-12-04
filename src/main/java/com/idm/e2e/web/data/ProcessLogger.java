@@ -59,4 +59,17 @@ public class ProcessLogger {
         }
         return false;
     }
+
+    public Integer getLogNumber() {
+        try {
+            BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+//            while ((line = input.readLine()) != null) {
+                return Integer.parseInt(input.readLine().replaceAll("'", ""));
+//            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }
