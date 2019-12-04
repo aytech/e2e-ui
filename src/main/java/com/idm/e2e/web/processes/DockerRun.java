@@ -54,16 +54,12 @@ public class DockerRun implements DockerRunnable {
         if (e2eProcess != null) {
             e2eProcess.destroy();
         }
-        List<String> nodes = new ArrayList<>();
-        nodes.add(chromeNodeID);
-        nodes.add(e2eNodeID);
-        dockerUtility.stopNodes(nodes);
 
-        System.out.println("Exit status: " + dockerUtility.getContainerExitStatus());
+        List<String> containers = new ArrayList<>();
+        containers.add(chromeNodeID);
+        containers.add(e2eNodeID);
+        dockerUtility.stopRunningContainers(containers);
         filesResource.cleanConfigurationFiles();
-        if (dockerUtility.getContainerExitStatus() > 0) {
-            filesResource.removeReportsDirectory();
-        }
     }
 
     @Override

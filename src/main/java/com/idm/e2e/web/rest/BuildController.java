@@ -35,6 +35,8 @@ public class BuildController {
         DockerBuildStatus status = StatusStorage.getStatus(nodeID);
         E2EConfiguration configuration = new E2EConfiguration();
         configuration.setNodeID(nodeID);
+        DockerUtility utility = new DockerUtility(String.format(DOCKER_E2E_NODE, nodeID));
+        status.setCanBeStopped(utility.isContainerCreated());
         ZipResource resource = new ZipResource(configuration);
         status.setReportAvailable(resource.isReportAvailable());
         return new ResponseEntity<>(status, HttpStatus.OK);
@@ -112,16 +114,11 @@ public class BuildController {
     public ResponseEntity<DockerStopResponse> stopTest(@RequestParam("node") String nodeID) {
         DockerStopResponse response = new DockerStopResponse(nodeID);
         DockerUtility dockerUtility = new DockerUtility(String.format(DOCKER_E2E_NODE, nodeID));
-//        E2EConfiguration configuration = new E2EConfiguration();
-//        configuration.setNodeID(nodeID);
-//        FilesResource filesResource = new FilesResource(configuration);
 
-        List<String> nodes = new ArrayList<>();
-        nodes.add(String.format(DOCKER_CHROME_NODE, nodeID));
-        nodes.add(String.format(DOCKER_E2E_NODE, nodeID));
-
-        dockerUtility.stopNodes(nodes);
-//        filesResource.removeConfigurationDirectory();
+        List<String> containers = new ArrayList<>();
+        containers.add(String.format(DOCKER_CHROME_NODE, nodeID));
+        containers.add(String.format(DOCKER_E2E_NODE, nodeID));
+        dockerUtility.stopRunningContainers(containers);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

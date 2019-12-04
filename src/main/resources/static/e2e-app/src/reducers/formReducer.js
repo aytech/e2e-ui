@@ -18,7 +18,8 @@ import {
   UPDATE_BRANCH,
   UPDATE_DOCUMENT_TYPE,
   UPDATE_STOP_LOADING,
-  UPDATE_MODAL_OPEN
+  UPDATE_MODAL_OPEN,
+  UPDATE_CAN_BE_STOPPED
 } from "../actions/constants";
 
 export default (state = {}, action) => {
@@ -32,6 +33,11 @@ export default (state = {}, action) => {
       return {
         ...state,
         buildInProgress: action.isRunning
+      };
+    case UPDATE_CAN_BE_STOPPED:
+      return {
+        ...state,
+        canProcessBeStopped: action.status
       };
     case UPDATE_DEBUG_ENABLED:
       return {

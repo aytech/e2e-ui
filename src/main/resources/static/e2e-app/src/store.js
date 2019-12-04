@@ -5,6 +5,7 @@ const initialState = {
   state: {
     branch: '',
     buildInProgress: false,
+    canProcessBeStopped: false,
     debugOutputEnabled: false,
     documentType: '',
     errorOutputEnabled: false,

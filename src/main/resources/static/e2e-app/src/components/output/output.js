@@ -4,6 +4,7 @@ import { ProgressBar } from "./progress";
 import { Title } from "./title";
 import StandardOutput from "./standard-output";
 import {
+  updateCanBeStopped,
   updateDebugEnabled,
   updateErrorEnabled,
   updateModalOpen,
@@ -77,10 +78,8 @@ class Output extends Component {
     this.props.updateStopProcessLoading(true);
     this.dockerService
       .stopProcess()
-      .then(data => {
-        console.log("Data: ", data);
-      })
       .finally(() => {
+        this.props.updateCanBeStopped(false);
         this.props.updateStopProcessLoading(false);
       });
   };
@@ -89,6 +88,7 @@ class Output extends Component {
 
     const {
       buildInProgress,
+      canProcessBeStopped,
       debugOutputEnabled,
       errorOutputEnabled,
       isReportAvailable,
@@ -101,6 +101,8 @@ class Output extends Component {
       isModalOpen
     } = this.props.state;
 
+    const stopProcessText = isStopProcessLoading === true ? 'Stopping test' : 'Stop test';
+    const downloadReportText = isReportLoading === true ? 'Downloading report' : 'Download report';
 
     return (
       <div className="jumbotron">
@@ -121,13 +123,13 @@ class Output extends Component {
           <Button
             className="btn btn-primary btn-lg inline"
             loading={ isStopProcessLoading }
-            text={ 'Stop test' }
-            show={ buildInProgress }
+            text={ stopProcessText }
+            show={ canProcessBeStopped === true && buildInProgress === true }
             onClick={ this.openModal }/>
           <Button
             className="btn btn-primary btn-lg inline"
             loading={ isReportLoading }
-            text={ 'Download report' }
+            text={ downloadReportText }
             show={ buildInProgress === false && isReportAvailable === true }
             onClick={ this.downloadReportZip }/>
         </div>
@@ -146,7 +148,7 @@ class Output extends Component {
         <ModalDialog
           show={ isModalOpen }
           title="Confirm stop"
-          body="Stop test? This will stop all running tests, report will not be available"
+          body="Stop test? This will stop all running tests, report might be incomplete"
           actionText="Stop test"
           onCancel={ this.closeModal }
           onOk={ this.stopRunningProcess }/>
@@ -162,6 +164,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   toggleDebugEnabled: (isEnabled) => dispatch(updateDebugEnabled(isEnabled)),
   toggleErrorEnabled: (isEnabled) => dispatch(updateErrorEnabled(isEnabled)),
+  updateCanBeStopped: (status) => dispatch(updateCanBeStopped(status)),
   updateModalOpen: (isOpen) => dispatch(updateModalOpen(isOpen)),
   updateReportLoading: (isLoading) => dispatch(updateReportLoading(isLoading)),
   updateStopProcessLoading: (isLoading) => dispatch(updateStopProcessLoading(isLoading))

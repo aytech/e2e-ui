@@ -60,16 +60,16 @@ public class ProcessLogger {
         return false;
     }
 
-    public Integer getLogNumber() {
+    public String getLogString() {
         try {
             BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-//            while ((line = input.readLine()) != null) {
-                return Integer.parseInt(input.readLine().replaceAll("'", ""));
-//            }
+            String line = input.readLine();
+            if (line != null) {
+                return line.replaceAll("'", "");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return 0;
+        return null;
     }
 }

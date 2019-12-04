@@ -1,9 +1,7 @@
 package com.idm.e2e.web.configuration;
 
-import com.idm.e2e.web.data.ProcessLogger;
 import org.apache.commons.lang3.RandomStringUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -32,12 +30,22 @@ public class DockerCommands {
         return getBuilder(arguments);
     }
 
-    public static ProcessBuilder getContainerExitStatus(String containerName) {
+    public static ProcessBuilder getContainerRunningStatus(String containerName) {
         ArrayList<String> arguments = getArguments();
         arguments.add("inspect");
         arguments.add("-f");
-        arguments.add("'{{.State.ExitCode}}'");
+        arguments.add("'{{.State.Status}}'");
         arguments.add(containerName);
+        return getBuilder(arguments);
+    }
+
+    public static ProcessBuilder isContainerCreated(String containerName) {
+        ArrayList<String> arguments = getArguments();
+        arguments.add("container");
+        arguments.add("ls");
+        arguments.add("-f");
+        arguments.add(String.format("name=%s", containerName));
+        arguments.add("-q");
         return getBuilder(arguments);
     }
 
@@ -65,10 +73,10 @@ public class DockerCommands {
         return getBuilder(arguments);
     }
 
-    public static ProcessBuilder getStopNodeProcess(String nodeID) {
+    public static ProcessBuilder getStopContainerCommand(String containerName) {
         ArrayList<String> arguments = getArguments();
         arguments.add("stop");
-        arguments.add(nodeID);
+        arguments.add(containerName);
         return getBuilder(arguments);
     }
 

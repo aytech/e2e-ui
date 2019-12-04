@@ -15,7 +15,8 @@ import {
   updateMessages,
   updateReportStatus,
   updateBranch,
-  updateDocumentType
+  updateDocumentType,
+  updateCanBeStopped
 } from "../../actions/formActions";
 import Button from "../button/button";
 import DockerService from "../../services/DockerService";
@@ -29,6 +30,11 @@ class Form extends Component {
 
   componentDidMount() {
     this.getE2EBuildStatus();
+    this.timerID = setInterval(this.getE2EBuildStatus, 5000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timerID);
   }
 
   updateUserEmail = (event) => {
@@ -100,15 +106,6 @@ class Form extends Component {
     this.dockerService
       .getDockerBuildStatus()
       .then(job => {
-        if (job.running === true) {
-          if (this.timerID === undefined) {
-            this.timerID = setInterval(this.getE2EBuildStatus, 2000);
-          }
-        } else {
-          if (this.timerID !== undefined) {
-            clearInterval(this.timerID);
-          }
-        }
         if (job.messages === null) {
           this.props.updateStdInput([]);
         } else {
@@ -120,6 +117,7 @@ class Form extends Component {
         this.props.updateBuildStatus(job.running);
         this.props.updateServerErrorState(false);
         this.props.updateReportStatus(job.reportAvailable);
+        this.props.updateCanBeStopped(job.canBeStopped);
       })
       .catch(() => {
         this.props.updateBuildStatus(false);
@@ -236,6 +234,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   updateBranch: (branch) => dispatch(updateBranch(branch)),
   updateBuildStatus: (isRunning) => dispatch(updateBuildStatus(isRunning)),
+  updateCanBeStopped: (status) => dispatch(updateCanBeStopped(status)),
   updateDocumentType: (documentType) => dispatch(updateDocumentType(documentType)),
   updateFormStatus: (status) => dispatch(updateFormStatus(status)),
   updateFormMessages: (messages) => dispatch(updateFormMessages(messages)),

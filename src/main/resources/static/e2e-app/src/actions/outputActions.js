@@ -1,4 +1,5 @@
 import {
+  UPDATE_CAN_BE_STOPPED,
   UPDATE_DEBUG_ENABLED,
   UPDATE_ERROR_ENABLED,
   UPDATE_MODAL_OPEN,
@@ -6,6 +7,7 @@ import {
   UPDATE_STOP_LOADING
 } from "./constants";
 
+export const updateCanBeStopped = (status) => ({ type: UPDATE_CAN_BE_STOPPED, status });
 export const updateDebugEnabled = (status) => ({ type: UPDATE_DEBUG_ENABLED, status });
 export const updateErrorEnabled = (status) => ({ type: UPDATE_ERROR_ENABLED, status });
 export const updateReportLoading = (status) => ({ type: UPDATE_REPORT_LOADING, status });

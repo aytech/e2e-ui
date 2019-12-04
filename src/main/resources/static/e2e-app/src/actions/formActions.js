@@ -13,11 +13,13 @@ import {
   UPDATE_MESSAGES,
   UPDATE_REPORT_STATUS,
   UPDATE_BRANCH,
-  UPDATE_DOCUMENT_TYPE
+  UPDATE_DOCUMENT_TYPE,
+  UPDATE_CAN_BE_STOPPED
 } from "./constants";
 
 export const updateBranch = (branch) => ({ type: UPDATE_BRANCH, branch });
 export const updateBuildStatus = (isRunning) => ({ type: UPDATE_BUILD_STATUS, isRunning });
+export const updateCanBeStopped = (status) => ({ type: UPDATE_CAN_BE_STOPPED, status });
 export const updateDocumentType = (documentType) => ({ type: UPDATE_DOCUMENT_TYPE, documentType });
 export const updateFormMessages = (messages) => ({ type: UPDATE_FORM_MESSAGES, messages });
 export const updateFormStatus = (status) => ({ type: UPDATE_FORM_STATUS, status });
