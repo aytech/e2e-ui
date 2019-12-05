@@ -17,3 +17,18 @@ Responsibilities of DP:
     - Run generated E2E image with container name e2e-node-<RN>
     - Wait for the process to finish
     - After the process is finished, destroy Chrome container, remove generated image, run prune
+
+URL test values:
+https://nlbawidmdemo01.infor.com/infor/c0692e36-7f6d-49c9-a4c4-d0bc71a1f485?favoriteContext=%7B%22type%22%3A%22page%22%2C%22id%22%3A%2242c15bf2-6bea-4c0a-bd05-250f97d0bded%22%7D&LogicalId=lid://infor.homepages.1
+https://nlbawidmdemo01.infor.com/infor/
+https://nlbawidmdemo01.infor.com/infor
+nlbawidmdemo01.infor.com/infor/
+nlbawidmdemo01.infor.com/infor
+http://nlbawidmdemo01.infor.com/infor/
+http://nlbawidmdemo01.infor.com/infor
+https://mingle-t20b-portal.mingle.awsdev.infor.com/QATEST_TST/b2368a71-3824-45a3-a04f-484ea630184a
+mingle-t20b-portal.mingle.awsdev.infor.com/QATEST_TST
+mingle-t20b-portal.mingle.awsdev.infor.com/
+
+URL test regex:
+/(https?:\/\/)?.*\.infor\.com\/\w+\/?/g
