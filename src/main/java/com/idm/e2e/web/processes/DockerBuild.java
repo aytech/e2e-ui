@@ -10,15 +10,16 @@ import java.io.File;
 import java.io.IOException;
 
 import static com.idm.e2e.web.configuration.DockerConstants.DOCKERFILE;
+import static com.idm.e2e.web.configuration.DockerConstants.DOCKER_E2E_NODE;
 
 public class DockerBuild implements DockerRunnable {
     private Process process;
     private Boolean isFailed = false;
-    private String nodeID;
+    private String logID;
     private FilesResource filesResource;
 
     public DockerBuild(E2EConfiguration configuration) {
-        nodeID = configuration.getNodeID();
+        logID = configuration.getNodeID();
         filesResource = new FilesResource(configuration);
     }
 
@@ -26,9 +27,14 @@ public class DockerBuild implements DockerRunnable {
     public void run() {
         try {
             File file = filesResource.getFile(DOCKERFILE);
-            process = DockerCommands.buildImage(file.getAbsolutePath(), nodeID, file.getParent()).start();
+            String dockerFilePath = file.getAbsolutePath();
+            String dockerContext = file.getParent();
+            String imageTag = String.format(DOCKER_E2E_NODE, logID);
+
+            process = DockerCommands.buildImage(dockerFilePath, imageTag, dockerContext).start();
+
             ProcessLogger logger = new ProcessLogger(process);
-            logger.log(nodeID);
+            logger.log(logID);
         } catch (IOException e) {
             isFailed = true;
             e.printStackTrace();
@@ -54,10 +60,5 @@ public class DockerBuild implements DockerRunnable {
         if (process != null) {
             process.destroy();
         }
-    }
-
-    @Override
-    public void setNode(String node) {
-        this.nodeID = node;
     }
 }

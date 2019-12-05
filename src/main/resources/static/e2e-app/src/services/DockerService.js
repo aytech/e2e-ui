@@ -3,9 +3,10 @@ import { E2E_NODE } from "../constants/application";
 
 export default class DockerService {
   apiBase = '/api';
-  reportZip = '/download/report';
+  reportZip = '/build/report';
   pathGetBuildStatus = '/build/status';
   pathRunE2E = '/build/run';
+  pathStopProcess = '/build/stop';
   cookies = new Cookies();
 
   async getResource(url, headers) {
@@ -15,11 +16,21 @@ export default class DockerService {
     return response;
   }
 
-  getDockerBuildStatus = async () => {
+  async getBlob(url, headers) {
+    const resource = await fetch(`${ this.apiBase }${ url }`, headers);
+    if (resource.status === 200) {
+      return await resource.blob();
+    }
+    return null;
+  }
+
+  getE2eNodeCookie = () => {
     const nodeCookie = this.cookies.get(E2E_NODE);
-    const node = nodeCookie === undefined ? '' : nodeCookie;
-    const path = `${ this.pathGetBuildStatus }?node=${ node }`;
-    return await this.getResource(path)
+    return nodeCookie === undefined ? '' : nodeCookie;
+  };
+
+  getDockerBuildStatus = async () => {
+    return await this.getResource(`${ this.pathGetBuildStatus }?node=${ this.getE2eNodeCookie() }`)
   };
 
   runE2ESuite = async (request) => {
@@ -33,9 +44,10 @@ export default class DockerService {
   };
 
   downloadReportZip = async () => {
-    const nodeCookie = this.cookies.get(E2E_NODE);
-    const node = nodeCookie === undefined ? '' : nodeCookie;
-    const path = `${ this.apiBase }${ this.reportZip }?node=${ node }`;
-    return await fetch(path);
+    return await this.getBlob(`${ this.reportZip }?node=${ this.getE2eNodeCookie() }`)
+  };
+
+  stopProcess = async () => {
+    return await this.getResource(`${ this.pathStopProcess }?node=${ this.getE2eNodeCookie() }`)
   };
 }

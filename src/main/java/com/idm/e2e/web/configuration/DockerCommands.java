@@ -1,9 +1,7 @@
 package com.idm.e2e.web.configuration;
 
-import com.idm.e2e.web.data.ProcessLogger;
 import org.apache.commons.lang3.RandomStringUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -32,6 +30,25 @@ public class DockerCommands {
         return getBuilder(arguments);
     }
 
+    public static ProcessBuilder getContainerRunningStatus(String containerName) {
+        ArrayList<String> arguments = getArguments();
+        arguments.add("inspect");
+        arguments.add("-f");
+        arguments.add("'{{.State.Status}}'");
+        arguments.add(containerName);
+        return getBuilder(arguments);
+    }
+
+    public static ProcessBuilder isContainerCreated(String containerName) {
+        ArrayList<String> arguments = getArguments();
+        arguments.add("container");
+        arguments.add("ls");
+        arguments.add("-f");
+        arguments.add(String.format("name=%s", containerName));
+        arguments.add("-q");
+        return getBuilder(arguments);
+    }
+
     public static ProcessBuilder startSeleniumGrid() {
         ArrayList<String> arguments = getRunArguments(DOCKER_GRID_CONTAINER_NAME);
         arguments.add("-p");
@@ -45,21 +62,21 @@ public class DockerCommands {
         return getBuilder(arguments);
     }
 
-    public static ProcessBuilder buildImage(String dockerFile, String node, String contextPath) {
+    public static ProcessBuilder buildImage(String dockerFile, String imageTag, String contextPath) {
         ArrayList<String> arguments = getArguments();
         arguments.add("build");
         arguments.add("-f");
         arguments.add(dockerFile);
         arguments.add("-t");
-        arguments.add(node);
+        arguments.add(imageTag);
         arguments.add(contextPath);
         return getBuilder(arguments);
     }
 
-    private static ProcessBuilder stopNodeProcess(String nodeID) {
+    public static ProcessBuilder getStopContainerCommand(String containerName) {
         ArrayList<String> arguments = getArguments();
         arguments.add("stop");
-        arguments.add(nodeID);
+        arguments.add(containerName);
         return getBuilder(arguments);
     }
 
@@ -122,8 +139,8 @@ public class DockerCommands {
         return builder;
     }
 
-    private static String getNewNodeID(String prefix) {
-        return String.format("%s-%s", prefix, RandomStringUtils.random(10, false, true));
+    private static String getNewNodeID() {
+        return RandomStringUtils.random(10, false, true);
     }
 
     private static void addNode(String node) {
@@ -134,29 +151,8 @@ public class DockerCommands {
     }
 
     public static String getNewE2ENode() {
-        String node = getNewNodeID(DOCKER_E2E_NODE_PREFIX);
+        String node = getNewNodeID();
         addNode(node);
         return node;
-    }
-
-    public static String getNewChromeNode() {
-        String node = getNewNodeID(DOCKER_CHROME_NODE_PREFIX);
-        addNode(node);
-        return node;
-    }
-
-    public static void stopNode(String nodeID) {
-        for (String node : nodes) {
-            if (node.equals(nodeID)) {
-                try {
-                    Process process = stopNodeProcess(node).start();
-                    ProcessLogger logger = new ProcessLogger(process);
-                    logger.log(node);
-                    process.waitFor();
-                } catch (IOException | InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 }

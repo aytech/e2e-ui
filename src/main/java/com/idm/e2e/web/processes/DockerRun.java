@@ -7,7 +7,12 @@ import com.idm.e2e.web.interfaces.DockerRunnable;
 import com.idm.e2e.web.models.E2EConfiguration;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
+
+import static com.idm.e2e.web.configuration.DockerConstants.DOCKER_CHROME_NODE;
+import static com.idm.e2e.web.configuration.DockerConstants.DOCKER_E2E_NODE;
 
 public class DockerRun implements DockerRunnable {
     private Process chromeProcess;
@@ -15,14 +20,16 @@ public class DockerRun implements DockerRunnable {
     private Boolean failed = false;
     private String chromeNodeID;
     private String e2eNodeID;
+    private String logID;
     private FilesResource filesResource;
     private DockerUtility dockerUtility;
 
     public DockerRun(E2EConfiguration configuration) {
-        e2eNodeID = configuration.getNodeID();
-        chromeNodeID = DockerCommands.getNewChromeNode();
+        e2eNodeID = String.format(DOCKER_E2E_NODE, configuration.getNodeID());
+        chromeNodeID = String.format(DOCKER_CHROME_NODE, configuration.getNodeID());
+        logID = configuration.getNodeID();
         filesResource = new FilesResource(configuration);
-        dockerUtility = new DockerUtility();
+        dockerUtility = new DockerUtility(e2eNodeID);
     }
 
     @Override
@@ -47,14 +54,12 @@ public class DockerRun implements DockerRunnable {
         if (e2eProcess != null) {
             e2eProcess.destroy();
         }
-        DockerCommands.stopNode(chromeNodeID);
-        DockerCommands.stopNode(e2eNodeID);
-        filesResource.cleanConfigurationFiles();
-    }
 
-    @Override
-    public void setNode(String node) {
-        this.chromeNodeID = node;
+        List<String> containers = new ArrayList<>();
+        containers.add(chromeNodeID);
+        containers.add(e2eNodeID);
+        dockerUtility.stopRunningContainers(containers);
+        filesResource.cleanConfigurationFiles();
     }
 
     @Override
@@ -64,11 +69,11 @@ public class DockerRun implements DockerRunnable {
 
         try {
             dockerUtility.startSeleniumGridContainer();
-            chromeProcess = dockerUtility.startContainer(chromeBuilder, e2eNodeID);
-            e2eProcess = dockerUtility.startContainer(e2eBuilder, e2eNodeID, Pattern.compile(".*Scenario.*"));
+            chromeProcess = dockerUtility.startContainer(chromeBuilder, logID);
+            e2eProcess = dockerUtility.startContainer(e2eBuilder, logID, Pattern.compile(".*Scenario.*"));
         } catch (IOException | InterruptedException e) {
             failed = true;
-            StatusStorage.getStatus(e2eNodeID).addStdErrorEntry(e.getMessage());
+            StatusStorage.getStatus(logID).addStdErrorEntry(e.getMessage());
             e.printStackTrace();
         }
     }

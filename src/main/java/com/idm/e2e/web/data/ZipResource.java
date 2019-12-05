@@ -1,5 +1,7 @@
 package com.idm.e2e.web.data;
 
+import com.idm.e2e.web.models.E2EConfiguration;
+
 import java.io.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -7,27 +9,19 @@ import java.util.zip.ZipOutputStream;
 import static com.idm.e2e.web.configuration.AppConstants.*;
 
 public class ZipResource {
-    public static String zipE2EReports(String nodeID) {
-        String homeDirectory = System.getProperty("user.home");
-        String reportsDirectory =
-                String.format(
-                        "%s%s%s%s%s%s%s",
-                        homeDirectory,
-                        File.separator,
-                        CONFIGURATION_DIRECTORY,
-                        File.separator,
-                        nodeID,
-                        File.separator,
-                        REPORT_DIR
-                );
+    private E2EConfiguration configuration;
+
+    public ZipResource(E2EConfiguration configuration) {
+        this.configuration = configuration;
+    }
+
+    public String zipE2EReports() {
+        FilesResource resource = new FilesResource(configuration);
+        File reportsDirectory = resource.getConfigurationDirectory(REPORT_DIR);
         String zipFile =
                 String.format(
-                        "%s%s%s%s%s%s%s",
-                        homeDirectory,
-                        File.separator,
-                        CONFIGURATION_DIRECTORY,
-                        File.separator,
-                        nodeID,
+                        "%s%s%s",
+                        resource.getConfigurationDirectory(null),
                         File.separator,
                         REPORT_ZIP
                 );
@@ -35,8 +29,7 @@ public class ZipResource {
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(zipFile);
             ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
-            File dirToZip = new File(reportsDirectory);
-            zipFile(dirToZip, dirToZip.getName(), zipOutputStream);
+            zipFile(reportsDirectory, reportsDirectory.getName(), zipOutputStream);
             zipOutputStream.close();
             fileOutputStream.close();
         } catch (IOException e) {
@@ -73,12 +66,12 @@ public class ZipResource {
         fileInputStream.close();
     }
 
-    public static Boolean isReportAvailable(String nodeID) {
-        if (nodeID == null) {
+    public Boolean isReportAvailable() {
+        if (configuration.getNodeID() == null) {
             return false;
         }
-        String homeDirectory = System.getProperty("user.home");
-        String reportsDirectory = String.format("%s%s%s%s%s", homeDirectory, File.separator, CONFIGURATION_DIRECTORY, File.separator, nodeID);
-        return new File(reportsDirectory).exists();
+        FilesResource resource = new FilesResource(configuration);
+        File reportsDirectory = resource.getConfigurationDirectory(REPORT_DIR);
+        return reportsDirectory.exists();
     }
 }

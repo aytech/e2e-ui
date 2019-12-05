@@ -7,6 +7,16 @@ public class DockerBuildStatus {
     private ArrayList<String> messages;
     private ArrayList<String> stdInput;
     private ArrayList<String> stdErr;
+
+    public Boolean getCanBeStopped() {
+        return canBeStopped;
+    }
+
+    public void setCanBeStopped(Boolean canBeStopped) {
+        this.canBeStopped = canBeStopped;
+    }
+
+    private Boolean canBeStopped;
     private Boolean isReportAvailable;
     private Boolean isRunning;
 

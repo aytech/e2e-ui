@@ -15,7 +15,7 @@ public class E2EApplication {
 
     @EventListener(ApplicationReadyEvent.class)
     public void applicationStartUp() {
-        DockerUtility utility = new DockerUtility();
+        DockerUtility utility = new DockerUtility(null);
         utility.startSeleniumGridContainer();
     }
 }

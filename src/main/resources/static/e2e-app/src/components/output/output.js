@@ -4,12 +4,17 @@ import { ProgressBar } from "./progress";
 import { Title } from "./title";
 import StandardOutput from "./standard-output";
 import {
-  toggleDebugEnabled,
-  toggleErrorEnabled
+  updateCanBeStopped,
+  updateDebugEnabled,
+  updateErrorEnabled,
+  updateModalOpen,
+  updateReportLoading,
+  updateStopProcessLoading
 } from "../../actions/outputActions";
 import './output.css';
 import DockerService from "../../services/DockerService";
 import Button from "../button/button";
+import ModalDialog from "../modal/modal";
 
 class Output extends Component {
 
@@ -39,16 +44,20 @@ class Output extends Component {
     toggleErrorEnabled(!state.errorOutputEnabled);
   };
 
+  openModal = () => {
+    this.props.updateModalOpen(true);
+  };
+
+  closeModal = () => {
+    this.props.updateModalOpen(false);
+  };
+
   downloadReportZip = () => {
+    console.log('Report available: ', this.props.state.isReportAvailable);
     if (this.props.state.isReportAvailable === true) {
+      this.props.updateReportLoading(true);
       this.dockerService
         .downloadReportZip()
-        .then(response => {
-          if (response.status === 200) {
-            return response.blob();
-          }
-          return null;
-        })
         .then(blob => {
           if (blob !== null) {
             let url = window.URL.createObjectURL(blob);
@@ -58,21 +67,42 @@ class Output extends Component {
             a.click();
           }
         })
+        .finally(() => {
+          this.props.updateReportLoading(false);
+        });
     }
+  };
+
+  stopRunningProcess = () => {
+    this.props.updateModalOpen(false);
+    this.props.updateStopProcessLoading(true);
+    this.dockerService
+      .stopProcess()
+      .finally(() => {
+        this.props.updateCanBeStopped(false);
+        this.props.updateStopProcessLoading(false);
+      });
   };
 
   render() {
 
     const {
       buildInProgress,
+      canProcessBeStopped,
       debugOutputEnabled,
       errorOutputEnabled,
       isReportAvailable,
+      isReportLoading,
+      isStopProcessLoading,
       messages,
       serverErrorState,
       stdErr,
       stdInput,
+      isModalOpen
     } = this.props.state;
+
+    const stopProcessText = isStopProcessLoading === true ? 'Stopping test' : 'Stop test';
+    const downloadReportText = isReportLoading === true ? 'Downloading report' : 'Download report';
 
     return (
       <div className="jumbotron">
@@ -92,8 +122,15 @@ class Output extends Component {
         <div className="form-group">
           <Button
             className="btn btn-primary btn-lg inline"
-            text={ 'Download report' }
-            show={ isReportAvailable && !buildInProgress }
+            loading={ isStopProcessLoading }
+            text={ stopProcessText }
+            show={ canProcessBeStopped === true && buildInProgress === true }
+            onClick={ this.openModal }/>
+          <Button
+            className="btn btn-primary btn-lg inline"
+            loading={ isReportLoading }
+            text={ downloadReportText }
+            show={ buildInProgress === false && isReportAvailable === true }
             onClick={ this.downloadReportZip }/>
         </div>
         <Title
@@ -108,6 +145,13 @@ class Output extends Component {
           messages={ messages }
           stdInput={ stdInput }
           stdErr={ stdErr }/>
+        <ModalDialog
+          show={ isModalOpen }
+          title="Confirm stop"
+          body="Stop test? This will stop all running tests, report might be incomplete"
+          actionText="Stop test"
+          onCancel={ this.closeModal }
+          onOk={ this.stopRunningProcess }/>
       </div>
     )
   }
@@ -118,8 +162,12 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  toggleDebugEnabled: (isEnabled) => dispatch(toggleDebugEnabled(isEnabled)),
-  toggleErrorEnabled: (isEnabled) => dispatch(toggleErrorEnabled(isEnabled))
+  toggleDebugEnabled: (isEnabled) => dispatch(updateDebugEnabled(isEnabled)),
+  toggleErrorEnabled: (isEnabled) => dispatch(updateErrorEnabled(isEnabled)),
+  updateCanBeStopped: (status) => dispatch(updateCanBeStopped(status)),
+  updateModalOpen: (isOpen) => dispatch(updateModalOpen(isOpen)),
+  updateReportLoading: (isLoading) => dispatch(updateReportLoading(isLoading)),
+  updateStopProcessLoading: (isLoading) => dispatch(updateStopProcessLoading(isLoading))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Output);
