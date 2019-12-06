@@ -16,7 +16,10 @@ import {
   updateReportStatus,
   updateBranch,
   updateDocumentType,
-  updateCanBeStopped
+  updateCanBeStopped,
+  updateMessagesSkipped,
+  updateMessagesPassed,
+  updateMessagesFailed
 } from "../../actions/formActions";
 import Button from "../button/button";
 import DockerService from "../../services/DockerService";
@@ -77,6 +80,7 @@ class Form extends Component {
             .then(response => {
               if (response.status === 200) {
                 const cookies = new Cookies();
+                // noinspection JSUnresolvedVariable
                 cookies.set(E2E_NODE, response.nodeID, { path: '/' });
                 this.props.updateFormMessages([ 'Process has started, log output will print below' ]);
                 this.props.updateRunStatus(true);
@@ -114,10 +118,16 @@ class Form extends Component {
         this.props.updateMessages(job.messages);
         this.props.updateStdErr(job.stdErr);
         this.props.updateStdInput(job.stdInput);
+        // noinspection JSUnresolvedVariable
         this.props.updateBuildStatus(job.running);
         this.props.updateServerErrorState(false);
+        // noinspection JSUnresolvedVariable
         this.props.updateReportStatus(job.reportAvailable);
+        // noinspection JSUnresolvedVariable
         this.props.updateCanBeStopped(job.canBeStopped);
+        this.props.updateMessagesFailed(job.messagesFailed);
+        this.props.updateMessagesPassed(job.messagesPassed);
+        this.props.updateMessagesSkipped(job.messagesSkipped);
       })
       .catch(() => {
         this.props.updateBuildStatus(false);
@@ -241,6 +251,9 @@ const mapDispatchToProps = dispatch => ({
   updateLoading: (isLoading) => dispatch(updateLoading(isLoading)),
   updateLoadingStatus: (isStatusLoading) => dispatch(updateLoadingStatus(isStatusLoading)),
   updateMessages: (messages) => dispatch(updateMessages(messages)),
+  updateMessagesFailed: (messages) => dispatch(updateMessagesFailed(messages)),
+  updateMessagesPassed: (messages) => dispatch(updateMessagesPassed(messages)),
+  updateMessagesSkipped: (messages) => dispatch(updateMessagesSkipped(messages)),
   updateReportStatus: (status) => dispatch(updateReportStatus(status)),
   updateStdErr: (error) => dispatch(updateStdErr(error)),
   updateStdInput: (input) => dispatch(updateStdInput(input)),

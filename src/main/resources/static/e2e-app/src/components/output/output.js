@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
 import { ProgressBar } from "./progress";
-import { Title } from "./title";
-import StandardOutput from "./standard-output";
+import StandardOutput from "../standard-output/standard-output";
 import {
   updateCanBeStopped,
   updateModalOpen,
@@ -14,6 +13,8 @@ import DockerService from "../../services/DockerService";
 import Button from "../button/button";
 import ModalDialog from "../modal/modal";
 import OutputMode from "../output-mode/output-mode";
+import OutputSort from "../output-sort/output-sort";
+import OutputTitle from "../output-title/output-title";
 
 class Output extends Component {
 
@@ -28,7 +29,6 @@ class Output extends Component {
   };
 
   downloadReportZip = () => {
-    console.log('Report available: ', this.props.state.isReportAvailable);
     if (this.props.state.isReportAvailable === true) {
       this.props.updateReportLoading(true);
       this.dockerService
@@ -64,15 +64,9 @@ class Output extends Component {
     const {
       buildInProgress,
       canProcessBeStopped,
-      debugOutputEnabled,
-      errorOutputEnabled,
       isReportAvailable,
       isReportLoading,
       isStopProcessLoading,
-      messages,
-      serverErrorState,
-      stdErr,
-      stdInput,
       isModalOpen
     } = this.props.state;
 
@@ -97,18 +91,10 @@ class Output extends Component {
             show={ buildInProgress === false && isReportAvailable === true }
             onClick={ this.downloadReportZip }/>
         </div>
-        <Title
-          debug={ debugOutputEnabled }
-          error={ errorOutputEnabled }
-          buildInProgress={ buildInProgress }
-          serverErrorState={ serverErrorState }/>
+        <OutputTitle/>
+        <OutputSort/>
         <ProgressBar show={ buildInProgress }/>
-        <StandardOutput
-          debug={ debugOutputEnabled }
-          error={ errorOutputEnabled }
-          messages={ messages }
-          stdInput={ stdInput }
-          stdErr={ stdErr }/>
+        <StandardOutput/>
         <ModalDialog
           show={ isModalOpen }
           title="Confirm stop"

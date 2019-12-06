@@ -14,7 +14,10 @@ import {
   UPDATE_REPORT_STATUS,
   UPDATE_BRANCH,
   UPDATE_DOCUMENT_TYPE,
-  UPDATE_CAN_BE_STOPPED
+  UPDATE_CAN_BE_STOPPED,
+  UPDATE_MESSAGES_PASSED,
+  UPDATE_MESSAGES_FAILED,
+  UPDATE_MESSAGES_SKIPPED
 } from "./constants";
 
 export const updateBranch = (branch) => ({ type: UPDATE_BRANCH, branch });
@@ -26,6 +29,9 @@ export const updateFormStatus = (status) => ({ type: UPDATE_FORM_STATUS, status 
 export const updateLoading = (isLoading) => ({ type: UPDATE_LOADING, isLoading });
 export const updateLoadingStatus = (isStatusLoading) => ({ type: UPDATE_LOADING_STATUS, isStatusLoading });
 export const updateMessages = (messages) => ({ type: UPDATE_MESSAGES, messages });
+export const updateMessagesFailed = (messages) => ({ type: UPDATE_MESSAGES_FAILED, messages });
+export const updateMessagesPassed = (messages) => ({ type: UPDATE_MESSAGES_PASSED, messages });
+export const updateMessagesSkipped = (messages) => ({ type: UPDATE_MESSAGES_SKIPPED, messages });
 export const updateStdErr = (error) => ({ type: UPDATE_STD_ERR, error });
 export const updateStdInput = (input) => ({ type: UPDATE_STD_INPUT, input });
 export const updateReportStatus = (status) => ({ type: UPDATE_REPORT_STATUS, status });

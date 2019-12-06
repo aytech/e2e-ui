@@ -19,7 +19,13 @@ import {
   UPDATE_DOCUMENT_TYPE,
   UPDATE_STOP_LOADING,
   UPDATE_MODAL_OPEN,
-  UPDATE_CAN_BE_STOPPED
+  UPDATE_CAN_BE_STOPPED,
+  UPDATE_PASSED_OUTPUT,
+  UPDATE_FAILED_OUTPUT,
+  UPDATE_SKIPPED_OUTPUT,
+  UPDATE_MESSAGES_PASSED,
+  UPDATE_MESSAGES_FAILED,
+  UPDATE_MESSAGES_SKIPPED
 } from "../actions/constants";
 
 export default (state = {}, action) => {
@@ -59,6 +65,11 @@ export default (state = {}, action) => {
         ...state,
         errorOutputEnabled: action.status
       };
+    case UPDATE_FAILED_OUTPUT:
+      return {
+        ...state,
+        isFailedOutputActive: action.status
+      };
     case UPDATE_FORM_MESSAGES:
       return {
         ...state,
@@ -84,10 +95,30 @@ export default (state = {}, action) => {
         ...state,
         messages: action.messages
       };
+    case UPDATE_MESSAGES_FAILED:
+      return {
+        ...state,
+        messagesFailed: action.messages
+      };
+    case UPDATE_MESSAGES_PASSED:
+      return {
+        ...state,
+        messagesPassed: action.messages
+      };
+    case UPDATE_MESSAGES_SKIPPED:
+      return {
+        ...state,
+        messagesSkipped: action.messages
+      };
     case UPDATE_MODAL_OPEN:
       return {
         ...state,
         isModalOpen: action.status
+      };
+    case UPDATE_PASSED_OUTPUT:
+      return {
+        ...state,
+        isPassedOutputActive: action.status
       };
     case UPDATE_PASSWORD:
       return {
@@ -113,6 +144,11 @@ export default (state = {}, action) => {
       return {
         ...state,
         serverErrorState: action.isError
+      };
+    case UPDATE_SKIPPED_OUTPUT:
+      return {
+        ...state,
+        isSkippedOutputActive: action.status
       };
     case UPDATE_STD_ERR:
       return {

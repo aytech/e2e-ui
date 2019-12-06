@@ -50,7 +50,7 @@ class OutputMode extends Component {
     if (stdErr.length === 0) {
       return null
     }
-    return this.getSwitchElement('Show errors', 'errorSwitch', errorOutputEnabled, this.toggleErrorEnabled)
+    return this.getSwitchElement('Show error output', 'errorSwitch', errorOutputEnabled, this.toggleErrorEnabled)
   };
 
   render() {
