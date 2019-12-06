@@ -5,7 +5,6 @@ import com.idm.e2e.web.data.ProcessLogger;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static com.idm.e2e.web.configuration.DockerConstants.DOCKER_GRID_CONTAINER_NAME;
 import static com.idm.e2e.web.configuration.DockerConstants.DOCKER_STATUS_RUNNING;
@@ -75,10 +74,10 @@ public class DockerUtility {
         return process;
     }
 
-    public Process startContainer(ProcessBuilder builder, String logID, Pattern pattern) throws IOException, InterruptedException {
+    public Process startContainer(ProcessBuilder builder, String logID, Boolean withSort) throws IOException, InterruptedException {
         Process process = builder.start();
         ProcessLogger logger = new ProcessLogger(process);
-        logger.log(logID, pattern);
+        logger.log(logID, withSort);
         process.waitFor();
         return process;
     }

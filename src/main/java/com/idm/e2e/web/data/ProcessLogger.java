@@ -8,6 +8,8 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.idm.e2e.web.configuration.DockerConstants.*;
+
 public class ProcessLogger {
     private Process process;
 
@@ -15,14 +17,16 @@ public class ProcessLogger {
         this.process = process;
     }
 
-    public void log(String nodeID, Pattern pattern) throws IOException {
+    public void log(String nodeID, Boolean withSort) throws IOException {
         String line;
         DockerBuildStatus status = StatusStorage.getStatus(nodeID);
         BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
         BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
         while ((line = input.readLine()) != null) {
             status.addStdInputEntry(line);
-            addStatusMessage(line, pattern, status);
+            if (withSort) {
+                sortStatusMessages(line, status);
+            }
             System.out.println("Input: " + line);
         }
         while ((line = error.readLine()) != null) {
@@ -32,16 +36,31 @@ public class ProcessLogger {
     }
 
     public void log(String nodeID) throws IOException {
-        log(nodeID, null);
+        log(nodeID, false);
     }
 
-    private void addStatusMessage(String message, Pattern pattern, DockerBuildStatus status) {
-        if (pattern == null) {
-            return;
+    private void sortStatusMessages(String inputMessage, DockerBuildStatus status) {
+        Pattern messagesPassedPattern = Pattern.compile(DOCKER_PATTERN_MESSAGE_PASSED);
+        Pattern messagesFailedPattern = Pattern.compile(DOCKER_PATTERN_MESSAGE_FAILED);
+        Pattern messagesSkippedPattern = Pattern.compile(DOCKER_PATTERN_MESSAGE_SKIPPED);
+        Pattern messagesPattern = Pattern.compile(DOCKER_PATTERN_MESSAGE);
+
+        Matcher messagesPassedMatcher = messagesPassedPattern.matcher(inputMessage);
+        Matcher messagesFailedMatcher = messagesFailedPattern.matcher(inputMessage);
+        Matcher messagesSkippedMatcher = messagesSkippedPattern.matcher(inputMessage);
+        Matcher messagesMatcher = messagesPattern.matcher(inputMessage);
+
+        if (messagesPassedMatcher.matches()) {
+            status.addMessagePassed(inputMessage);
         }
-        Matcher matcher = pattern.matcher(message);
-        if (matcher.matches()) {
-            status.addMessage(message);
+        if (messagesFailedMatcher.matches()) {
+            status.addMessageFailed(inputMessage);
+        }
+        if (messagesSkippedMatcher.matches()) {
+            status.addMessageSkipped(inputMessage);
+        }
+        if (messagesMatcher.matches()) {
+            status.addMessage(inputMessage);
         }
     }
 

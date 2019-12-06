@@ -9,6 +9,10 @@ public class DockerConstants {
     public static final String DOCKER_GRID_CONTAINER_NAME = "selenium-hub";
     public static final String DOCKER_GRID_CONTAINER_PORT = "4444";
     public static final String DOCKER_NETWORK_NAME = "e2e-network";
+    public static final String DOCKER_PATTERN_MESSAGE = ".*Scenario.*";
+    public static final String DOCKER_PATTERN_MESSAGE_PASSED = ".*Scenario.*PASSED.*";
+    public static final String DOCKER_PATTERN_MESSAGE_FAILED = ".*Scenario.*FAILED.*";
+    public static final String DOCKER_PATTERN_MESSAGE_SKIPPED = ".*Scenario.*SKIPPED.*";
     public static final String DOCKER_STATUS_RUNNING = "running";
     public static final String DOCKER_WORK_DIRECTORY = "/home/gradle/app";
     public static final String DOCKER_REPORTS_PATH = DOCKER_WORK_DIRECTORY + "/build/reports";

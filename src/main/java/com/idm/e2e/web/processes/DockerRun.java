@@ -9,7 +9,6 @@ import com.idm.e2e.web.models.E2EConfiguration;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static com.idm.e2e.web.configuration.DockerConstants.DOCKER_CHROME_NODE;
 import static com.idm.e2e.web.configuration.DockerConstants.DOCKER_E2E_NODE;
@@ -70,7 +69,7 @@ public class DockerRun implements DockerRunnable {
         try {
             dockerUtility.startSeleniumGridContainer();
             chromeProcess = dockerUtility.startContainer(chromeBuilder, logID);
-            e2eProcess = dockerUtility.startContainer(e2eBuilder, logID, Pattern.compile(".*Scenario.*"));
+            e2eProcess = dockerUtility.startContainer(e2eBuilder, logID, true);
         } catch (IOException | InterruptedException e) {
             failed = true;
             StatusStorage.getStatus(logID).addStdErrorEntry(e.getMessage());

@@ -2,11 +2,60 @@ package com.idm.e2e.web.models;
 
 import java.util.ArrayList;
 
+@SuppressWarnings("unused")
 public class DockerBuildStatus {
     private ArrayList<String> commands;
     private ArrayList<String> messages;
+    private ArrayList<String> messagesFailed;
+    private ArrayList<String> messagesPassed;
+    private ArrayList<String> messagesSkipped;
     private ArrayList<String> stdInput;
     private ArrayList<String> stdErr;
+
+    public ArrayList<String> getMessagesFailed() {
+        return messagesFailed;
+    }
+
+    public void setMessagesFailed(ArrayList<String> messagesFailed) {
+        this.messagesFailed = messagesFailed;
+    }
+
+    public void addMessageFailed(String message) {
+        if (messagesFailed == null) {
+            messagesFailed = new ArrayList<>();
+        }
+        messagesFailed.add(message);
+    }
+
+    public ArrayList<String> getMessagesPassed() {
+        return messagesPassed;
+    }
+
+    public void setMessagesPassed(ArrayList<String> messagesPassed) {
+        this.messagesPassed = messagesPassed;
+    }
+
+    public void addMessagePassed(String message) {
+        if (messagesPassed == null) {
+            messagesPassed = new ArrayList<>();
+        }
+        messagesPassed.add(message);
+    }
+
+    public ArrayList<String> getMessagesSkipped() {
+        return messagesSkipped;
+    }
+
+    public void setMessagesSkipped(ArrayList<String> messagesSkipped) {
+        this.messagesSkipped = messagesSkipped;
+    }
+
+    public void addMessageSkipped(String message) {
+        if (messagesSkipped == null) {
+            messagesSkipped = new ArrayList<>();
+        }
+        messagesSkipped.add(message);
+    }
 
     public Boolean getCanBeStopped() {
         return canBeStopped;

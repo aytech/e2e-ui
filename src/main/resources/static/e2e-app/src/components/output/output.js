@@ -5,8 +5,6 @@ import { Title } from "./title";
 import StandardOutput from "./standard-output";
 import {
   updateCanBeStopped,
-  updateDebugEnabled,
-  updateErrorEnabled,
   updateModalOpen,
   updateReportLoading,
   updateStopProcessLoading
@@ -15,34 +13,11 @@ import './output.css';
 import DockerService from "../../services/DockerService";
 import Button from "../button/button";
 import ModalDialog from "../modal/modal";
+import OutputMode from "../output-mode/output-mode";
 
 class Output extends Component {
 
   dockerService = new DockerService();
-
-  toggleDebugEnabled = () => {
-    const {
-      state,
-      toggleDebugEnabled,
-      toggleErrorEnabled
-    } = this.props;
-    if (state.errorOutputEnabled === true && state.debugOutputEnabled === false) {
-      toggleErrorEnabled(false);
-    }
-    toggleDebugEnabled(!state.debugOutputEnabled);
-  };
-
-  toggleErrorEnabled = () => {
-    const {
-      state,
-      toggleDebugEnabled,
-      toggleErrorEnabled
-    } = this.props;
-    if (state.debugOutputEnabled === true && state.errorOutputEnabled === false) {
-      toggleDebugEnabled(false);
-    }
-    toggleErrorEnabled(!state.errorOutputEnabled);
-  };
 
   openModal = () => {
     this.props.updateModalOpen(true);
@@ -107,18 +82,7 @@ class Output extends Component {
     return (
       <div className="jumbotron">
         <h1 className="display-3">Output:</h1>
-        <div className="form-group">
-          <div className="custom-control custom-switch">
-            <input type="checkbox" className="custom-control-input" id="debugSwitch" checked={ debugOutputEnabled }
-                   onChange={ this.toggleDebugEnabled }/>
-            <label className="custom-control-label" htmlFor="debugSwitch">Show debug output</label>
-          </div>
-          <div className="custom-control custom-switch">
-            <input type="checkbox" className="custom-control-input" id="errorSwitch" checked={ errorOutputEnabled }
-                   onChange={ this.toggleErrorEnabled }/>
-            <label className="custom-control-label" htmlFor="errorSwitch">Show errors</label>
-          </div>
-        </div>
+        <OutputMode/>
         <div className="form-group">
           <Button
             className="btn btn-primary btn-lg inline"
@@ -162,8 +126,6 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  toggleDebugEnabled: (isEnabled) => dispatch(updateDebugEnabled(isEnabled)),
-  toggleErrorEnabled: (isEnabled) => dispatch(updateErrorEnabled(isEnabled)),
   updateCanBeStopped: (status) => dispatch(updateCanBeStopped(status)),
   updateModalOpen: (isOpen) => dispatch(updateModalOpen(isOpen)),
   updateReportLoading: (isLoading) => dispatch(updateReportLoading(isLoading)),
