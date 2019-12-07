@@ -15,6 +15,7 @@ import ModalDialog from "../modal/modal";
 import OutputMode from "../output-mode/output-mode";
 import OutputSort from "../output-sort/output-sort";
 import OutputTitle from "../output-title/output-title";
+import DateFormat from "../date-format/date-format";
 
 class Output extends Component {
 
@@ -92,6 +93,7 @@ class Output extends Component {
             onClick={ this.downloadReportZip }/>
         </div>
         <OutputTitle/>
+        <DateFormat/>
         <OutputSort/>
         <ProgressBar show={ buildInProgress }/>
         <StandardOutput/>

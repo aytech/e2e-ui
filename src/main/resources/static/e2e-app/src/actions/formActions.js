@@ -18,13 +18,15 @@ import {
   UPDATE_MESSAGES_PASSED,
   UPDATE_MESSAGES_FAILED,
   UPDATE_MESSAGES_SKIPPED,
-  UPDATE_STARTED_TIMESTAMP
+  UPDATE_STARTED_TIMESTAMP,
+  UPDATE_FINISHED_TIMESTAMP
 } from "./constants";
 
 export const updateBranch = (branch) => ({ type: UPDATE_BRANCH, branch });
 export const updateBuildStatus = (isRunning) => ({ type: UPDATE_BUILD_STATUS, isRunning });
 export const updateCanBeStopped = (status) => ({ type: UPDATE_CAN_BE_STOPPED, status });
 export const updateDocumentType = (documentType) => ({ type: UPDATE_DOCUMENT_TYPE, documentType });
+export const updateFinishedTimestamp = (timestamp) => ({ type: UPDATE_FINISHED_TIMESTAMP, timestamp });
 export const updateFormMessages = (messages) => ({ type: UPDATE_FORM_MESSAGES, messages });
 export const updateFormStatus = (status) => ({ type: UPDATE_FORM_STATUS, status });
 export const updateLoading = (isLoading) => ({ type: UPDATE_LOADING, isLoading });

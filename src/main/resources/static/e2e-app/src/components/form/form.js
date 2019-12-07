@@ -20,7 +20,7 @@ import {
   updateMessagesSkipped,
   updateMessagesPassed,
   updateMessagesFailed,
-  updateStartedTimestamp
+  updateStartedTimestamp, updateFinishedTimestamp
 } from "../../actions/formActions";
 import Button from "../button/button";
 import DockerService from "../../services/DockerService";
@@ -71,6 +71,7 @@ class Form extends Component {
 
         if (formStatus === true) {
           this.props.updateLoading(true);
+          this.props.updateFinishedTimestamp(0);
           this.dockerService
             .runE2ESuite({
               branch: branch,
@@ -129,7 +130,12 @@ class Form extends Component {
         this.props.updateMessagesFailed(job.messagesFailed);
         this.props.updateMessagesPassed(job.messagesPassed);
         this.props.updateMessagesSkipped(job.messagesSkipped);
-        this.props.updateStartedTimestamp(job.startedTimestamp);
+        if (job.startedTimestamp > 0) {
+          this.props.updateStartedTimestamp(job.startedTimestamp);
+        }
+        if (job.finishedTimestamp > 0) {
+          this.props.updateFinishedTimestamp(job.finishedTimestamp);
+        }
       })
       .catch(() => {
         this.props.updateBuildStatus(false);
@@ -248,6 +254,7 @@ const mapDispatchToProps = dispatch => ({
   updateBuildStatus: (isRunning) => dispatch(updateBuildStatus(isRunning)),
   updateCanBeStopped: (status) => dispatch(updateCanBeStopped(status)),
   updateDocumentType: (documentType) => dispatch(updateDocumentType(documentType)),
+  updateFinishedTimestamp: (timestamp) => dispatch(updateFinishedTimestamp(timestamp)),
   updateFormStatus: (status) => dispatch(updateFormStatus(status)),
   updateFormMessages: (messages) => dispatch(updateFormMessages(messages)),
   updateLoading: (isLoading) => dispatch(updateLoading(isLoading)),

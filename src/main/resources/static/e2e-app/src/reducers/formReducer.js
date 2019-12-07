@@ -26,7 +26,9 @@ import {
   UPDATE_MESSAGES_PASSED,
   UPDATE_MESSAGES_FAILED,
   UPDATE_MESSAGES_SKIPPED,
-  UPDATE_STARTED_TIMESTAMP
+  UPDATE_STARTED_TIMESTAMP,
+  UPDATE_EXECUTION_TIME,
+  UPDATE_FINISHED_TIMESTAMP
 } from "../actions/constants";
 
 export default (state = {}, action) => {
@@ -66,10 +68,20 @@ export default (state = {}, action) => {
         ...state,
         errorOutputEnabled: action.status
       };
+    case UPDATE_EXECUTION_TIME:
+      return {
+        ...state,
+        executionTime: action.time
+      };
     case UPDATE_FAILED_OUTPUT:
       return {
         ...state,
         isFailedOutputActive: action.status
+      };
+    case UPDATE_FINISHED_TIMESTAMP:
+      return {
+        ...state,
+        finishedTimestamp: action.timestamp
       };
     case UPDATE_FORM_MESSAGES:
       return {
