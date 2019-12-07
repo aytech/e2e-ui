@@ -25,7 +25,8 @@ import {
   UPDATE_SKIPPED_OUTPUT,
   UPDATE_MESSAGES_PASSED,
   UPDATE_MESSAGES_FAILED,
-  UPDATE_MESSAGES_SKIPPED
+  UPDATE_MESSAGES_SKIPPED,
+  UPDATE_STARTED_TIMESTAMP
 } from "../actions/constants";
 
 export default (state = {}, action) => {
@@ -149,6 +150,11 @@ export default (state = {}, action) => {
       return {
         ...state,
         isSkippedOutputActive: action.status
+      };
+    case UPDATE_STARTED_TIMESTAMP:
+      return {
+        ...state,
+        startedTimestamp: action.timestamp
       };
     case UPDATE_STD_ERR:
       return {

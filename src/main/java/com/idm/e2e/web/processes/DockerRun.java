@@ -4,6 +4,7 @@ import com.idm.e2e.web.configuration.DockerCommands;
 import com.idm.e2e.web.data.FilesResource;
 import com.idm.e2e.web.data.StatusStorage;
 import com.idm.e2e.web.interfaces.DockerRunnable;
+import com.idm.e2e.web.models.DockerBuildStatus;
 import com.idm.e2e.web.models.E2EConfiguration;
 
 import java.io.IOException;
@@ -22,6 +23,7 @@ public class DockerRun implements DockerRunnable {
     private String logID;
     private FilesResource filesResource;
     private DockerUtility dockerUtility;
+    private DockerBuildStatus status;
 
     public DockerRun(E2EConfiguration configuration) {
         e2eNodeID = String.format(DOCKER_E2E_NODE, configuration.getNodeID());
@@ -29,6 +31,7 @@ public class DockerRun implements DockerRunnable {
         logID = configuration.getNodeID();
         filesResource = new FilesResource(configuration);
         dockerUtility = new DockerUtility(e2eNodeID);
+        status = StatusStorage.getStatus(configuration.getNodeID());
     }
 
     @Override
@@ -47,6 +50,8 @@ public class DockerRun implements DockerRunnable {
 
     @Override
     public void destroy() {
+        status.setFinishedTimestamp(System.currentTimeMillis());
+
         if (chromeProcess != null) {
             chromeProcess.destroy();
         }
@@ -65,6 +70,7 @@ public class DockerRun implements DockerRunnable {
     public void run() {
         ProcessBuilder chromeBuilder = DockerCommands.runChromeNode(chromeNodeID);
         ProcessBuilder e2eBuilder = DockerCommands.runE2ENode(e2eNodeID, filesResource.getReportsPath());
+        status.setStartedTimestamp(System.currentTimeMillis());
 
         try {
             dockerUtility.startSeleniumGridContainer();

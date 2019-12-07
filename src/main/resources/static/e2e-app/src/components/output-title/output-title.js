@@ -7,13 +7,33 @@ class OutputTitle extends Component {
     const {
       buildInProgress,
       messages,
-      serverErrorState
+      serverErrorState,
+      startedTimestamp
     } = this.props.state;
 
     if (buildInProgress === true) {
+      const now = new Date();
+      const diff = now.getTime() - startedTimestamp;
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const minutes = Math.floor(((diff % 86400000) % 3600000) / 60000);
+      const seconds = Math.floor((((diff % 86400000) % 3600000) % 60000) / 1000);
+      let timeText = `${ seconds } seconds`;
+
+      if (minutes > 0) {
+        timeText = `${ minutes } minutes ${ timeText }`;
+      }
+      if (hours > 0) {
+        timeText = `${ hours } hours ${ timeText }`;
+      }
+
       return (
-        <p className="text-danger">
-          Build running, please wait. Tests executed: ({ messages.length })
+        <p>
+          <span className="text-warning">
+            Build running, please wait. Tests executed:
+          </span>
+          <span className="text-danger"> { messages.length }</span>,
+          <span className="text-warning"> Execution time:</span>
+          <span className="text-danger"> { timeText }</span>
         </p>
       )
     }

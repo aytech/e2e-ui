@@ -11,6 +11,35 @@ public class DockerBuildStatus {
     private ArrayList<String> messagesSkipped;
     private ArrayList<String> stdInput;
     private ArrayList<String> stdErr;
+    private long startedTimestamp;
+    private long finishedTimestamp;
+    private Boolean canBeStopped;
+    private Boolean isReportAvailable;
+    private Boolean isRunning;
+
+    public Boolean getRunning() {
+        return isRunning;
+    }
+
+    public void setStdErr(ArrayList<String> stdErr) {
+        this.stdErr = stdErr;
+    }
+
+    public long getFinishedTimestamp() {
+        return finishedTimestamp;
+    }
+
+    public void setFinishedTimestamp(long finishedTimestamp) {
+        this.finishedTimestamp = finishedTimestamp;
+    }
+
+    public long getStartedTimestamp() {
+        return startedTimestamp;
+    }
+
+    public void setStartedTimestamp(long startedTimestamp) {
+        this.startedTimestamp = startedTimestamp;
+    }
 
     public ArrayList<String> getMessagesFailed() {
         return messagesFailed;
@@ -64,10 +93,6 @@ public class DockerBuildStatus {
     public void setCanBeStopped(Boolean canBeStopped) {
         this.canBeStopped = canBeStopped;
     }
-
-    private Boolean canBeStopped;
-    private Boolean isReportAvailable;
-    private Boolean isRunning;
 
     public ArrayList<String> getCommands() {
         return commands;

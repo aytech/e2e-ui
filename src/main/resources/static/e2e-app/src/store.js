@@ -27,6 +27,7 @@ const initialState = {
     messagesSkipped: [],
     password: '',
     serverErrorState: false,
+    startedTimestamp: 0,
     stdErr: [],
     stdInput: [],
     successfulRun: false,

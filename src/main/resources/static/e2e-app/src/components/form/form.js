@@ -19,7 +19,8 @@ import {
   updateCanBeStopped,
   updateMessagesSkipped,
   updateMessagesPassed,
-  updateMessagesFailed
+  updateMessagesFailed,
+  updateStartedTimestamp
 } from "../../actions/formActions";
 import Button from "../button/button";
 import DockerService from "../../services/DockerService";
@@ -128,6 +129,7 @@ class Form extends Component {
         this.props.updateMessagesFailed(job.messagesFailed);
         this.props.updateMessagesPassed(job.messagesPassed);
         this.props.updateMessagesSkipped(job.messagesSkipped);
+        this.props.updateStartedTimestamp(job.startedTimestamp);
       })
       .catch(() => {
         this.props.updateBuildStatus(false);
@@ -259,6 +261,7 @@ const mapDispatchToProps = dispatch => ({
   updateStdInput: (input) => dispatch(updateStdInput(input)),
   updateRunStatus: (isSuccessful) => dispatch(updateRunStatus(isSuccessful)),
   updateServerErrorState: (isError) => dispatch(updateServerErrorState(isError)),
+  updateStartedTimestamp: (timestamp) => dispatch(updateStartedTimestamp(timestamp)),
   updateUserEmail: (email) => dispatch(updateUserEmail(email)),
   updateUserPassword: (password) => dispatch(updateUserPassword(password)),
 });

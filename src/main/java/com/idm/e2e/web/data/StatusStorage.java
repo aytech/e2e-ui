@@ -28,6 +28,9 @@ public class StatusStorage {
         status.setRunning(false);
         status.setCommands(new ArrayList<>());
         status.setMessages(new ArrayList<>());
+        status.setMessagesFailed(new ArrayList<>());
+        status.setMessagesPassed(new ArrayList<>());
+        status.setMessagesSkipped(new ArrayList<>());
         status.setStdInput(new ArrayList<>());
         status.setStdError(new ArrayList<>());
         return status;
