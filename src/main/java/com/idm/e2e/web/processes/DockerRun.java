@@ -1,13 +1,17 @@
 package com.idm.e2e.web.processes;
 
 import com.idm.e2e.web.configuration.DockerCommands;
+import com.idm.e2e.web.data.EmailResource;
 import com.idm.e2e.web.data.FilesResource;
 import com.idm.e2e.web.data.StatusStorage;
 import com.idm.e2e.web.interfaces.DockerRunnable;
 import com.idm.e2e.web.models.DockerBuildStatus;
 import com.idm.e2e.web.models.E2EConfiguration;
+import com.idm.e2e.web.models.EmailRequest;
 
+import javax.mail.MessagingException;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +28,10 @@ public class DockerRun implements DockerRunnable {
     private FilesResource filesResource;
     private DockerUtility dockerUtility;
     private DockerBuildStatus status;
+    private E2EConfiguration configuration;
 
     public DockerRun(E2EConfiguration configuration) {
+        this.configuration = configuration;
         e2eNodeID = String.format(DOCKER_E2E_NODE, configuration.getNodeID());
         chromeNodeID = String.format(DOCKER_CHROME_NODE, configuration.getNodeID());
         logID = configuration.getNodeID();
@@ -58,12 +64,8 @@ public class DockerRun implements DockerRunnable {
         if (e2eProcess != null) {
             e2eProcess.destroy();
         }
-
-        List<String> containers = new ArrayList<>();
-        containers.add(chromeNodeID);
-        containers.add(e2eNodeID);
-        dockerUtility.stopRunningContainers(containers);
-        filesResource.cleanConfigurationFiles();
+        sendEmail();
+        cleanup();
     }
 
     @Override
@@ -79,6 +81,29 @@ public class DockerRun implements DockerRunnable {
         } catch (IOException | InterruptedException e) {
             failed = true;
             StatusStorage.getStatus(logID).addStdErrorEntry(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void cleanup() {
+        List<String> containers = new ArrayList<>();
+        containers.add(chromeNodeID);
+        containers.add(e2eNodeID);
+        dockerUtility.stopRunningContainers(containers);
+        filesResource.cleanConfigurationFiles();
+    }
+
+    private void sendEmail() {
+        EmailRequest email = new EmailRequest();
+        email.setNodeID(configuration.getNodeID());
+        email.setHost(configuration.getRequestHost());
+        email.setRecipient(configuration.getUser());
+        email.generateReportDownloadedMessage();
+        EmailResource emailResource = new EmailResource();
+        try {
+            emailResource.sendGmail(email);
+        } catch (IOException | MessagingException | GeneralSecurityException e) {
+            status.addStdInputEntry("Error sending email: " + e.getMessage());
             e.printStackTrace();
         }
     }

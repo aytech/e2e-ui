@@ -3,6 +3,7 @@ package com.idm.e2e.web.data;
 import com.idm.e2e.web.models.E2EConfiguration;
 
 import java.io.*;
+import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 

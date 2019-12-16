@@ -23,7 +23,7 @@ import static com.idm.e2e.web.configuration.DockerConstants.DOCKER_CHROME_NODE;
 import static com.idm.e2e.web.configuration.DockerConstants.DOCKER_E2E_NODE;
 
 @RestController
-@RequestMapping(value = URI_BASE)
+@RequestMapping(value = URI_API_BASE)
 public class BuildController {
 
     @RequestMapping(
@@ -43,16 +43,17 @@ public class BuildController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = URI_RUN_E2E)
-    public HttpEntity<DockerRunResponse> runSuite(@RequestBody DockerRunRequest request) {
+    public HttpEntity<DockerRunResponse> runSuite(HttpServletRequest request, @RequestBody DockerRunRequest body) {
         DockerRunResponse response = new DockerRunResponse();
-        if (request.isEmailValid()) {
+        if (body.isEmailValid()) {
             String nodeID = DockerCommands.getNewE2ENode();
             E2EConfiguration configuration = new E2EConfiguration();
-            configuration.setUser(request.getEmail());
-            configuration.setPassword(request.getPassword());
-            configuration.setBranch(request.getBranch());
+            configuration.setUser(body.getEmail());
+            configuration.setPassword(body.getPassword());
+            configuration.setBranch(body.getBranch());
             configuration.setNodeID(nodeID);
-            configuration.setDocumentType(request.getDocumentType());
+            configuration.setDocumentType(body.getDocumentType());
+            configuration.setRequestHost(request.getRequestURL().toString());
             StatusStorage.setStatus(nodeID);
 
             ArrayList<DockerRunnable> jobs = new ArrayList<>();

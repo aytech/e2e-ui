@@ -125,16 +125,6 @@ public class FilesResource {
         }
     }
 
-    public void removeReportsDirectory() {
-        String directory = getConfigurationDirectory(REPORT_DIR).getPath();
-        File file = new File(directory);
-        if (file.exists() && file.delete()) {
-            System.out.println(String.format("Directory %s was removed", file.getName()));
-        } else {
-            System.out.println(String.format("Error removing directory %s", file.getPath()));
-        }
-    }
-
     private List<String> getConfigurationFiles() {
         String configurationDirectory = getConfigurationDirectory(null).getPath();
         ArrayList<String> paths = new ArrayList<>();
