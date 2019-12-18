@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { ProgressBar } from "./progress";
 import StandardOutput from "../standard-output/standard-output";
 import {
+  fetchStopRunningProcess,
   updateCanBeStopped,
   updateModalOpen,
   updateReportLoading,
@@ -50,14 +51,7 @@ class Output extends Component {
   };
 
   stopRunningProcess = () => {
-    this.props.updateModalOpen(false);
-    this.props.updateStopProcessLoading(true);
-    this.dockerService
-      .stopProcess()
-      .finally(() => {
-        this.props.updateCanBeStopped(false);
-        this.props.updateStopProcessLoading(false);
-      });
+    this.props.fetchStopRunningProcess();
   };
 
   render() {
@@ -114,6 +108,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  fetchStopRunningProcess: () => dispatch(fetchStopRunningProcess()),
   updateCanBeStopped: (status) => dispatch(updateCanBeStopped(status)),
   updateModalOpen: (isOpen) => dispatch(updateModalOpen(isOpen)),
   updateReportLoading: (isLoading) => dispatch(updateReportLoading(isLoading)),

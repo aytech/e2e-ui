@@ -2,7 +2,7 @@ import {
   UPDATE_SERVER_ERROR,
   UPDATE_FORM_MESSAGES,
   UPDATE_FORM_STATUS,
-  UPDATE_LOADING,
+  UPDATE_LOADING_RUN,
   UPDATE_LOADING_STATUS,
   UPDATE_BUILD_STATUS,
   UPDATE_EMAIL,
@@ -21,6 +21,12 @@ import {
   UPDATE_STARTED_TIMESTAMP,
   UPDATE_FINISHED_TIMESTAMP
 } from "./constants";
+import DockerService from "../services/DockerService";
+import Cookies from "universal-cookie/lib";
+import { E2E_NODE } from "../constants/application";
+
+const cookies = new Cookies();
+const dockerService = new DockerService();
 
 export const updateBranch = (branch) => ({ type: UPDATE_BRANCH, branch });
 export const updateBuildStatus = (isRunning) => ({ type: UPDATE_BUILD_STATUS, isRunning });
@@ -29,7 +35,7 @@ export const updateDocumentType = (documentType) => ({ type: UPDATE_DOCUMENT_TYP
 export const updateFinishedTimestamp = (timestamp) => ({ type: UPDATE_FINISHED_TIMESTAMP, timestamp });
 export const updateFormMessages = (messages) => ({ type: UPDATE_FORM_MESSAGES, messages });
 export const updateFormStatus = (status) => ({ type: UPDATE_FORM_STATUS, status });
-export const updateLoading = (isLoading) => ({ type: UPDATE_LOADING, isLoading });
+export const updateLoadingRun = (isLoading) => ({ type: UPDATE_LOADING_RUN, isLoading });
 export const updateLoadingStatus = (isStatusLoading) => ({ type: UPDATE_LOADING_STATUS, isStatusLoading });
 export const updateMessages = (messages) => ({ type: UPDATE_MESSAGES, messages });
 export const updateMessagesFailed = (messages) => ({ type: UPDATE_MESSAGES_FAILED, messages });
@@ -43,3 +49,67 @@ export const updateServerErrorState = (isError) => ({ type: UPDATE_SERVER_ERROR,
 export const updateStartedTimestamp = (timestamp) => ({ type: UPDATE_STARTED_TIMESTAMP, timestamp });
 export const updateUserEmail = (email) => ({ type: UPDATE_EMAIL, email });
 export const updateUserPassword = (password) => ({ type: UPDATE_PASSWORD, password });
+export const fetchStatus = () => {
+  return (dispatch) => {
+    dispatch(updateLoadingStatus(true));
+    dockerService
+      .getDockerBuildStatus()
+      .then(status => {
+        // noinspection JSUnresolvedVariable
+        dispatch(updateBuildStatus(status.running));
+        // noinspection JSUnresolvedVariable
+        dispatch(updateCanBeStopped(status.canBeStopped));
+        dispatch(updateMessages(status.messages));
+        dispatch(updateMessagesFailed(status.messagesFailed));
+        dispatch(updateMessagesPassed(status.messagesPassed));
+        dispatch(updateMessagesSkipped(status.messagesSkipped));
+        // noinspection JSUnresolvedVariable
+        dispatch(updateReportStatus(status.reportAvailable));
+        dispatch(updateServerErrorState(false));
+        dispatch(updateStdErr(status.stdErr));
+        dispatch(updateStdInput(status.stdInput));
+        if (status.startedTimestamp > 0) {
+          dispatch(updateStartedTimestamp(status.startedTimestamp));
+        }
+        if (status.finishedTimestamp > 0) {
+          dispatch(updateFinishedTimestamp(status.finishedTimestamp));
+        }
+      })
+      .catch(() => {
+        dispatch(updateBuildStatus(false));
+        dispatch(updateServerErrorState(true));
+        dispatch(updateReportStatus(false));
+      })
+      .finally(() => {
+        dispatch(updateLoadingStatus(false));
+      });
+  }
+};
+export const fetchRunRequest = (request) => {
+  return (dispatch) => {
+    dispatch(updateLoadingRun(true));
+    dispatch(updateFinishedTimestamp(0));
+    dockerService
+      .runE2ESuite(request)
+      .then(response => {
+        if (response.status === 200) {
+          // noinspection JSUnresolvedVariable
+          cookies.set(E2E_NODE, response.nodeID, { path: '/' });
+          dispatch(updateFormMessages([ 'Process has started, log output will print below' ]));
+          dispatch(updateRunStatus(true));
+          const timeoutID = setTimeout(() => {
+            fetchStatus();
+            clearTimeout(timeoutID);
+          });
+        } else {
+          console.log("Error: ", response);
+        }
+      })
+      .catch(() => {
+        dispatch(updateServerErrorState(true));
+      })
+      .finally(() => {
+        updateLoadingRun(false);
+      })
+  }
+};

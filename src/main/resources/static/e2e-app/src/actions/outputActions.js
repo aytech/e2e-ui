@@ -8,6 +8,9 @@ import {
   UPDATE_SKIPPED_OUTPUT,
   UPDATE_STOP_LOADING
 } from "./constants";
+import DockerService from "../services/DockerService";
+
+const dockerService = new DockerService();
 
 export const updateCanBeStopped = (status) => ({ type: UPDATE_CAN_BE_STOPPED, status });
 export const updateExecutionTime = (time) => ({ type: UPDATE_EXECUTION_TIME, time });
@@ -17,3 +20,15 @@ export const updateModalOpen = (status) => ({ type: UPDATE_MODAL_OPEN, status })
 export const updatePassedOutput = (status) => ({ type: UPDATE_PASSED_OUTPUT, status });
 export const updateFailedOutput = (status) => ({ type: UPDATE_FAILED_OUTPUT, status });
 export const updateSkippedOutput = (status) => ({ type: UPDATE_SKIPPED_OUTPUT, status });
+export const fetchStopRunningProcess = () => {
+  return (dispatch) => {
+    dispatch(updateModalOpen(false));
+    dispatch(updateStopProcessLoading(true));
+    dockerService
+      .stopProcess()
+      .finally(() => {
+        dispatch(updateCanBeStopped(false));
+        dispatch(updateStopProcessLoading(false));
+      });
+  }
+};

@@ -166,7 +166,7 @@ public class DockerBuildStatus {
         return isRunning;
     }
 
-    public void setRunning(Boolean running) {
-        isRunning = running;
+    public void setRunning(Boolean isRunning) {
+        this.isRunning = isRunning;
     }
 }

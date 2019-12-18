@@ -1,40 +1,25 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
 import {
-  updateBuildStatus,
+  fetchRunRequest,
+  fetchStatus,
   updateFormMessages,
   updateFormStatus,
-  updateLoading,
-  updateLoadingStatus,
-  updateStdInput,
-  updateRunStatus,
-  updateServerErrorState,
   updateUserEmail,
   updateUserPassword,
-  updateStdErr,
-  updateMessages,
-  updateReportStatus,
   updateBranch,
   updateDocumentType,
-  updateCanBeStopped,
-  updateMessagesSkipped,
-  updateMessagesPassed,
-  updateMessagesFailed,
-  updateStartedTimestamp, updateFinishedTimestamp
+  updateCanBeStopped
 } from "../../actions/formActions";
 import Button from "../button/button";
-import DockerService from "../../services/DockerService";
 import Alert from "./alert";
-import Cookies from "universal-cookie/lib";
-import { E2E_NODE } from "../../constants/application";
 
 class Form extends Component {
 
-  dockerService = new DockerService();
-
   componentDidMount() {
-    this.getE2EBuildStatus();
-    this.timerID = setInterval(this.getE2EBuildStatus, 5000);
+    const { fetchStatus } = this.props;
+    fetchStatus();
+    this.timerID = setInterval(fetchStatus, 5000);
   }
 
   componentWillUnmount() {
@@ -57,103 +42,31 @@ class Form extends Component {
     this.props.updateDocumentType(event.target.value);
   };
 
-  runE2E = async (event) => {
+  runE2E = (event) => {
     event.preventDefault();
-    this.validateForm()
-      .then(() => {
-        const {
-          branch,
-          documentType,
-          email,
-          formStatus,
-          password
-        } = this.props.state;
-
-        if (formStatus === true) {
-          this.props.updateLoading(true);
-          this.props.updateFinishedTimestamp(0);
-          this.dockerService
-            .runE2ESuite({
-              branch: branch,
-              documentType: documentType,
-              email: email,
-              password: password
-            })
-            .then(response => {
-              if (response.status === 200) {
-                const cookies = new Cookies();
-                // noinspection JSUnresolvedVariable
-                cookies.set(E2E_NODE, response.nodeID, { path: '/' });
-                this.props.updateFormMessages([ 'Process has started, log output will print below' ]);
-                this.props.updateRunStatus(true);
-                this.timeoutID = setTimeout(() => {
-                  this.getE2EBuildStatus();
-                  clearTimeout(this.timeoutID);
-                }, 2000);
-              } else {
-                console.log("error response: ", response);
-              }
-            })
-            .catch(() => {
-              this.props.updateServerErrorState(true);
-            })
-            .finally(() => {
-              this.props.updateLoading(false);
-            })
-        }
-      });
-  };
-
-  getE2EBuildStatus = (event) => {
-    if (event !== undefined) {
-      event.preventDefault();
+    const validationStatus = this.validateForm();
+    if (validationStatus.status === true) {
+      const request = {
+        branch: this.props.state.branch,
+        documentType: this.props.state.documentType,
+        email: this.props.state.email,
+        password: this.props.state.password
+      };
+      this.props.fetchRunRequest(request)
+    } else {
+      this.props.updateFormStatus(false);
+      this.props.updateFormMessages(validationStatus.messages);
     }
-    this.props.updateLoadingStatus(true);
-    this.dockerService
-      .getDockerBuildStatus()
-      .then(job => {
-        if (job.messages === null) {
-          this.props.updateStdInput([]);
-        } else {
-          this.props.updateStdInput(job.messages);
-        }
-        this.props.updateMessages(job.messages);
-        this.props.updateStdErr(job.stdErr);
-        this.props.updateStdInput(job.stdInput);
-        // noinspection JSUnresolvedVariable
-        this.props.updateBuildStatus(job.running);
-        this.props.updateServerErrorState(false);
-        // noinspection JSUnresolvedVariable
-        this.props.updateReportStatus(job.reportAvailable);
-        // noinspection JSUnresolvedVariable
-        this.props.updateCanBeStopped(job.canBeStopped);
-        this.props.updateMessagesFailed(job.messagesFailed);
-        this.props.updateMessagesPassed(job.messagesPassed);
-        this.props.updateMessagesSkipped(job.messagesSkipped);
-        if (job.startedTimestamp > 0) {
-          this.props.updateStartedTimestamp(job.startedTimestamp);
-        }
-        if (job.finishedTimestamp > 0) {
-          this.props.updateFinishedTimestamp(job.finishedTimestamp);
-        }
-      })
-      .catch(() => {
-        this.props.updateBuildStatus(false);
-        this.props.updateServerErrorState(true);
-        this.props.updateReportStatus(false);
-        if (this.timerID === undefined) {
-          this.timerID = setInterval(this.getE2EBuildStatus, 2000);
-        }
-      })
-      .finally(() => {
-        this.props.updateLoadingStatus(false);
-      });
   };
 
-  validateForm = async () => {
+  fetchStatus = (event) => {
+    event.preventDefault();
+    this.props.fetchStatus();
+  };
+
+  validateForm = () => {
     let messages = [], status = true;
     const { email, password } = this.props.state;
-
     if (email === undefined || email === '') {
       status = false;
       messages.push('Provide user email address');
@@ -162,9 +75,10 @@ class Form extends Component {
       status = false;
       messages.push('Provide user password');
     }
-
-    await this.props.updateFormStatus(status);
-    await this.props.updateFormMessages(messages);
+    return {
+      messages: messages,
+      status: status
+    }
   };
 
   render() {
@@ -229,7 +143,7 @@ class Form extends Component {
             type="submit"
             className="btn btn-block btn-primary"
             error={ formStatus === false || serverErrorState }
-            loading={ isLoading }
+            loading={ isLoading || buildInProgress }
             disabled={ buildInProgress || isLoading }/>
           <Button
             text={ "Get build status" }
@@ -238,7 +152,7 @@ class Form extends Component {
             error={ serverErrorState }
             disabled={ buildInProgress || isStatusLoading }
             loading={ isStatusLoading }
-            onClick={ this.getE2EBuildStatus }/>
+            onClick={ this.fetchStatus }/>
         </form>
         <hr className="my-4"/>
       </div>
@@ -246,31 +160,21 @@ class Form extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  ...state
-});
-const mapDispatchToProps = dispatch => ({
-  updateBranch: (branch) => dispatch(updateBranch(branch)),
-  updateBuildStatus: (isRunning) => dispatch(updateBuildStatus(isRunning)),
-  updateCanBeStopped: (status) => dispatch(updateCanBeStopped(status)),
-  updateDocumentType: (documentType) => dispatch(updateDocumentType(documentType)),
-  updateFinishedTimestamp: (timestamp) => dispatch(updateFinishedTimestamp(timestamp)),
-  updateFormStatus: (status) => dispatch(updateFormStatus(status)),
-  updateFormMessages: (messages) => dispatch(updateFormMessages(messages)),
-  updateLoading: (isLoading) => dispatch(updateLoading(isLoading)),
-  updateLoadingStatus: (isStatusLoading) => dispatch(updateLoadingStatus(isStatusLoading)),
-  updateMessages: (messages) => dispatch(updateMessages(messages)),
-  updateMessagesFailed: (messages) => dispatch(updateMessagesFailed(messages)),
-  updateMessagesPassed: (messages) => dispatch(updateMessagesPassed(messages)),
-  updateMessagesSkipped: (messages) => dispatch(updateMessagesSkipped(messages)),
-  updateReportStatus: (status) => dispatch(updateReportStatus(status)),
-  updateStdErr: (error) => dispatch(updateStdErr(error)),
-  updateStdInput: (input) => dispatch(updateStdInput(input)),
-  updateRunStatus: (isSuccessful) => dispatch(updateRunStatus(isSuccessful)),
-  updateServerErrorState: (isError) => dispatch(updateServerErrorState(isError)),
-  updateStartedTimestamp: (timestamp) => dispatch(updateStartedTimestamp(timestamp)),
-  updateUserEmail: (email) => dispatch(updateUserEmail(email)),
-  updateUserPassword: (password) => dispatch(updateUserPassword(password)),
-});
+const
+  mapStateToProps = state => ({
+    ...state
+  });
+const
+  mapDispatchToProps = dispatch => ({
+    fetchRunRequest: (request) => dispatch(fetchRunRequest(request)),
+    fetchStatus: () => dispatch(fetchStatus()),
+    updateBranch: (branch) => dispatch(updateBranch(branch)),
+    updateCanBeStopped: (status) => dispatch(updateCanBeStopped(status)),
+    updateDocumentType: (documentType) => dispatch(updateDocumentType(documentType)),
+    updateFormStatus: (status) => dispatch(updateFormStatus(status)),
+    updateFormMessages: (messages) => dispatch(updateFormMessages(messages)),
+    updateUserEmail: (email) => dispatch(updateUserEmail(email)),
+    updateUserPassword: (password) => dispatch(updateUserPassword(password)),
+  });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Form);

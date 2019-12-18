@@ -2,7 +2,7 @@ import {
   UPDATE_SERVER_ERROR,
   UPDATE_FORM_MESSAGES,
   UPDATE_FORM_STATUS,
-  UPDATE_LOADING,
+  UPDATE_LOADING_RUN,
   UPDATE_LOADING_STATUS,
   UPDATE_BUILD_STATUS,
   UPDATE_DEBUG_ENABLED,
@@ -93,7 +93,7 @@ export default (state = {}, action) => {
         ...state,
         formStatus: action.status
       };
-    case UPDATE_LOADING:
+    case UPDATE_LOADING_RUN:
       return {
         ...state,
         isLoading: action.isLoading
