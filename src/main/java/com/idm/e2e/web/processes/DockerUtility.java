@@ -41,15 +41,10 @@ public class DockerUtility {
         }
     }
 
-    public Boolean isContainerCreated() {
-        try {
-            Process process = DockerCommands.isContainerCreated(containerName).start();
-            ProcessLogger logger = new ProcessLogger(process);
-            return logger.getLogString() != null;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
+    public Boolean isContainerCreated() throws IOException {
+        Process process = DockerCommands.isContainerCreated(containerName).start();
+        ProcessLogger logger = new ProcessLogger(process);
+        return logger.getLogString() != null;
     }
 
     private void prune() throws IOException, InterruptedException {

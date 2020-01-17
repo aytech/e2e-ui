@@ -36,7 +36,12 @@ public class BuildController {
         E2EConfiguration configuration = new E2EConfiguration();
         configuration.setNodeID(nodeID);
         DockerUtility utility = new DockerUtility(String.format(DOCKER_E2E_NODE, nodeID));
-        status.setCanBeStopped(utility.isContainerCreated());
+        try {
+            status.setCanBeStopped(utility.isContainerCreated());
+        } catch (IOException exception) {
+            status.addStdErrorEntry(exception.getMessage());
+            return new ResponseEntity<>(status, HttpStatus.SERVICE_UNAVAILABLE);
+        }
         ZipResource resource = new ZipResource(configuration);
         status.setReportAvailable(resource.isReportAvailable());
         return new ResponseEntity<>(status, HttpStatus.OK);
