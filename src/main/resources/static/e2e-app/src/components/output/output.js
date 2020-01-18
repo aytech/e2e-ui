@@ -65,6 +65,9 @@ class Output extends Component {
       isModalOpen
     } = this.props.state;
 
+    if (buildInProgress === false) {
+      return null
+    }
     const stopProcessText = isStopProcessLoading === true ? 'Stopping test' : 'Stop test';
     const downloadReportText = isReportLoading === true ? 'Downloading report' : 'Download report';
 

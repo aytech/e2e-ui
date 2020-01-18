@@ -4,6 +4,12 @@ import { createStore, applyMiddleware } from "redux";
 import rootReducer from "./reducers/rootReducer";
 
 const initialState = {
+  auth: {
+    email: '',
+    isAuthenticated: false,
+    isLoginModalOpen: false,
+    password: ''
+  },
   state: {
     branch: '',
     buildInProgress: false,
@@ -12,7 +18,6 @@ const initialState = {
     documentType: '',
     errorOutputEnabled: false,
     executionTime: '',
-    email: '',
     finishedTimestamp: 0,
     formStatus: null,
     formMessages: [],
@@ -29,7 +34,6 @@ const initialState = {
     messagesFailed: [],
     messagesPassed: [],
     messagesSkipped: [],
-    password: '',
     serverErrorState: false,
     startedTimestamp: 0,
     stdErr: [],

@@ -5,9 +5,7 @@ import {
   UPDATE_LOADING_RUN,
   UPDATE_LOADING_STATUS,
   UPDATE_BUILD_STATUS,
-  UPDATE_EMAIL,
   UPDATE_STD_INPUT,
-  UPDATE_PASSWORD,
   UPDATE_RUN_STATUS,
   UPDATE_STD_ERR,
   UPDATE_MESSAGES,
@@ -23,7 +21,7 @@ import {
 } from "./constants";
 import DockerService from "../services/DockerService";
 import Cookies from "universal-cookie/lib";
-import { E2E_NODE } from "../constants/application";
+import { E2E_NODE, HttpStatuses } from "../constants/application";
 
 const cookies = new Cookies();
 const dockerService = new DockerService();
@@ -47,32 +45,36 @@ export const updateReportStatus = (status) => ({ type: UPDATE_REPORT_STATUS, sta
 export const updateRunStatus = (isSuccessful) => ({ type: UPDATE_RUN_STATUS, isSuccessful });
 export const updateServerErrorState = (isError) => ({ type: UPDATE_SERVER_ERROR, isError });
 export const updateStartedTimestamp = (timestamp) => ({ type: UPDATE_STARTED_TIMESTAMP, timestamp });
-export const updateUserEmail = (email) => ({ type: UPDATE_EMAIL, email });
-export const updateUserPassword = (password) => ({ type: UPDATE_PASSWORD, password });
+
+
 export const fetchStatus = () => {
   return (dispatch) => {
     dispatch(updateLoadingStatus(true));
     dockerService
       .getDockerBuildStatus()
-      .then(status => {
-        // noinspection JSUnresolvedVariable
-        dispatch(updateBuildStatus(status.running));
-        // noinspection JSUnresolvedVariable
-        dispatch(updateCanBeStopped(status.canBeStopped));
-        dispatch(updateMessages(status.messages));
-        dispatch(updateMessagesFailed(status.messagesFailed));
-        dispatch(updateMessagesPassed(status.messagesPassed));
-        dispatch(updateMessagesSkipped(status.messagesSkipped));
-        // noinspection JSUnresolvedVariable
-        dispatch(updateReportStatus(status.reportAvailable));
-        dispatch(updateServerErrorState(false));
-        dispatch(updateStdErr(status.stdErr));
-        dispatch(updateStdInput(status.stdInput));
-        if (status.startedTimestamp > 0) {
-          dispatch(updateStartedTimestamp(status.startedTimestamp));
+      .then(response => {
+        if (response.status === HttpStatuses.UNAUTHORIZED) {
+          // Disable all action buttons
+          return
         }
-        if (status.finishedTimestamp > 0) {
-          dispatch(updateFinishedTimestamp(status.finishedTimestamp));
+        // noinspection JSUnresolvedVariable
+        dispatch(updateBuildStatus(response.running));
+        // noinspection JSUnresolvedVariable
+        dispatch(updateCanBeStopped(response.canBeStopped));
+        dispatch(updateMessages(response.messages));
+        dispatch(updateMessagesFailed(response.messagesFailed));
+        dispatch(updateMessagesPassed(response.messagesPassed));
+        dispatch(updateMessagesSkipped(response.messagesSkipped));
+        // noinspection JSUnresolvedVariable
+        dispatch(updateReportStatus(response.reportAvailable));
+        dispatch(updateServerErrorState(false));
+        dispatch(updateStdErr(response.stdErr));
+        dispatch(updateStdInput(response.stdInput));
+        if (response.startedTimestamp > 0) {
+          dispatch(updateStartedTimestamp(response.startedTimestamp));
+        }
+        if (response.finishedTimestamp > 0) {
+          dispatch(updateFinishedTimestamp(response.finishedTimestamp));
         }
       })
       .catch(() => {

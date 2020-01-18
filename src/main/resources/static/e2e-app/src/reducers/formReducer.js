@@ -6,9 +6,7 @@ import {
   UPDATE_LOADING_STATUS,
   UPDATE_BUILD_STATUS,
   UPDATE_DEBUG_ENABLED,
-  UPDATE_EMAIL,
   UPDATE_MESSAGES,
-  UPDATE_PASSWORD,
   UPDATE_RUN_STATUS,
   UPDATE_STD_ERR,
   UPDATE_STD_INPUT,
@@ -57,11 +55,6 @@ export default (state = {}, action) => {
       return {
         ...state,
         documentType: action.documentType
-      };
-    case UPDATE_EMAIL:
-      return {
-        ...state,
-        email: action.email
       };
     case UPDATE_ERROR_ENABLED:
       return {
@@ -132,11 +125,6 @@ export default (state = {}, action) => {
       return {
         ...state,
         isPassedOutputActive: action.status
-      };
-    case UPDATE_PASSWORD:
-      return {
-        ...state,
-        password: action.password
       };
     case UPDATE_REPORT_LOADING:
       return {

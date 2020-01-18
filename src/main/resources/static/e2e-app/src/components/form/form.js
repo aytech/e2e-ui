@@ -5,8 +5,6 @@ import {
   fetchStatus,
   updateFormMessages,
   updateFormStatus,
-  updateUserEmail,
-  updateUserPassword,
   updateBranch,
   updateDocumentType,
   updateCanBeStopped
@@ -17,21 +15,22 @@ import Alert from "./alert";
 class Form extends Component {
 
   componentDidMount() {
-    const { fetchStatus } = this.props;
-    fetchStatus();
-    this.timerID = setInterval(fetchStatus, 5000);
+    console.log(this.props)
+    // const { fetchStatus } = this.props;
+    // fetchStatus();
+    // this.timerID = setInterval(fetchStatus, 5000);
   }
 
   componentWillUnmount() {
-    clearInterval(this.timerID);
+    // clearInterval(this.timerID);
   }
 
   updateUserEmail = (event) => {
-    this.props.updateUserEmail(event.target.value);
+    // this.props.updateUserEmail(event.target.value);
   };
 
   updateUserPassword = (event) => {
-    this.props.updateUserPassword(event.target.value);
+    // this.props.updateUserPassword(event.target.value);
   };
 
   updateBranch = (event) => {
@@ -89,6 +88,7 @@ class Form extends Component {
       password,
       formStatus,
       formMessages,
+      isAuthenticated,
       isLoading,
       isStatusLoading,
       buildInProgress,
@@ -135,9 +135,12 @@ class Form extends Component {
                      onChange={ this.updateDocumentType }/>
             </div>
           </fieldset>
+          { isAuthenticated === true &&
           <Alert
             status={ formStatus }
             messages={ formMessages }/>
+          }
+          { isAuthenticated === true &&
           <Button
             text={ "Run E2E build" }
             type="submit"
@@ -145,6 +148,8 @@ class Form extends Component {
             error={ formStatus === false || serverErrorState }
             loading={ isLoading || buildInProgress }
             disabled={ buildInProgress || isLoading }/>
+          }
+          { isAuthenticated === true &&
           <Button
             text={ "Get build status" }
             type="button"
@@ -153,6 +158,16 @@ class Form extends Component {
             disabled={ buildInProgress || isStatusLoading }
             loading={ isStatusLoading }
             onClick={ this.fetchStatus }/>
+          }
+          { isAuthenticated === false &&
+          <div className="alert alert-dismissible alert-warning">
+            <button type="button" className="close" data-dismiss="alert">&times;</button>
+            <h4 className="alert-heading">Not authorized</h4>
+            <p className="mb-0">
+              Please login to run
+            </p>
+          </div>
+          }
         </form>
         <hr className="my-4"/>
       </div>
@@ -172,9 +187,7 @@ const
     updateCanBeStopped: (status) => dispatch(updateCanBeStopped(status)),
     updateDocumentType: (documentType) => dispatch(updateDocumentType(documentType)),
     updateFormStatus: (status) => dispatch(updateFormStatus(status)),
-    updateFormMessages: (messages) => dispatch(updateFormMessages(messages)),
-    updateUserEmail: (email) => dispatch(updateUserEmail(email)),
-    updateUserPassword: (password) => dispatch(updateUserPassword(password)),
+    updateFormMessages: (messages) => dispatch(updateFormMessages(messages))
   });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Form);
