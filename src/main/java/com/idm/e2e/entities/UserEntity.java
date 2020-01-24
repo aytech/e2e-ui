@@ -1,4 +1,4 @@
-package com.idm.e2e.models;
+package com.idm.e2e.entities;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -6,18 +6,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 import java.util.Date;
-
+// https://howtodoinjava.com/spring-boot2/spring-boot-crud-hibernate/
 @Entity
-@Table
-public class User {
+@Table(name = "USERS")
+public class UserEntity {
 
-    public User(String email, String password) {
+    public UserEntity(String email, String password) {
         this.email = email;
-        PasswordEncoder encoder = new BCryptPasswordEncoder();
-        this.password = encoder.encode(password);
+        setPassword(password);
     }
 
-    public User() {
+    public UserEntity() {
     }
 
     @Id
@@ -40,6 +39,31 @@ public class User {
     private boolean live;
     @Column
     private boolean deleted;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+        this.password = encoder.encode(password);
+    }
 
     @Override
     public String toString() {

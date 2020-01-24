@@ -1,12 +1,12 @@
 package com.idm.e2e.rest;
 
+import com.idm.e2e.UserService;
 import com.idm.e2e.models.AuthRequest;
-import com.idm.e2e.models.User;
+import com.idm.e2e.entities.UserEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -18,13 +18,17 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping(value = "/auth")
 public class AuthController {
 
-    @RequestMapping(method = RequestMethod.POST, value = "/signin")
-    public HttpEntity<Boolean> signIn(HttpServletRequest request, @RequestBody AuthRequest body) {
-        // https://www.baeldung.com/spring-security-registration-password-encoding-bcrypt
+    final UserService userService;
 
-        User user = new User(body.getUsername(), body.getPassword());
+    public AuthController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/signin")
+    public ResponseEntity<UserEntity> signIn(HttpServletRequest request, @RequestBody UserEntity userEntity) {
+        // https://www.baeldung.com/spring-security-registration-password-encoding-bcrypt
         System.out.println("IP: " + request.getRemoteAddr());
-        System.out.println("User: " + user);
-        return new ResponseEntity<>(true, HttpStatus.OK);
+        System.out.println("User: " + userEntity);
+        return new ResponseEntity<>(userService.createUser(userEntity), HttpStatus.OK);
     }
 }
