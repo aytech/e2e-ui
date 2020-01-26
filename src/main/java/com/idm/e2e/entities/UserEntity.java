@@ -1,20 +1,19 @@
 package com.idm.e2e.entities;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.Date;
-// https://howtodoinjava.com/spring-boot2/spring-boot-crud-hibernate/
+
 @Entity
 @Table(name = "USERS")
-public class UserEntity {
-
-    public UserEntity(String email, String password) {
-        this.email = email;
-        setPassword(password);
-    }
+public class UserEntity implements UserDetails {
 
     public UserEntity() {
     }
@@ -30,23 +29,15 @@ public class UserEntity {
     @Column
     private String activationCode;
     @Column
-    private String session;
+    private String role;
     @CreationTimestamp
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column
     private Date created;
     @Column
-    private boolean live;
+    private boolean enabled;
     @Column
     private boolean deleted;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getEmail() {
         return email;
@@ -61,21 +52,62 @@ public class UserEntity {
     }
 
     public void setPassword(String password) {
-        PasswordEncoder encoder = new BCryptPasswordEncoder();
-        this.password = encoder.encode(password);
+        this.password = password;
+    }
+
+    public String getActivationCode() {
+        return activationCode;
+    }
+
+    public void setActivationCode(String activationCode) {
+        this.activationCode = activationCode;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", activationCode='" + activationCode + '\'' +
-                ", session='" + session + '\'' +
-                ", created=" + created +
-                ", live=" + live +
-                ", deleted=" + deleted +
-                '}';
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return AuthorityUtils.commaSeparatedStringToAuthorityList(String.format("ROLE_%s", role));
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public boolean isEmailValid() {
+        try {
+            InternetAddress address = new InternetAddress(email);
+            address.validate();
+            return true;
+        } catch (AddressException e) {
+            return false;
+        }
     }
 }

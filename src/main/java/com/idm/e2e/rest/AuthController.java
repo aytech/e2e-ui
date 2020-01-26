@@ -1,10 +1,8 @@
 package com.idm.e2e.rest;
 
-import com.idm.e2e.UserService;
-import com.idm.e2e.models.AuthRequest;
+import com.idm.e2e.services.UserService;
 import com.idm.e2e.entities.UserEntity;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
+import com.idm.e2e.models.AuthResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,11 +22,30 @@ public class AuthController {
         this.userService = userService;
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/signin")
-    public ResponseEntity<UserEntity> signIn(HttpServletRequest request, @RequestBody UserEntity userEntity) {
-        // https://www.baeldung.com/spring-security-registration-password-encoding-bcrypt
-        System.out.println("IP: " + request.getRemoteAddr());
-        System.out.println("User: " + userEntity);
-        return new ResponseEntity<>(userService.createUser(userEntity), HttpStatus.OK);
+    @RequestMapping(method = RequestMethod.POST, value = "/register")
+    public ResponseEntity<AuthResponse> signUp(HttpServletRequest request, @RequestBody UserEntity entity) {
+        AuthResponse response = new AuthResponse();
+        if (!entity.isEmailValid()) {
+            response.addError("Please provide valid email");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+        if (userService.findByEmail(entity) != null) {
+            response.addError("User already registered");
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }
+        response.setUser(userService.createUser(entity));
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/activate")
+    public ResponseEntity<AuthResponse> activate(HttpServletRequest request, @RequestBody UserEntity entity) {
+        AuthResponse response = new AuthResponse();
+        UserEntity user = userService.findByCode(entity);
+        if (user == null) {
+            response.addError("User not found");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        response.setUser(userService.activateUser(entity));
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
