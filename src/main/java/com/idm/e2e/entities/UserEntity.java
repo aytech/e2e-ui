@@ -43,10 +43,6 @@ public class UserEntity implements UserDetails {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getPassword() {
         return password;
     }
@@ -67,8 +63,16 @@ public class UserEntity implements UserDetails {
         this.role = role;
     }
 
+    public Date getCreated() {
+        return created;
+    }
+
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
     }
 
     @Override

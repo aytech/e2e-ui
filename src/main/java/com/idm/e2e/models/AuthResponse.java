@@ -1,12 +1,10 @@
 package com.idm.e2e.models;
 
-import com.idm.e2e.entities.UserEntity;
-
 import java.util.ArrayList;
 
 public class AuthResponse {
     private ArrayList<String> errors;
-    private UserEntity user;
+    private BasicUser user;
 
     public AuthResponse() {
         this.errors = new ArrayList<>();
@@ -24,11 +22,11 @@ public class AuthResponse {
         errors.add(error);
     }
 
-    public UserEntity getUser() {
+    public BasicUser getUser() {
         return user;
     }
 
-    public void setUser(UserEntity user) {
+    public void setUser(BasicUser user) {
         this.user = user;
     }
 }

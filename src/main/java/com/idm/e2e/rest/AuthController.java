@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static com.idm.e2e.configuration.AppConstants.*;
+
 @RestController
-@RequestMapping(value = "/auth")
+@RequestMapping(value = URI_AUTH_BASE)
 public class AuthController {
 
     final UserService userService;
@@ -22,7 +24,7 @@ public class AuthController {
         this.userService = userService;
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/register")
+    @RequestMapping(method = RequestMethod.POST, value = URI_REGISTER)
     public ResponseEntity<AuthResponse> signUp(HttpServletRequest request, @RequestBody UserEntity entity) {
         AuthResponse response = new AuthResponse();
         if (!entity.isEmailValid()) {
@@ -37,7 +39,7 @@ public class AuthController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/activate")
+    @RequestMapping(method = RequestMethod.POST, value = URI_ACTIVATE)
     public ResponseEntity<AuthResponse> activate(HttpServletRequest request, @RequestBody UserEntity entity) {
         AuthResponse response = new AuthResponse();
         UserEntity user = userService.findByCode(entity);

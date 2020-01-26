@@ -12,6 +12,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 
+import static com.idm.e2e.configuration.AppConstants.ROLE_ADMIN;
+
 @Configuration
 @EnableWebSecurity
 public class E2ESecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -33,7 +35,7 @@ public class E2ESecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/api/**").authenticated()
-                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/admin/**").hasRole(ROLE_ADMIN)
                 .antMatchers("/auth/signin").permitAll()
                 .antMatchers("/h2-console/**").permitAll()
                 .antMatchers("/").permitAll()
