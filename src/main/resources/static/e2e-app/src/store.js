@@ -27,6 +27,7 @@ const initialState = {
     isPassedOutputActive: false,
     isReportAvailable: false,
     isReportLoading: false,
+    isSettingsModalOpen: false,
     isSkippedOutputActive: false,
     isStatusLoading: false,
     isStopProcessLoading: false,

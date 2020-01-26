@@ -1,14 +1,23 @@
 import React, { Component } from 'react';
-import { faSignInAlt } from '@fortawesome/free-solid-svg-icons';
+import {
+  faSignInAlt,
+  faUserCog
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Login from "../login/login";
 import { connect } from "react-redux";
 import { updateLoginModalStatus } from "../../actions/authActions";
+import Settings from "../settings/settings";
+import { updateSettingsModalStatus } from "../../actions/stateActions";
 
 class PageHeader extends Component {
 
   openModal = () => {
     this.props.updateLoginModalStatus(true)
+  };
+
+  openSettings = () => {
+    this.props.updateSettingsModalStatus(true)
   };
 
   render() {
@@ -32,8 +41,12 @@ class PageHeader extends Component {
           <button type="button" className="hidden" onClick={ this.openModal }>
             <FontAwesomeIcon icon={ faSignInAlt } size="2x"/>
           </button>
+          <button type="button" className="hidden" onClick={ this.openSettings }>
+            <FontAwesomeIcon icon={ faUserCog } size="2x"/>
+          </button>
         </div>
         <Login/>
+        <Settings/>
       </nav>
     )
   }
@@ -44,7 +57,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status))
+  updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status)),
+  updateSettingsModalStatus: (status) => dispatch(updateSettingsModalStatus(status))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(PageHeader)
