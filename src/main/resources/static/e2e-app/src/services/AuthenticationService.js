@@ -13,6 +13,19 @@ export default class AuthenticationService {
     return await fetch('/login', request);
   };
 
+  register = async (email, password) => {
+    const request = {
+      body: JSON.stringify({ email, password }),
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      mode: 'cors'
+    };
+    const resource = await fetch('/auth/register', request);
+    const response = await resource.json();
+    response.status = resource.status;
+    return response;
+  };
+
   activate = async (code) => {
     const request = {
       body: JSON.stringify({
@@ -22,6 +35,9 @@ export default class AuthenticationService {
       method: 'POST',
       mode: 'cors'
     };
-    return await fetch('/auth/activate', request);
+    const resource = await fetch('/auth/activate', request);
+    const response = await resource.json();
+    response.status = resource.status;
+    return response;
   };
 }

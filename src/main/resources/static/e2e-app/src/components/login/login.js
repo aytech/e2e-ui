@@ -15,6 +15,16 @@ class Login extends Component {
 
   authService = new AuthenticationService();
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      errors: [],
+      isError: false,
+      isSuccess: false,
+      successMessage: ''
+    };
+  }
+
   updateUserEmail = (event) => {
     this.props.updateUserEmail(event.target.value);
   };
@@ -41,7 +51,18 @@ class Login extends Component {
 
   signUp = () => {
     const { email, password } = this.props.auth;
-    console.log(`Sign up ${ email } with ${ password }`)
+    this.authService
+      .register(email, password)
+      .then(data => {
+        console.log('Data: ', data);
+        this.setState({
+          isError: data.status !== 200,
+          errors: data.errors
+        });
+        setTimeout(() => {
+          console.log('State: ', this.state)
+        }, 50);
+      });
   };
 
   render() {
@@ -97,9 +118,18 @@ class Login extends Component {
               </InputGroup>
             </div>
           </form>
-          <Alert variant="danger">
-            Error
+          { this.state.isSuccess === true &&
+          <Alert variant="success">
+            { this.state.successMessage }
           </Alert>
+          }
+          { this.state.isError === true &&
+          <Alert variant="danger">
+            { this.state.errors.map((value, index) => {
+              return <p key={ index }>{ value }</p>
+            }) }
+          </Alert>
+          }
         </Modal.Body>
         <Modal.Footer>
           <Button variant="primary" onClick={ this.signIn }>Sign in</Button>

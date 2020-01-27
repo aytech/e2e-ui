@@ -36,7 +36,6 @@ public class UserService implements UserDetailsService {
     public BasicUser createUser(UserEntity entity) {
         entity.setPassword(passwordEncoder.encode(entity.getPassword()));
         entity.setRole(ROLE_USER);
-        entity.setActivationCode(RandomStringUtils.random(10, true, true));
         return basicUser(userRepository.save(entity));
     }
 
@@ -48,6 +47,10 @@ public class UserService implements UserDetailsService {
             return basicUser(userRepository.save(user));
         }
         return basicUser(entity);
+    }
+
+    public String getNewActivationCode() {
+        return RandomStringUtils.random(10, true, true);
     }
 
     public UserEntity findByEmail(UserEntity entity) {

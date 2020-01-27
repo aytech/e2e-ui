@@ -42,9 +42,13 @@ public class AuthController {
             response.addError("User already registered");
             return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
         }
-        response.setUser(userService.createUser(entity));
+        entity.setActivationCode(userService.getNewActivationCode());
         String serverUrl = URLResource.getBaseUrl(request);
-        sendActivationEmail(serverUrl, entity);
+        if (!sendActivationEmail(serverUrl, entity)) {
+            response.addError("Could not send activation email, please try again later");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        response.setUser(userService.createUser(entity));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -53,14 +57,13 @@ public class AuthController {
         AuthResponse response = new AuthResponse();
         UserEntity user = userService.findByCode(entity);
         if (user == null) {
-            response.addError("User not found");
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
         response.setUser(userService.activateUser(entity));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    private void sendActivationEmail(String serverUrl, UserEntity entity) {
+    private Boolean sendActivationEmail(String serverUrl, UserEntity entity) {
         EmailResource emailResource = new EmailResource();
         EmailRequest emailRequest = new EmailRequest();
         String messageBody = getActivationMessageBody(serverUrl, entity.getActivationCode());
@@ -68,10 +71,11 @@ public class AuthController {
         emailRequest.setSubject(String.format("User activation at %s", APP_NAME));
         emailRequest.setMessage(messageBody);
         try {
-            emailResource.sendGmail(emailRequest);
+            return emailResource.sendGmail(emailRequest);
         } catch (MessagingException | IOException | GeneralSecurityException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     private String getActivationMessageBody(String urlBase, String activationCode) {
