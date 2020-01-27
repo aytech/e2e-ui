@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
-import { updateUserEmail, updateUserPassword } from "../../actions/authActions";
+import { updateAuthenticatedStatus, updateUserEmail, updateUserPassword } from "../../actions/authActions";
 import Modal from "react-bootstrap/Modal";
 import { updateLoginModalStatus } from "../../actions/authActions";
 import Button from "react-bootstrap/Button";
@@ -9,8 +9,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faKey } from '@fortawesome/free-solid-svg-icons';
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
+import AuthenticationService from "../../services/AuthenticationService";
 
 class Login extends Component {
+
+  authService = new AuthenticationService();
 
   updateUserEmail = (event) => {
     this.props.updateUserEmail(event.target.value);
@@ -26,7 +29,14 @@ class Login extends Component {
 
   signIn = () => {
     const { email, password } = this.props.auth;
-    console.log(`Sign in ${ email } with ${ password }`)
+    this.authService
+      .login(email, password)
+      .then(response => {
+        if (response.status === 200) {
+          this.props.updateAuthenticatedStatus(true);
+          this.props.updateLoginModalStatus(false);
+        }
+      });
   };
 
   signUp = () => {
@@ -106,6 +116,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  updateAuthenticatedStatus: (status) => dispatch(updateAuthenticatedStatus(status)),
   updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status)),
   updateUserEmail: (email) => dispatch(updateUserEmail(email)),
   updateUserPassword: (password) => dispatch(updateUserPassword(password))

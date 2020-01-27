@@ -1,7 +1,17 @@
-import { UPDATE_EMAIL, UPDATE_LOGIN_MODAL_STATUS, UPDATE_PASSWORD } from "../actions/constants";
+import {
+  UPDATE_AUTH_STATUS,
+  UPDATE_EMAIL,
+  UPDATE_LOGIN_MODAL_STATUS,
+  UPDATE_PASSWORD
+} from "../actions/constants";
 
 export default (state = {}, action) => {
   switch (action.type) {
+    case UPDATE_AUTH_STATUS:
+      return {
+        ...state,
+        isAuthenticated: action.status
+      };
     case UPDATE_EMAIL:
       return {
         ...state,

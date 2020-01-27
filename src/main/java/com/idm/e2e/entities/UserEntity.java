@@ -39,6 +39,10 @@ public class UserEntity implements UserDetails {
     @Column
     private boolean deleted;
 
+    public Long getId() {
+        return id;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -113,5 +117,19 @@ public class UserEntity implements UserDetails {
         } catch (AddressException e) {
             return false;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "UserEntity{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", activationCode='" + activationCode + '\'' +
+                ", role='" + role + '\'' +
+                ", created=" + created +
+                ", enabled=" + enabled +
+                ", deleted=" + deleted +
+                '}';
     }
 }

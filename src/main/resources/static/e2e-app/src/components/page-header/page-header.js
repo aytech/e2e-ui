@@ -9,8 +9,19 @@ import { connect } from "react-redux";
 import { updateLoginModalStatus } from "../../actions/authActions";
 import Settings from "../settings/settings";
 import { updateSettingsModalStatus } from "../../actions/stateActions";
+import SettingsService from "../../services/SettingsService";
 
 class PageHeader extends Component {
+
+  settingsService = new SettingsService();
+
+  componentDidMount() {
+    this.settingsService
+      .getSettings()
+      .then(response => {
+        console.log('Settings: ', response)
+      })
+  }
 
   openModal = () => {
     this.props.updateLoginModalStatus(true)
@@ -21,6 +32,10 @@ class PageHeader extends Component {
   };
 
   render() {
+    const {
+      isAuthenticated
+    } = this.props.auth;
+
     return (
       <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
         <a className="navbar-brand" href="/">IDM E2E runner</a>
@@ -38,12 +53,16 @@ class PageHeader extends Component {
                 className="sr-only">(current)</span></a>
             </li>
           </ul>
+          { isAuthenticated === false &&
           <button type="button" className="hidden" onClick={ this.openModal }>
             <FontAwesomeIcon icon={ faSignInAlt } size="2x"/>
           </button>
+          }
+          { isAuthenticated === true &&
           <button type="button" className="hidden" onClick={ this.openSettings }>
             <FontAwesomeIcon icon={ faUserCog } size="2x"/>
           </button>
+          }
         </div>
         <Login/>
         <Settings/>

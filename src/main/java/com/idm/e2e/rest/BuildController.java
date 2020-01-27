@@ -3,12 +3,14 @@ package com.idm.e2e.rest;
 import com.idm.e2e.configuration.DockerCommands;
 import com.idm.e2e.data.StatusStorage;
 import com.idm.e2e.data.ZipResource;
+import com.idm.e2e.entities.UserEntity;
 import com.idm.e2e.interfaces.DockerRunnable;
 import com.idm.e2e.models.*;
 import com.idm.e2e.processes.*;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -127,5 +129,12 @@ public class BuildController {
         dockerUtility.stopRunningContainers(containers);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/settings")
+    public ResponseEntity<String> getSettings(Authentication authentication) {
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+        System.out.println("Authentication: " + user.toString());
+        return new ResponseEntity<>("In progress", HttpStatus.OK);
     }
 }
