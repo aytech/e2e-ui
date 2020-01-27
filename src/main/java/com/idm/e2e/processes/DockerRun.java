@@ -1,7 +1,7 @@
 package com.idm.e2e.processes;
 
 import com.idm.e2e.configuration.DockerCommands;
-import com.idm.e2e.data.EmailResource;
+import com.idm.e2e.resources.EmailResource;
 import com.idm.e2e.data.FilesResource;
 import com.idm.e2e.data.StatusStorage;
 import com.idm.e2e.interfaces.DockerRunnable;
@@ -95,10 +95,10 @@ public class DockerRun implements DockerRunnable {
 
     private void sendEmail() {
         EmailRequest email = new EmailRequest();
-        email.setNodeID(configuration.getNodeID());
-        email.setHost(configuration.getRequestHost());
+//        email.setNodeID(configuration.getNodeID());
+//        email.setHost(configuration.getRequestHost());
         email.setRecipient(configuration.getUser());
-        email.generateReportDownloadedMessage();
+//        email.generateReportDownloadedMessage();
         EmailResource emailResource = new EmailResource();
         try {
             emailResource.sendGmail(email);

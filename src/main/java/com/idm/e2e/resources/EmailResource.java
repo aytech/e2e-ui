@@ -1,4 +1,4 @@
-package com.idm.e2e.data;
+package com.idm.e2e.resources;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
@@ -49,7 +49,7 @@ public class EmailResource {
         mail.setFrom(new InternetAddress(EMAIL_FROM));
         mail.setReplyTo(new InternetAddress[]{new InternetAddress(EMAIL_FROM)});
         mail.addRecipient(Message.RecipientType.TO, new InternetAddress(email.getRecipient()));
-        mail.setSubject(EMAIL_SUBJECT);
+        mail.setSubject(email.getSubject());
 
         MimeBodyPart bodyPart = new MimeBodyPart();
         bodyPart.setContent(email.getMessage(), "text/html");

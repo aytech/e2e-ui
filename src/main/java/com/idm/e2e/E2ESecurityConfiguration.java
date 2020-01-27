@@ -35,6 +35,7 @@ public class E2ESecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/api/**").authenticated()
+                .antMatchers("/mail/**").permitAll()
                 .antMatchers("/admin/**").hasRole(ROLE_ADMIN)
                 .antMatchers("/auth/signin").permitAll()
                 .antMatchers("/h2-console/**").permitAll()

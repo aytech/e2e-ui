@@ -1,6 +1,6 @@
 package com.idm.e2e.rest;
 
-import com.idm.e2e.data.EmailResource;
+import com.idm.e2e.resources.EmailResource;
 import com.idm.e2e.models.EmailRequest;
 import com.idm.e2e.models.EmailResponse;
 import com.idm.e2e.models.GmailAuthentication;
@@ -67,23 +67,40 @@ public class EmailController {
             method = RequestMethod.POST,
             value = URI_GMAIL_SEND
     )
-    public HttpEntity<EmailResponse> sendGmailDownloadReport(HttpServletRequest request, @RequestBody EmailRequest body) {
-        body.setHost(request.getRequestURL().toString());
-        body.generateReportDownloadedMessage();
+    public HttpEntity<EmailResponse> sendGmailDownloadReport(HttpServletRequest request, @RequestBody EmailRequest mail) {
         EmailResource emailResource = new EmailResource();
         EmailResponse response = new EmailResponse();
         try {
-            Boolean isSent = emailResource.sendGmail(body);
+            Boolean isSent = emailResource.sendGmail(mail);
             response.setMessage(emailResource.getStatusMessage());
             if (isSent) {
                 return new ResponseEntity<>(response, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
-        } catch (MessagingException | IOException | GeneralSecurityException e) {
+        } catch (GeneralSecurityException | IOException | MessagingException e) {
             e.printStackTrace();
             response.setError(e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+//    public HttpEntity<EmailResponse> sendGmailDownloadReport(HttpServletRequest request, @RequestBody EmailRequest body) {
+//        body.setHost(request.getRequestURL().toString());
+//        body.generateReportDownloadedMessage();
+//        EmailResource emailResource = new EmailResource();
+//        EmailResponse response = new EmailResponse();
+//        try {
+//            Boolean isSent = emailResource.sendGmail(body);
+//            response.setMessage(emailResource.getStatusMessage());
+//            if (isSent) {
+//                return new ResponseEntity<>(response, HttpStatus.OK);
+//            } else {
+//                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+//            }
+//        } catch (MessagingException | IOException | GeneralSecurityException e) {
+//            e.printStackTrace();
+//            response.setError(e.getMessage());
+//            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 }

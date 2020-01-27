@@ -1,5 +1,8 @@
 package com.idm.e2e.rest;
 
+import com.idm.e2e.models.EmailRequest;
+import com.idm.e2e.resources.EmailResource;
+import com.idm.e2e.resources.URLResource;
 import com.idm.e2e.services.UserService;
 import com.idm.e2e.entities.UserEntity;
 import com.idm.e2e.models.AuthResponse;
@@ -10,7 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 import static com.idm.e2e.configuration.AppConstants.*;
 
@@ -36,11 +43,13 @@ public class AuthController {
             return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
         }
         response.setUser(userService.createUser(entity));
+        String serverUrl = URLResource.getBaseUrl(request);
+        sendActivationEmail(serverUrl, entity);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = URI_ACTIVATE)
-    public ResponseEntity<AuthResponse> activate(HttpServletRequest request, @RequestBody UserEntity entity) {
+    public ResponseEntity<AuthResponse> activate(@RequestBody UserEntity entity) {
         AuthResponse response = new AuthResponse();
         UserEntity user = userService.findByCode(entity);
         if (user == null) {
@@ -49,5 +58,28 @@ public class AuthController {
         }
         response.setUser(userService.activateUser(entity));
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    private void sendActivationEmail(String serverUrl, UserEntity entity) {
+        EmailResource emailResource = new EmailResource();
+        EmailRequest emailRequest = new EmailRequest();
+        String messageBody = getActivationMessageBody(serverUrl);
+        emailRequest.setRecipient(entity.getEmail());
+        emailRequest.setSubject(String.format("User activation at %s", APP_NAME));
+        emailRequest.setMessage(messageBody);
+        try {
+            emailResource.sendGmail(emailRequest);
+        } catch (MessagingException | IOException | GeneralSecurityException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getActivationMessageBody(String urlBase) {
+        String url = String.format("%s%s%s", urlBase, URI_AUTH_BASE, URI_ACTIVATE);
+        return "<p>Hello,</p>" +
+                String.format("<p>To activate your account, please click <a href=\"%s\">here</a></p>", url) +
+                String.format("<p>If the link does not work, copy this to your browser URL: %s</p>", url) +
+                "<p>Yours,<br>" +
+                String.format("%s</p>", APP_NAME);
     }
 }
