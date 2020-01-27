@@ -12,4 +12,16 @@ export default class AuthenticationService {
     };
     return await fetch('/login', request);
   };
+
+  activate = async (code) => {
+    const request = {
+      body: JSON.stringify({
+        "activationCode": code
+      }),
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      mode: 'cors'
+    };
+    return await fetch('/auth/activate', request);
+  };
 }

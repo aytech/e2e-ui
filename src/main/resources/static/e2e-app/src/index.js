@@ -12,6 +12,7 @@ import { Provider } from "react-redux";
 import configureStore from "./store";
 import { createBrowserHistory } from "history";
 import DownloadReport from "./components/download/download";
+import Activate from "./components/activate/activate";
 
 const history = createBrowserHistory();
 
@@ -20,6 +21,7 @@ ReactDOM.render(
     <Router history={ history }>
       <Switch>
         <Route path='/download/report/:nodeID' render={ props => <DownloadReport { ...props }/> }/>
+        <Route path='/auth/activate/:code' render={ props => <Activate { ...props }/> }/>
         <Route path='/' render={ props => <App { ...props }/> }/>
       </Switch>
     </Router>

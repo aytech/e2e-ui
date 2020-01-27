@@ -63,7 +63,7 @@ public class AuthController {
     private void sendActivationEmail(String serverUrl, UserEntity entity) {
         EmailResource emailResource = new EmailResource();
         EmailRequest emailRequest = new EmailRequest();
-        String messageBody = getActivationMessageBody(serverUrl);
+        String messageBody = getActivationMessageBody(serverUrl, entity.getActivationCode());
         emailRequest.setRecipient(entity.getEmail());
         emailRequest.setSubject(String.format("User activation at %s", APP_NAME));
         emailRequest.setMessage(messageBody);
@@ -74,8 +74,8 @@ public class AuthController {
         }
     }
 
-    private String getActivationMessageBody(String urlBase) {
-        String url = String.format("%s%s%s", urlBase, URI_AUTH_BASE, URI_ACTIVATE);
+    private String getActivationMessageBody(String urlBase, String activationCode) {
+        String url = String.format("%s%s%s/%s", urlBase, URI_AUTH_BASE, URI_ACTIVATE, activationCode);
         return "<p>Hello,</p>" +
                 String.format("<p>To activate your account, please click <a href=\"%s\">here</a></p>", url) +
                 String.format("<p>If the link does not work, copy this to your browser URL: %s</p>", url) +
