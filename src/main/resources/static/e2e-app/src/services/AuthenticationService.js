@@ -1,10 +1,13 @@
+
 export default class AuthenticationService {
 
   apiBase = '/auth';
   springLogin = '/login';
+  registerUrl = '/register';
+  activateUrl = '/activate';
 
   async getResource(url, request) {
-    const resource = await fetch(url, request);
+    const resource = await fetch(`${this.apiBase}${url}`, request);
     const response = await resource.json();
     response.status = resource.status;
     return response;
@@ -20,7 +23,7 @@ export default class AuthenticationService {
       method: 'POST',
       mode: 'cors'
     };
-    return this.getResource(this.springLogin, request);
+    return fetch(this.springLogin, request);
   };
 
   register = async (email, password) => {
@@ -30,10 +33,7 @@ export default class AuthenticationService {
       method: 'POST',
       mode: 'cors'
     };
-    const resource = await fetch('/auth/register', request);
-    const response = await resource.json();
-    response.status = resource.status;
-    return response;
+    return this.getResource(this.registerUrl, request);
   };
 
   activate = async (code) => {
@@ -45,9 +45,6 @@ export default class AuthenticationService {
       method: 'POST',
       mode: 'cors'
     };
-    const resource = await fetch('/auth/activate', request);
-    const response = await resource.json();
-    response.status = resource.status;
-    return response;
+    return this.getResource(this.activateUrl, request);
   };
 }

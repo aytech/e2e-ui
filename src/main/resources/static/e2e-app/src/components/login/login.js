@@ -10,6 +10,7 @@ import { faEnvelope, faKey } from '@fortawesome/free-solid-svg-icons';
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 import AuthenticationService from "../../services/AuthenticationService";
+import ProgressBar from "react-bootstrap/ProgressBar";
 
 class Login extends Component {
 
@@ -20,6 +21,7 @@ class Login extends Component {
     this.state = {
       errors: [],
       isError: false,
+      isLoading: false,
       isSuccess: false,
       successMessage: '',
       unauthorized: false
@@ -34,45 +36,94 @@ class Login extends Component {
     this.props.updateUserPassword(event.target.value);
   };
 
-  closeModal = () => {
-    this.props.updateLoginModalStatus(false)
+  onHide = () => {
+    this.props.updateLoginModalStatus(false);
   };
 
-  signIn = () => {
-    const { email, password } = this.props.auth;
+  sendSignInRequest = (email, password) => {
     this.authService
       .login(email, password)
       .then(response => {
         console.log('Authentication: ', response);
-        if (response.status === 200) {
+        const { status } = response;
+        if (status === 200) {
           this.props.updateAuthenticatedStatus(true);
           this.props.updateLoginModalStatus(false);
         }
-        if (response.status === 401) {
+        if (status === 401) {
           this.setState({
+            errors: [ 'Login failed, try to reset password or sign up' ],
+            isError: true,
             unauthorized: true
           });
         }
+      })
+      .finally(() => {
+        this.setState({ isLoading: false });
       });
+  };
+
+  sendSignUpRequest = (email, password) => {
+    this.authService
+      .register(email, password)
+      .then(response => {
+        const { errors, status } = response;
+        if (status === 200) {
+          this.setState({
+            errors: [],
+            isError: false,
+            isSuccess: true,
+            successMessage: 'Success, please check email to activate the new profile'
+          });
+        } else {
+          this.setState({
+            errors: errors,
+            isError: true,
+            isSuccess: false
+          });
+        }
+      })
+      .finally(() => {
+        this.setState({ isLoading: false });
+      });
+  };
+
+  signIn = () => {
+    this.setState({ isLoading: true });
+    const { email, password } = this.props.auth;
+    const errors = this.getValidationErrors();
+    if (errors.length === 0) {
+      this.sendSignInRequest(email, password);
+    }
   };
 
   signUp = () => {
+    this.setState({ isLoading: true });
     const { email, password } = this.props.auth;
-    this.authService
-      .register(email, password)
-      .then(data => {
-        console.log('Data: ', data);
-        this.setState({
-          isError: data.status !== 200,
-          errors: data.errors
-        });
-        setTimeout(() => {
-          console.log('State: ', this.state)
-        }, 50);
-      });
+    const errors = this.getValidationErrors();
+    if (errors.length === 0) {
+      this.sendSignUpRequest(email, password);
+    }
+  };
+
+  getValidationErrors = () => {
+    const { email, password } = this.props.auth;
+    let errors = [];
+    if (/\S+@\S+\.\S+/.test(email) === false) {
+      errors.push('Please enter valid email address');
+    }
+    if (password === undefined || password.trim() === '') {
+      errors.push('Enter your password');
+    }
+    this.setState({
+      errors: errors,
+      isError: errors.length > 0
+    });
+    return errors;
   };
 
   reset = () => {
+    this.setState({ isLoading: true });
     console.log('Resetting: ');
   };
 
@@ -82,10 +133,13 @@ class Login extends Component {
       isLoginModalOpen,
       password
     } = this.props.auth;
+    const { isLoading } = this.state;
 
     return (
-      <Modal show={ isLoginModalOpen }>
-        <Modal.Header>
+      <Modal
+        show={ isLoginModalOpen }
+        onHide={ this.onHide }>
+        <Modal.Header closeButton>
           <Modal.Title>User login</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -129,11 +183,6 @@ class Login extends Component {
               </InputGroup>
             </div>
           </form>
-          { this.state.unauthorized === true &&
-          <Alert variant="warning">
-            Invalid credentials
-          </Alert>
-          }
           { this.state.isSuccess === true &&
           <Alert variant="success">
             { this.state.successMessage }
@@ -146,11 +195,24 @@ class Login extends Component {
             }) }
           </Alert>
           }
+          { this.state.isLoading === true &&
+          <ProgressBar animated now={ 100 } variant="success"/>
+          }
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={ this.signIn }>Sign in</Button>
-          <Button variant="primary" onClick={ this.signUp }>Sign up</Button>
-          <Button variant="secondary" onClick={ this.closeModal }>Close</Button>
+          <Button variant="primary" onClick={ this.signIn } disabled={ isLoading }>
+            Sign in
+          </Button>
+          { this.state.unauthorized === true &&
+          <Button variant="primary" onClick={ this.signUp } disabled={ isLoading }>
+            Sign up
+          </Button>
+          }
+          { this.state.unauthorized === true &&
+          <Button variant="primary" onClick={ this.reset } disabled={ isLoading }>
+            Reset password
+          </Button>
+          }
         </Modal.Footer>
       </Modal>
     )
