@@ -21,7 +21,8 @@ class Login extends Component {
       errors: [],
       isError: false,
       isSuccess: false,
-      successMessage: ''
+      successMessage: '',
+      unauthorized: false
     };
   }
 
@@ -42,9 +43,15 @@ class Login extends Component {
     this.authService
       .login(email, password)
       .then(response => {
+        console.log('Authentication: ', response);
         if (response.status === 200) {
           this.props.updateAuthenticatedStatus(true);
           this.props.updateLoginModalStatus(false);
+        }
+        if (response.status === 401) {
+          this.setState({
+            unauthorized: true
+          });
         }
       });
   };
@@ -63,6 +70,10 @@ class Login extends Component {
           console.log('State: ', this.state)
         }, 50);
       });
+  };
+
+  reset = () => {
+    console.log('Resetting: ');
   };
 
   render() {
@@ -118,6 +129,11 @@ class Login extends Component {
               </InputGroup>
             </div>
           </form>
+          { this.state.unauthorized === true &&
+          <Alert variant="warning">
+            Invalid credentials
+          </Alert>
+          }
           { this.state.isSuccess === true &&
           <Alert variant="success">
             { this.state.successMessage }

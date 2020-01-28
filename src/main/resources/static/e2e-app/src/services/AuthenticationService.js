@@ -1,5 +1,15 @@
 export default class AuthenticationService {
 
+  apiBase = '/auth';
+  springLogin = '/login';
+
+  async getResource(url, request) {
+    const resource = await fetch(url, request);
+    const response = await resource.json();
+    response.status = resource.status;
+    return response;
+  }
+
   login = async (username, password) => {
     const data = new URLSearchParams();
     data.append("username", username);
@@ -10,7 +20,7 @@ export default class AuthenticationService {
       method: 'POST',
       mode: 'cors'
     };
-    return await fetch('/login', request);
+    return this.getResource(this.springLogin, request);
   };
 
   register = async (email, password) => {
