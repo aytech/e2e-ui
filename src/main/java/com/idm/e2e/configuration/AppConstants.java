@@ -18,6 +18,8 @@ public class AppConstants {
     public static final String RSA_FILE = "id_rsa_teamcity-e2e";
 
     public static final String URI_ACTIVATE = "/activate";
+    public static final String URI_PASSWORD_RESET = "/password/reset";
+    public static final String URI_CODE_RESET = "/code/reset";
     public static final String URI_API_BASE = "/api";
     public static final String URI_AUTH_BASE = "/auth";
     public static final String URI_MAIL_BASE = "/mail";

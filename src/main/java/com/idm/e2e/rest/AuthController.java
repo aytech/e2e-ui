@@ -1,5 +1,6 @@
 package com.idm.e2e.rest;
 
+import com.idm.e2e.models.BasicUser;
 import com.idm.e2e.models.EmailRequest;
 import com.idm.e2e.resources.EmailResource;
 import com.idm.e2e.resources.URLResource;
@@ -55,11 +56,33 @@ public class AuthController {
     @RequestMapping(method = RequestMethod.POST, value = URI_ACTIVATE)
     public ResponseEntity<AuthResponse> activate(@RequestBody UserEntity entity) {
         AuthResponse response = new AuthResponse();
-        UserEntity user = userService.findByCode(entity);
+        BasicUser user = userService.activateUser(entity);
         if (user == null) {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
-        response.setUser(userService.activateUser(entity));
+        response.setUser(user);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = URI_CODE_RESET)
+    public ResponseEntity<AuthResponse> resetActivationCode(@RequestBody UserEntity entity) {
+        AuthResponse response = new AuthResponse();
+        BasicUser user = userService.resetUserActivationCode(entity);
+        if (user == null) {
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        response.setUser(user);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = URI_PASSWORD_RESET)
+    public ResponseEntity<AuthResponse> resetPassword(@RequestBody UserEntity entity) {
+        AuthResponse response = new AuthResponse();
+        BasicUser user = userService.updateUserPassword(entity);
+        if (user == null) {
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        response.setUser(user);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

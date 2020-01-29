@@ -46,7 +46,25 @@ public class UserService implements UserDetailsService {
             user.setEnabled(true);
             return basicUser(userRepository.save(user));
         }
-        return basicUser(entity);
+        return null;
+    }
+
+    public BasicUser resetUserActivationCode(UserEntity entity) {
+        UserEntity user = findActiveUser(entity.getEmail());
+        if (user != null) {
+            user.setActivationCode(getNewActivationCode());
+            return basicUser(userRepository.save(user));
+        }
+        return null;
+    }
+
+    public BasicUser updateUserPassword(UserEntity entity) {
+        UserEntity user = findByCode(entity.getActivationCode());
+        if (user != null) {
+            user.setPassword(passwordEncoder.encode(entity.getPassword()));
+            return basicUser(userRepository.save(user));
+        }
+        return null;
     }
 
     public String getNewActivationCode() {
@@ -57,12 +75,16 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(entity.getEmail());
     }
 
-    public UserEntity findByCode(UserEntity entity) {
-        return userRepository.findByCode(entity.getActivationCode());
+    public UserEntity findByCode(String code) {
+        return userRepository.findByCode(code);
+    }
+
+    public UserEntity findActiveUser(String email) {
+        return userRepository.findActiveUser(email, true, false);
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findActiveUser(username, true, false);
+        return findActiveUser(username);
     }
 }
