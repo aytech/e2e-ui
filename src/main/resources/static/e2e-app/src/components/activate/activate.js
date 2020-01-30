@@ -1,9 +1,16 @@
 import React, { Component } from 'react';
-import { Redirect, withRouter } from "react-router";
-import { faCog } from '@fortawesome/free-solid-svg-icons';
+import { Redirect } from "react-router";
+import { faBan, faCog } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AuthenticationService from "../../services/AuthenticationService";
 import './activate.css';
+import {
+  updateLoginModalStatus,
+  updateLoginSuccessMessage,
+  updateUserEmail,
+  updateUserPassword
+} from "../../actions/authActions";
+import { connect } from "react-redux";
 
 class Activate extends Component {
 
@@ -12,8 +19,9 @@ class Activate extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      text: 'Activating account...',
-      loading: true
+      error: false,
+      loading: true,
+      text: 'Activating account...'
     }
   }
 
@@ -22,15 +30,23 @@ class Activate extends Component {
     this.authenticationService
       .activate(code)
       .then(response => {
-        if (response.status === 404) {
+        const { email, status } = response;
+        if (status === 404) {
           this.setState(() => ({
-            text: <span>Cannot activate user, navigate to <a href="/">main page</a> to sign up.</span>,
-            loading: false
+            error: true,
+            loading: false,
+            text:
+              <span>
+                Cannot activate user, navigate to <a href="/">main page</a> to sign up.
+              </span>
           }));
         } else {
+          this.props.updateLoginModalStatus(true);
+          this.props.updateLoginSuccessMessage('You profile was activated, please login');
+          this.props.updateUserEmail(email);
           this.setState(() => ({
-            text: <Redirect to="/"/>,
-            loading: false
+            loading: false,
+            text: <Redirect to="/"/>
           }));
         }
       });
@@ -38,16 +54,19 @@ class Activate extends Component {
 
   render() {
     return (
-      <div className="container">
+      <div className="container-fluid">
         <div className="row-fluid">
-          { this.state.loading === true &&
           <div className="col-12 text-center">
-            <div className="fa-3x align-self-center">
-              <FontAwesomeIcon icon={ faCog } spin/>
+            <div className="fa-10x align-self-center">
+              { this.state.loading === true &&
+              <FontAwesomeIcon icon={ faCog } spin className="text-info"/>
+              }
+              { this.state.error === true &&
+              <FontAwesomeIcon icon={ faBan } className="text-danger"/>
+              }
             </div>
           </div>
-          }
-          <div className="col-12">
+          <div className="col-12 display-4">
             { this.state.text }
           </div>
         </div>
@@ -56,4 +75,14 @@ class Activate extends Component {
   }
 }
 
-export default withRouter(Activate);
+const mapStateToProps = state => ({
+  ...state
+});
+
+const mapDispatchToProps = dispatch => ({
+  updateUserEmail: (email) => dispatch(updateUserEmail(email)),
+  updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status)),
+  updateLoginSuccessMessage: (message) => dispatch(updateLoginSuccessMessage(message))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Activate);

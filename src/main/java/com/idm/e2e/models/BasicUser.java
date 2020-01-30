@@ -4,17 +4,17 @@ import java.util.Date;
 
 @SuppressWarnings("unused")
 public class BasicUser {
-    private String username;
+    private String email;
     private Boolean enabled;
     private Date created;
     private Boolean deleted;
 
-    public String getUsername() {
-        return username;
+    public String getEmail() {
+        return email;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Boolean getEnabled() {

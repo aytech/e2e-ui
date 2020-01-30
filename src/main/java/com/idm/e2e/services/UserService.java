@@ -26,7 +26,7 @@ public class UserService implements UserDetailsService {
 
     private BasicUser basicUser(UserEntity entity) {
         BasicUser user = new BasicUser();
-        user.setUsername(entity.getEmail());
+        user.setEmail(entity.getEmail());
         user.setEnabled(entity.isEnabled());
         user.setCreated(entity.getCreated());
         user.setDeleted(entity.isDeleted());

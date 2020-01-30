@@ -1,7 +1,7 @@
 import {
   UPDATE_AUTH_STATUS,
   UPDATE_EMAIL,
-  UPDATE_LOGIN_MODAL_STATUS,
+  UPDATE_LOGIN_MODAL_STATUS, UPDATE_LOGIN_SUCCESS_MESSAGE,
   UPDATE_PASSWORD
 } from "../actions/constants";
 
@@ -16,6 +16,11 @@ export default (state = {}, action) => {
       return {
         ...state,
         email: action.email
+      };
+    case UPDATE_LOGIN_SUCCESS_MESSAGE:
+      return {
+        ...state,
+        successMessage: action.message
       };
     case UPDATE_LOGIN_MODAL_STATUS:
       return {

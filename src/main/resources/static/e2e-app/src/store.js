@@ -8,7 +8,8 @@ const initialState = {
     email: '',
     isAuthenticated: false,
     isLoginModalOpen: false,
-    password: ''
+    password: '',
+    successMessage: ''
   },
   state: {
     branch: '',

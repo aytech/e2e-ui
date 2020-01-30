@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
-import { updateAuthenticatedStatus, updateUserEmail, updateUserPassword } from "../../actions/authActions";
+import {
+  updateAuthenticatedStatus,
+  updateLoginSuccessMessage,
+  updateUserEmail,
+  updateUserPassword
+} from "../../actions/authActions";
 import Modal from "react-bootstrap/Modal";
 import { updateLoginModalStatus } from "../../actions/authActions";
 import Button from "react-bootstrap/Button";
@@ -23,7 +28,6 @@ class Login extends Component {
       isError: false,
       isLoading: false,
       isSuccess: false,
-      successMessage: '',
       unauthorized: false
     };
   }
@@ -44,7 +48,6 @@ class Login extends Component {
     this.authService
       .login(email, password)
       .then(response => {
-        console.log('Authentication: ', response);
         const { status } = response;
         if (status === 200) {
           this.props.updateAuthenticatedStatus(true);
@@ -72,9 +75,11 @@ class Login extends Component {
           this.setState({
             errors: [],
             isError: false,
-            isSuccess: true,
-            successMessage: 'Success, please check email to activate the new profile'
+            isSuccess: true
           });
+          this.props.updateLoginSuccessMessage(
+            'Success, please check email to activate the new profile'
+          );
         } else {
           this.setState({
             errors: errors,
@@ -89,10 +94,10 @@ class Login extends Component {
   };
 
   signIn = () => {
-    this.setState({ isLoading: true });
     const { email, password } = this.props.auth;
     const errors = this.getValidationErrors();
     if (errors.length === 0) {
+      this.setState({ isLoading: true });
       this.sendSignInRequest(email, password);
     }
   };
@@ -131,7 +136,8 @@ class Login extends Component {
     const {
       email,
       isLoginModalOpen,
-      password
+      password,
+      successMessage
     } = this.props.auth;
     const { isLoading } = this.state;
 
@@ -184,9 +190,7 @@ class Login extends Component {
             </div>
           </form>
           { this.state.isSuccess === true &&
-          <Alert variant="success">
-            { this.state.successMessage }
-          </Alert>
+          <Alert variant="success">{ successMessage }</Alert>
           }
           { this.state.isError === true &&
           <Alert variant="danger">
@@ -226,6 +230,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   updateAuthenticatedStatus: (status) => dispatch(updateAuthenticatedStatus(status)),
   updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status)),
+  updateLoginSuccessMessage: (message) => dispatch(updateLoginSuccessMessage(message)),
   updateUserEmail: (email) => dispatch(updateUserEmail(email)),
   updateUserPassword: (password) => dispatch(updateUserPassword(password))
 });
