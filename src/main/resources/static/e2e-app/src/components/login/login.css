@@ -1,0 +1,7 @@
+.modal-footer {
+  justify-content: flex-start;
+}
+
+.modal-footer>:last-child {
+  margin-left: auto;
+}

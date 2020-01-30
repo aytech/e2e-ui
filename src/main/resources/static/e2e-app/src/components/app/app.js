@@ -3,15 +3,16 @@ import PageHeader from "../page-header/page-header";
 import './app.css';
 import Form from "../form/form";
 import Output from "../output/output";
+import Container from "react-bootstrap/Container";
 
 const App = () => {
   return (
     <React.Fragment>
       <PageHeader/>
-      <div className="container">
+      <Container>
         <Form/>
         <Output/>
-      </div>
+      </Container>
     </React.Fragment>
   );
 };

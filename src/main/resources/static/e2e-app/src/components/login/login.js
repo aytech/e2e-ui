@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from "react-redux";
 import {
   updateAuthenticatedStatus,
+  updateLoginSuccess,
   updateLoginSuccessMessage,
   updateUserEmail,
   updateUserPassword
@@ -11,11 +12,18 @@ import { updateLoginModalStatus } from "../../actions/authActions";
 import Button from "react-bootstrap/Button";
 import InputGroup from "react-bootstrap/InputGroup";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEnvelope, faKey } from '@fortawesome/free-solid-svg-icons';
+import {
+  faEnvelope,
+  faKey,
+  faRedoAlt,
+  faSignInAlt,
+  faUserPlus
+} from '@fortawesome/free-solid-svg-icons';
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 import AuthenticationService from "../../services/AuthenticationService";
 import ProgressBar from "react-bootstrap/ProgressBar";
+import './login.css';
 
 class Login extends Component {
 
@@ -26,9 +34,7 @@ class Login extends Component {
     this.state = {
       errors: [],
       isError: false,
-      isLoading: false,
-      isSuccess: false,
-      unauthorized: false
+      isLoading: false
     };
   }
 
@@ -56,8 +62,7 @@ class Login extends Component {
         if (status === 401) {
           this.setState({
             errors: [ 'Login failed, try to reset password or sign up' ],
-            isError: true,
-            unauthorized: true
+            isError: true
           });
         }
       })
@@ -74,18 +79,18 @@ class Login extends Component {
         if (status === 200) {
           this.setState({
             errors: [],
-            isError: false,
-            isSuccess: true
+            isError: false
           });
+          this.props.updateLoginSuccess(true);
           this.props.updateLoginSuccessMessage(
             'Success, please check email to activate the new profile'
           );
         } else {
           this.setState({
             errors: errors,
-            isError: true,
-            isSuccess: false
+            isError: true
           });
+          this.props.updateLoginSuccess(false);
         }
       })
       .finally(() => {
@@ -136,6 +141,7 @@ class Login extends Component {
     const {
       email,
       isLoginModalOpen,
+      isLoginSuccess,
       password,
       successMessage
     } = this.props.auth;
@@ -189,7 +195,7 @@ class Login extends Component {
               </InputGroup>
             </div>
           </form>
-          { this.state.isSuccess === true &&
+          { isLoginSuccess === true &&
           <Alert variant="success">{ successMessage }</Alert>
           }
           { this.state.isError === true &&
@@ -204,19 +210,25 @@ class Login extends Component {
           }
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={ this.signIn } disabled={ isLoading }>
-            Sign in
+          <Button
+            variant="danger"
+            onClick={ this.reset }
+            disabled={ isLoading }>
+            <FontAwesomeIcon icon={ faRedoAlt }/> Reset password
           </Button>
-          { this.state.unauthorized === true &&
-          <Button variant="primary" onClick={ this.signUp } disabled={ isLoading }>
-            Sign up
+          <Button
+            variant="warning"
+            onClick={ this.signUp }
+            disabled={ isLoading }>
+            <FontAwesomeIcon icon={ faUserPlus }/> Sign up
           </Button>
-          }
-          { this.state.unauthorized === true &&
-          <Button variant="primary" onClick={ this.reset } disabled={ isLoading }>
-            Reset password
+          <Button
+            variant="success"
+            className="login"
+            onClick={ this.signIn }
+            disabled={ isLoading }>
+            <FontAwesomeIcon icon={ faSignInAlt }/> Sign in
           </Button>
-          }
         </Modal.Footer>
       </Modal>
     )
@@ -230,6 +242,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   updateAuthenticatedStatus: (status) => dispatch(updateAuthenticatedStatus(status)),
   updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status)),
+  updateLoginSuccess: (status) => dispatch(updateLoginSuccess(status)),
   updateLoginSuccessMessage: (message) => dispatch(updateLoginSuccessMessage(message)),
   updateUserEmail: (email) => dispatch(updateUserEmail(email)),
   updateUserPassword: (password) => dispatch(updateUserPassword(password))

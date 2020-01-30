@@ -8,6 +8,7 @@ const initialState = {
     email: '',
     isAuthenticated: false,
     isLoginModalOpen: false,
+    isLoginSuccess: false,
     password: '',
     successMessage: ''
   },

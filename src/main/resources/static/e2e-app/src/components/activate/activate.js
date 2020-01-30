@@ -6,9 +6,9 @@ import AuthenticationService from "../../services/AuthenticationService";
 import './activate.css';
 import {
   updateLoginModalStatus,
+  updateLoginSuccess,
   updateLoginSuccessMessage,
-  updateUserEmail,
-  updateUserPassword
+  updateUserEmail
 } from "../../actions/authActions";
 import { connect } from "react-redux";
 
@@ -42,6 +42,7 @@ class Activate extends Component {
           }));
         } else {
           this.props.updateLoginModalStatus(true);
+          this.props.updateLoginSuccess(true);
           this.props.updateLoginSuccessMessage('You profile was activated, please login');
           this.props.updateUserEmail(email);
           this.setState(() => ({
@@ -82,6 +83,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   updateUserEmail: (email) => dispatch(updateUserEmail(email)),
   updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status)),
+  updateLoginSuccess: (status) => dispatch(updateLoginSuccess(status)),
   updateLoginSuccessMessage: (message) => dispatch(updateLoginSuccessMessage(message))
 });
 
