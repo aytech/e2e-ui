@@ -13,6 +13,7 @@ import configureStore from "./store";
 import { createBrowserHistory } from "history";
 import DownloadReport from "./components/download/download";
 import Activate from "./components/activate/activate";
+import PasswordReset from "./components/password-reset/password-reset";
 
 const history = createBrowserHistory();
 
@@ -22,6 +23,7 @@ ReactDOM.render(
       <Switch>
         <Route path='/download/report/:nodeID' render={ props => <DownloadReport { ...props }/> }/>
         <Route path='/auth/activate/:code' render={ props => <Activate { ...props }/> }/>
+        <Route path='/auth/reset/:code' render={ props => <PasswordReset { ...props }/> }/>
         <Route path='/' render={ props => <App { ...props }/> }/>
       </Switch>
     </Router>

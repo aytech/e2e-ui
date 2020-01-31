@@ -136,7 +136,7 @@ public class AuthController {
     }
 
     private String getPasswordResetMessageBody(String urlBase, String activationCode) {
-        String url = String.format("%s%s%s/%s", urlBase, URI_AUTH_BASE, URI_PASSWORD_RESET, activationCode);
+        String url = String.format("%s%s%s/%s", urlBase, URI_AUTH_BASE, URI_RESET, activationCode);
         return "<p>Hello,</p>" +
                 String.format("<p>To reset your password, please click <a href=\"%s\">here</a></p>", url) +
                 String.format("<p>If the link does not work, copy this to your browser URL: %s</p>", url) +
