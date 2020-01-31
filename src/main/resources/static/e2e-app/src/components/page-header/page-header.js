@@ -6,7 +6,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Login from "../login/login";
 import { connect } from "react-redux";
-import { updateLoginModalStatus } from "../../actions/authActions";
+import { updateAuthenticatedStatus, updateLoginModalStatus } from "../../actions/authActions";
 import Settings from "../settings/settings";
 import { updateSettingsModalStatus } from "../../actions/stateActions";
 import SettingsService from "../../services/SettingsService";
@@ -19,7 +19,15 @@ class PageHeader extends Component {
     this.settingsService
       .getSettings()
       .then(response => {
-        console.log('Settings: ', response)
+        const {status} = response;
+        if (status === 200) {
+          this.props.updateAuthenticatedStatus(true);
+        } else {
+          this.props.updateAuthenticatedStatus(false);
+        }
+      })
+      .catch(error => {
+        console.log('Error: ', error)
       })
   }
 
@@ -76,6 +84,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  updateAuthenticatedStatus: (status) => dispatch(updateAuthenticatedStatus(status)),
   updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status)),
   updateSettingsModalStatus: (status) => dispatch(updateSettingsModalStatus(status))
 });

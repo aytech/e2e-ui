@@ -98,8 +98,32 @@ class Login extends Component {
       });
   };
 
+  sendResetRequest = (email) => {
+    this.authService
+      .resetCode(email)
+      .then(response => {
+        const { status } = response;
+        if (status === 200) {
+          this.props.updateLoginSuccess(true);
+          this.props.updateLoginSuccessMessage(
+            'Success, please check your email to reset password'
+          );
+        }
+        if (status === 404) {
+          this.setState({
+            errors: ['User not found, try to sign up instead'],
+            isError: true
+          });
+        }
+      })
+      .finally(() => {
+        this.setState({ isLoading: false });
+      });
+  };
+
   signIn = () => {
     const { email, password } = this.props.auth;
+    this.props.updateLoginSuccess(false);
     const errors = this.getValidationErrors();
     if (errors.length === 0) {
       this.setState({ isLoading: true });
@@ -113,6 +137,15 @@ class Login extends Component {
     const errors = this.getValidationErrors();
     if (errors.length === 0) {
       this.sendSignUpRequest(email, password);
+    }
+  };
+
+  reset = () => {
+    this.setState({ isLoading: true });
+    const { email } = this.props.auth;
+    const errors = this.getValidationErrors();
+    if (errors.length === 0) {
+      this.sendResetRequest(email);
     }
   };
 
@@ -130,11 +163,6 @@ class Login extends Component {
       isError: errors.length > 0
     });
     return errors;
-  };
-
-  reset = () => {
-    this.setState({ isLoading: true });
-    console.log('Resetting: ');
   };
 
   render() {

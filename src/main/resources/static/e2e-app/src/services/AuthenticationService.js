@@ -5,6 +5,7 @@ export default class AuthenticationService {
   springLogin = '/login';
   registerUrl = '/register';
   activateUrl = '/activate';
+  resetCodeUrl = '/code/reset';
 
   async getResource(url, request) {
     const resource = await fetch(`${this.apiBase}${url}`, request);
@@ -46,5 +47,17 @@ export default class AuthenticationService {
       mode: 'cors'
     };
     return this.getResource(this.activateUrl, request);
+  };
+
+  resetCode = async (email) => {
+    const request = {
+      body: JSON.stringify({
+        "email": email
+      }),
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      mode: 'cors'
+    };
+    return this.getResource(this.resetCodeUrl, request);
   };
 }

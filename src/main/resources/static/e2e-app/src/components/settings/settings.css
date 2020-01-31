@@ -3,6 +3,13 @@
     max-width: none !important;
 }
 
+.var-group {
+    background-color: #272B30;
+    border: 1px solid rgba(0, 0, 0, 0.6);
+    border-radius: .25rem;
+    padding: .5rem;
+}
+
 button.close {
     outline: none;
 }

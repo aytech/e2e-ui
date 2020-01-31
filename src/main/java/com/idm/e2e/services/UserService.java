@@ -39,6 +39,10 @@ public class UserService implements UserDetailsService {
         return basicUser(userRepository.save(entity));
     }
 
+    public BasicUser updateUser(UserEntity entity) {
+        return basicUser(userRepository.save(entity));
+    }
+
     public BasicUser activateUser(UserEntity entity) {
         UserEntity user = userRepository.findByCode(entity.getActivationCode());
         if (user != null) {

@@ -132,9 +132,10 @@ public class BuildController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/settings")
-    public ResponseEntity<String> getSettings(Authentication authentication) {
+    public ResponseEntity<SettingsResponse> getSettings(Authentication authentication) {
+        SettingsResponse response = new SettingsResponse();
         UserEntity user = (UserEntity) authentication.getPrincipal();
         System.out.println("Authentication: " + user.toString());
-        return new ResponseEntity<>("In progress", HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
