@@ -75,9 +75,9 @@ public class AuthController {
         if (userEntity == null) {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
-        entity.setActivationCode(userService.getNewActivationCode());
+        userEntity.setActivationCode(userService.getNewActivationCode());
         String serverUrl = URLResource.getBaseUrl(request);
-        if (!sendPasswordResetEmail(serverUrl, entity)) {
+        if (!sendPasswordResetEmail(serverUrl, userEntity)) {
             response.addError("Could not send reset email, please try again later");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }

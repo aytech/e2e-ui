@@ -111,7 +111,7 @@ class Login extends Component {
         }
         if (status === 404) {
           this.setState({
-            errors: ['User not found, try to sign up instead'],
+            errors: [ 'User not found, try to sign up instead' ],
             isError: true
           });
         }
@@ -141,18 +141,27 @@ class Login extends Component {
   };
 
   reset = () => {
-    this.setState({ isLoading: true });
+    this.setState({
+      isError: false,
+      isLoading: true
+    });
     const { email } = this.props.auth;
-    const errors = this.getValidationErrors();
-    if (errors.length === 0) {
+    if (this.isValidEmail(email) === true) {
       this.sendResetRequest(email);
+    } else {
+      this.props.updateLoginSuccess(false);
+      this.setState({
+        errors: [ 'Please enter valid email address' ],
+        isError: true,
+        isLoading: false
+      });
     }
   };
 
   getValidationErrors = () => {
     const { email, password } = this.props.auth;
     let errors = [];
-    if (/\S+@\S+\.\S+/.test(email) === false) {
+    if (this.isValidEmail(email) === false) {
       errors.push('Please enter valid email address');
     }
     if (password === undefined || password.trim() === '') {
@@ -163,6 +172,10 @@ class Login extends Component {
       isError: errors.length > 0
     });
     return errors;
+  };
+
+  isValidEmail = (email) => {
+    return /\S+@\S+\.\S+/.test(email);
   };
 
   render() {

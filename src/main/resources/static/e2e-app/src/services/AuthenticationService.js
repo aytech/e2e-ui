@@ -1,4 +1,3 @@
-
 export default class AuthenticationService {
 
   apiBase = '/auth';
@@ -6,9 +5,10 @@ export default class AuthenticationService {
   registerUrl = '/register';
   activateUrl = '/activate';
   resetCodeUrl = '/code/reset';
+  resetPasswordUrl = '/password/reset';
 
   async getResource(url, request) {
-    const resource = await fetch(`${this.apiBase}${url}`, request);
+    const resource = await fetch(`${ this.apiBase }${ url }`, request);
     const response = await resource.json();
     response.status = resource.status;
     return response;
@@ -60,4 +60,14 @@ export default class AuthenticationService {
     };
     return this.getResource(this.resetCodeUrl, request);
   };
+
+  resetPassword = async (email, password, activationCode) => {
+    const request = {
+      body: JSON.stringify({ email, password, activationCode }),
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      mode: 'cors'
+    };
+    return this.getResource(this.resetPasswordUrl, request);
+  }
 }
