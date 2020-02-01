@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Redirect from "react-router/modules/Redirect";
 import { faBan, faCog } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AuthenticationService from "../../services/AuthenticationService";
@@ -45,14 +44,15 @@ class Activate extends Component {
               </span>
           }));
         } else {
+          this.setState(() => ({
+            loading: false,
+            text: ''
+          }));
           this.props.updateLoginModalStatus(true);
           this.props.updateLoginSuccess(true);
           this.props.updateLoginSuccessMessage('You profile was activated, please login');
           this.props.updateUserEmail(email);
-          this.setState(() => ({
-            loading: false,
-            text: <Redirect to="/"/>
-          }));
+          this.props.history.push('/');
         }
       });
   }

@@ -3,8 +3,6 @@ import {
   faFolderPlus
 } from '@fortawesome/free-solid-svg-icons';
 import { connect } from "react-redux";
-import Modal from "react-bootstrap/Modal";
-import { updateSettingsModalStatus } from "../../actions/stateActions";
 import './settings.css';
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -12,9 +10,10 @@ import Form from "react-bootstrap/Form";
 import FormGroup from "react-bootstrap/FormGroup";
 import FormLabel from "react-bootstrap/FormLabel";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import PageHeader from "../page-header/page-header";
+import Container from "react-bootstrap/Container";
 
 class Settings extends Component {
-
 
   constructor(props) {
     super(props);
@@ -25,14 +24,6 @@ class Settings extends Component {
       } ]
     }
   }
-
-  onHide = () => {
-    this.props.updateSettingsModalStatus(false);
-  };
-
-  submit = () => {
-
-  };
 
   addVariableField = () => {
     const variables = this.state.variables;
@@ -64,22 +55,11 @@ class Settings extends Component {
   };
 
   render() {
-    const {
-      isSettingsModalOpen
-    } = this.props.state;
-
     return (
-      <Modal
-        show={ isSettingsModalOpen }
-        dialogClassName="modal-90w"
-        aria-labelledby="settings-page"
-        onHide={ this.onHide }>
-        <Modal.Header closeButton>
-          <Modal.Title id="example-custom-modal-styling-title">
-            User settings
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
+      <React.Fragment>
+        <PageHeader/>
+        <Container>
+          <h2>Settings</h2>
           <Form>
             { this.state.variables.map((variable, index) => (
               <Form.Group className="var-group" key={ index }>
@@ -113,12 +93,14 @@ class Settings extends Component {
                 </Form.Row>
               </Form.Group>
             )) }
+            <Form.Group>
+              <Button variant="success" onClick={ this.addVariableField }>
+                <FontAwesomeIcon icon={ faFolderPlus }/> Add variable
+              </Button>
+            </Form.Group>
           </Form>
-          <Button variant="success" onClick={ this.addVariableField }>
-            <FontAwesomeIcon icon={ faFolderPlus }/> Add variable
-          </Button>
-        </Modal.Body>
-      </Modal>
+        </Container>
+      </React.Fragment>
     )
   }
 }
@@ -127,8 +109,6 @@ const mapStateToProps = state => ({
   ...state
 });
 
-const mapDispatchToProps = dispatch => ({
-  updateSettingsModalStatus: (status) => dispatch(updateSettingsModalStatus(status))
-});
+const mapDispatchToProps = dispatch => ({});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Settings);

@@ -1,15 +1,11 @@
 import React, { Component } from 'react';
-import {
-  faSignInAlt,
-  faUserCog
-} from '@fortawesome/free-solid-svg-icons';
+import { faSignInAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Login from "../login/login";
 import { connect } from "react-redux";
 import { updateAuthenticatedStatus, updateLoginModalStatus } from "../../actions/authActions";
-import Settings from "../settings/settings";
-import { updateSettingsModalStatus } from "../../actions/stateActions";
 import SettingsService from "../../services/SettingsService";
+import { Link } from "react-router-dom";
 
 class PageHeader extends Component {
 
@@ -19,7 +15,7 @@ class PageHeader extends Component {
     this.settingsService
       .getSettings()
       .then(response => {
-        const {status} = response;
+        const { status } = response;
         if (status === 200) {
           this.props.updateAuthenticatedStatus(true);
         } else {
@@ -31,12 +27,8 @@ class PageHeader extends Component {
       })
   }
 
-  openModal = () => {
+  openLoginModal = () => {
     this.props.updateLoginModalStatus(true)
-  };
-
-  openSettings = () => {
-    this.props.updateSettingsModalStatus(true)
   };
 
   render() {
@@ -57,23 +49,25 @@ class PageHeader extends Component {
         <div className="collapse navbar-collapse" id="navbarColor01">
           <ul className="navbar-nav mr-auto">
             <li className="nav-item active">
-              <a className="nav-link" href="/">Home <span
-                className="sr-only">(current)</span></a>
+              <Link className="nav-link" to="/">
+                Home <span className="sr-only">(current)</span>
+              </Link>
             </li>
+            { isAuthenticated === true &&
+            <li className="nav-item active">
+              <Link className="nav-link" to="/settings">
+                Settings
+              </Link>
+            </li>
+            }
           </ul>
           { isAuthenticated === false &&
-          <button type="button" className="hidden" onClick={ this.openModal }>
+          <button type="button" className="hidden" onClick={ this.openLoginModal }>
             <FontAwesomeIcon icon={ faSignInAlt } size="2x"/>
-          </button>
-          }
-          { isAuthenticated === true &&
-          <button type="button" className="hidden" onClick={ this.openSettings }>
-            <FontAwesomeIcon icon={ faUserCog } size="2x"/>
           </button>
           }
         </div>
         <Login/>
-        <Settings/>
       </nav>
     )
   }
@@ -85,8 +79,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   updateAuthenticatedStatus: (status) => dispatch(updateAuthenticatedStatus(status)),
-  updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status)),
-  updateSettingsModalStatus: (status) => dispatch(updateSettingsModalStatus(status))
+  updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(PageHeader)
