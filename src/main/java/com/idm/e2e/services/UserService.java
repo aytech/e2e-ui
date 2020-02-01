@@ -54,7 +54,10 @@ public class UserService implements UserDetailsService {
     }
 
     public BasicUser updateUserPassword(UserEntity entity) {
-        UserEntity user = findActiveUserByCode(entity.getActivationCode(), entity.getEmail());
+        if (entity.getPassword() == null) {
+            return null;
+        }
+        UserEntity user = findActiveUserByCode(entity.getActivationCode());
         if (user != null) {
             user.setActivationCode(null);
             user.setPassword(passwordEncoder.encode(entity.getPassword()));
@@ -71,8 +74,8 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(entity.getEmail());
     }
 
-    public UserEntity findActiveUserByCode(String code, String email) {
-        return userRepository.findActiveUserByCode(code, email, true, false);
+    public UserEntity findActiveUserByCode(String code) {
+        return userRepository.findActiveUserByCode(code, true, false);
     }
 
     public UserEntity findActiveUser(String email) {

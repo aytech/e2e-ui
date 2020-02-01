@@ -20,9 +20,8 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
                               @Param("enabled") boolean enabled,
                               @Param("deleted") boolean deleted);
 
-    @Query("select User from UserEntity User where User.activationCode = :code and User.email = :email and User.enabled = :enabled and User.deleted = :deleted")
+    @Query("select User from UserEntity User where User.activationCode = :code and User.enabled = :enabled and User.deleted = :deleted")
     UserEntity findActiveUserByCode(@Param("code") String code,
-                                    @Param("email") String email,
                                     @Param("enabled") boolean enabled,
                                     @Param("deleted") boolean deleted);
 }

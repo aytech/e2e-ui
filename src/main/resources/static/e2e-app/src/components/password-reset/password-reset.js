@@ -9,7 +9,8 @@ import './password-reset.css';
 import AuthenticationService from "../../services/AuthenticationService";
 import Alert from "react-bootstrap/Alert";
 import ProgressBar from "react-bootstrap/ProgressBar";
-import { Redirect } from "react-router";
+import { updateLoginModalStatus, updateLoginSuccess, updateLoginSuccessMessage } from "../../actions/authActions";
+import PageHeader from "../page-header/page-header";
 
 class PasswordReset extends Component {
 
@@ -22,39 +23,44 @@ class PasswordReset extends Component {
       errorMessage: '',
       isError: false,
       isLoading: false,
-      password: ''
+      password_1: '',
+      password_2: ''
     }
   }
 
-  onEmailChange = (event) => {
+  onPasswordOneChange = (event) => {
     this.setState({
-      email: event.target.value
+      password_1: event.target.value
     })
   };
 
-  onPasswordChange = (event) => {
+  onPasswordTwoChange = (event) => {
     this.setState({
-      password: event.target.value
+      password_2: event.target.value
     })
   };
 
   isValidForm = () => {
-    const { email, password } = this.state;
-    if (/\S+@\S+\.\S+/.test(email) === false) {
+    const { password_1, password_2 } = this.state;
+    const passwordOneValid = !this.isValueEmpty(password_1);
+    const passwordTwoValid = !this.isValueEmpty(password_2);
+    const passwordsMatch = this.valuesMatch(password_1, password_2);
+    if (!passwordOneValid || !passwordTwoValid || !passwordsMatch) {
       this.setState({
-        errorMessage: 'Please enter valid email address',
-        isError: true,
-      });
-      return false;
-    }
-    if (password === undefined || password.trim() === '') {
-      this.setState({
-        errorMessage: 'Enter your password',
+        errorMessage: 'Enter new password twice',
         isError: true,
       });
       return false;
     }
     return true;
+  };
+
+  isValueEmpty = (value) => {
+    return value === undefined || value.trim() === '';
+  };
+
+  valuesMatch = (first, second) => {
+    return first === second;
   };
 
   onSubmit = () => {
@@ -66,9 +72,9 @@ class PasswordReset extends Component {
       isLoading: true
     });
     const { code } = this.props.match.params;
-    const { email, password } = this.state;
+    const { password_1 } = this.state;
     this.authenticationService
-      .resetPassword(email, password, code)
+      .resetPassword(password_1, code)
       .then(response => {
         const { status } = response;
         if (status === 404) {
@@ -78,7 +84,10 @@ class PasswordReset extends Component {
           })
         }
         if (status === 200) {
-          return <Redirect to="/"/>
+          this.props.updateLoginModalStatus(true);
+          this.props.updateLoginSuccess(true);
+          this.props.updateLoginSuccessMessage('Password was reset, login with the new password');
+          this.props.history.push('/');
         }
       })
       .finally(() => {
@@ -89,49 +98,71 @@ class PasswordReset extends Component {
   };
 
   render() {
+    const { password_1, password_2 } = this.state;
+    const match = this.valuesMatch(password_1, password_2);
+    let firstClass = '';
+    let secondClass = '';
+    if (!this.isValueEmpty(password_2)) {
+      firstClass = match ? 'is-valid' : 'is-invalid';
+    }
+    if (!this.isValueEmpty(password_1)) {
+      secondClass = match ? 'is-valid' : 'is-invalid';
+    }
     return (
-      <Container fluid={ true }>
-        <Row className="row-reset">
-          <Col>
-            <Form>
-              <div className="text-center mb-4">
-                <img src="https://via.placeholder.com/80" alt=""/>
-              </div>
-              <Form.Group>
-                <Form.Control
-                  type="email"
-                  value={ this.state.email }
-                  onChange={ this.onEmailChange }/>
-              </Form.Group>
-              <Form.Group>
-                <Form.Control
-                  type="password"
-                  value={ this.state.password }
-                  onChange={ this.onPasswordChange }/>
-              </Form.Group>
-              <Form.Group>
-              { this.state.isError === true &&
-              <Alert variant="danger">
-                { this.state.errorMessage }
-              </Alert>
-              }
-              { this.state.isLoading === true &&
-              <ProgressBar variant="success" now={ 100 } animated/>
-              }
-              </Form.Group>
-              <Form.Group>
-                <Button
-                  variant="success"
-                  size="lg"
-                  block
-                  onClick={ this.onSubmit }>
-                  Reset password
-                </Button>
-              </Form.Group>
-            </Form>
-          </Col>
-        </Row>
-      </Container>
+      <React.Fragment>
+        <PageHeader/>
+        <Container fluid={ true }>
+          <Row>
+            <Col>
+              <Form className="reset-form">
+                <div className="text-center mb-4">
+                  <img src="https://via.placeholder.com/80" alt=""/>
+                </div>
+                <div className="mb-4">
+                  <h5>Enter your new password</h5>
+                </div>
+                <Form.Group className="has-success has-danger">
+                  <Form.Control
+                    type="password"
+                    value={ this.state.password_1 }
+                    placeholder="New password"
+                    className={ firstClass }
+                    onChange={ this.onPasswordOneChange }/>
+                  <div className="invalid-feedback">Passwords must match</div>
+                </Form.Group>
+                <Form.Group className="has-danger has-success">
+                  <Form.Control
+                    type="password"
+                    value={ this.state.password_2 }
+                    placeholder="Repeat password"
+                    className={ secondClass }
+                    onChange={ this.onPasswordTwoChange }/>
+                  <div className="invalid-feedback">Passwords must match</div>
+                </Form.Group>
+                <Form.Group>
+                  { this.state.isError === true &&
+                  <Alert variant="danger">
+                    { this.state.errorMessage }
+                  </Alert>
+                  }
+                  { this.state.isLoading === true &&
+                  <ProgressBar variant="success" now={ 100 } animated/>
+                  }
+                </Form.Group>
+                <Form.Group>
+                  <Button
+                    variant="success"
+                    size="lg"
+                    block
+                    onClick={ this.onSubmit }>
+                    Reset password
+                  </Button>
+                </Form.Group>
+              </Form>
+            </Col>
+          </Row>
+        </Container>
+      </React.Fragment>
     );
   }
 }
@@ -140,6 +171,10 @@ const mapStateToProps = state => ({
   ...state
 });
 
-const mapDispatchToProps = dispatch => ({});
+const mapDispatchToProps = dispatch => ({
+  updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status)),
+  updateLoginSuccess: (status) => dispatch(updateLoginSuccess(status)),
+  updateLoginSuccessMessage: (message) => dispatch(updateLoginSuccessMessage(message))
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(PasswordReset);

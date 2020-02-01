@@ -86,12 +86,14 @@ public class AuthController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = URI_PASSWORD_RESET)
-    public ResponseEntity<AuthResponse> resetPassword(@RequestBody UserEntity entity) {
+    public ResponseEntity<AuthResponse> resetPassword(HttpServletRequest request, @RequestBody UserEntity entity) {
         AuthResponse response = new AuthResponse();
         BasicUser user = userService.updateUserPassword(entity);
         if (user == null) {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
+        String serverUrl = URLResource.getBaseUrl(request);
+        sendPasswordResetConfirmationEmail(serverUrl, user);
         response.setUser(user);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -126,6 +128,20 @@ public class AuthController {
         return false;
     }
 
+    private void sendPasswordResetConfirmationEmail(String serverUrl, BasicUser entity) {
+        EmailResource emailResource = new EmailResource();
+        EmailRequest emailRequest = new EmailRequest();
+        String messageBody = getPasswordResetConfirmationMessageBody(serverUrl);
+        emailRequest.setRecipient(entity.getEmail());
+        emailRequest.setSubject(String.format("Password reset confirmation for %s", APP_NAME));
+        emailRequest.setMessage(messageBody);
+        try {
+            emailResource.sendGmail(emailRequest);
+        } catch (MessagingException | IOException | GeneralSecurityException e) {
+            e.printStackTrace();
+        }
+    }
+
     private String getActivationMessageBody(String urlBase, String activationCode) {
         String url = String.format("%s%s%s/%s", urlBase, URI_AUTH_BASE, URI_ACTIVATE, activationCode);
         return "<p>Hello,</p>" +
@@ -140,6 +156,15 @@ public class AuthController {
         return "<p>Hello,</p>" +
                 String.format("<p>To reset your password, please click <a href=\"%s\">here</a></p>", url) +
                 String.format("<p>If the link does not work, copy this to your browser URL: %s</p>", url) +
+                "<p>Yours,<br>" +
+                String.format("%s</p>", APP_NAME);
+    }
+
+    private String getPasswordResetConfirmationMessageBody(String urlBase) {
+        String url = String.format("%s%s%s", urlBase, URI_AUTH_BASE, URI_CONTACT);
+        return "<p>Hello,</p>" +
+                String.format("<p>Your password at <strong>%s</strong> was reset successfully.</p>", APP_NAME) +
+                String.format("<p>If this was not done by you, please <a href=\"%s\">contact us</a> as soon as possible.</p>", url) +
                 "<p>Yours,<br>" +
                 String.format("%s</p>", APP_NAME);
     }

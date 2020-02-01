@@ -61,9 +61,9 @@ export default class AuthenticationService {
     return this.getResource(this.resetCodeUrl, request);
   };
 
-  resetPassword = async (email, password, activationCode) => {
+  resetPassword = async (password, activationCode) => {
     const request = {
-      body: JSON.stringify({ email, password, activationCode }),
+      body: JSON.stringify({ password, activationCode }),
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
       mode: 'cors'

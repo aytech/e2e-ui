@@ -24,6 +24,7 @@ public class AppConstants {
     public static final String URI_AUTH_BASE = "/auth";
     public static final String URI_MAIL_BASE = "/mail";
     public static final String URI_BUILD_STATUS = "/build/status";
+    public static final String URI_CONTACT = "/contact";
     public static final String URI_DOWNLOAD_REPORT = "/build/report";
     public static final String URI_DOWNLOAD_REPORT_PATH = "/download/report";
     public static final String URI_GMAIL_CHECK_CREDENTIALS = "/gmail/credentials";

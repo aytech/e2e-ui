@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Redirect } from "react-router";
+import Redirect from "react-router/modules/Redirect";
 import { faBan, faCog } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AuthenticationService from "../../services/AuthenticationService";
@@ -11,6 +11,10 @@ import {
   updateUserEmail
 } from "../../actions/authActions";
 import { connect } from "react-redux";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import PageHeader from "../page-header/page-header";
 
 class Activate extends Component {
 
@@ -55,23 +59,26 @@ class Activate extends Component {
 
   render() {
     return (
-      <div className="container-fluid">
-        <div className="row-fluid">
-          <div className="col-12 text-center">
-            <div className="fa-10x align-self-center">
-              { this.state.loading === true &&
-              <FontAwesomeIcon icon={ faCog } spin className="text-info"/>
-              }
-              { this.state.error === true &&
-              <FontAwesomeIcon icon={ faBan } className="text-danger"/>
-              }
-            </div>
-          </div>
-          <div className="col-12 display-4">
-            { this.state.text }
-          </div>
-        </div>
-      </div>
+      <React.Fragment>
+        <PageHeader/>
+        <Container fluid={ true }>
+          <Row className="activate-row">
+            <Col>
+              <div className="fa-10x text-center">
+                { this.state.loading === true &&
+                <FontAwesomeIcon icon={ faCog } spin className="text-info"/>
+                }
+                { this.state.error === true &&
+                <FontAwesomeIcon icon={ faBan } className="text-danger"/>
+                }
+              </div>
+              <div className="display-4">
+                { this.state.text }
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </React.Fragment>
     )
   }
 }

@@ -132,15 +132,16 @@ class Login extends Component {
   };
 
   signUp = () => {
-    this.setState({ isLoading: true });
     const { email, password } = this.props.auth;
     const errors = this.getValidationErrors();
     if (errors.length === 0) {
+      this.setState({ isLoading: true });
       this.sendSignUpRequest(email, password);
     }
   };
 
   reset = () => {
+    this.props.updateLoginSuccess(false);
     this.setState({
       isError: false,
       isLoading: true
