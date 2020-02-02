@@ -1,18 +1,6 @@
-export default class AuthenticationService {
+import BaseService from "./BaseService";
 
-  apiBase = '/auth';
-  springLogin = '/login';
-  registerUrl = '/register';
-  activateUrl = '/activate';
-  resetCodeUrl = '/code/reset';
-  resetPasswordUrl = '/password/reset';
-
-  async getResource(url, request) {
-    const resource = await fetch(`${ this.apiBase }${ url }`, request);
-    const response = await resource.json();
-    response.status = resource.status;
-    return response;
-  }
+export default class AuthenticationService extends BaseService {
 
   login = async (username, password) => {
     const data = new URLSearchParams();
@@ -34,7 +22,8 @@ export default class AuthenticationService {
       method: 'POST',
       mode: 'cors'
     };
-    return this.getResource(this.registerUrl, request);
+    const url = `${this.authBase}${this.registerUrl}`;
+    return this.getResource(url, request);
   };
 
   activate = async (code) => {
@@ -46,7 +35,8 @@ export default class AuthenticationService {
       method: 'POST',
       mode: 'cors'
     };
-    return this.getResource(this.activateUrl, request);
+    const url = `${this.authBase}${this.activateUrl}`;
+    return this.getResource(url, request);
   };
 
   resetCode = async (email) => {
@@ -58,7 +48,8 @@ export default class AuthenticationService {
       method: 'POST',
       mode: 'cors'
     };
-    return this.getResource(this.resetCodeUrl, request);
+    const url = `${this.authBase}${this.resetCodeUrl}`;
+    return this.getResource(url, request);
   };
 
   resetPassword = async (password, activationCode) => {
@@ -68,6 +59,7 @@ export default class AuthenticationService {
       method: 'POST',
       mode: 'cors'
     };
-    return this.getResource(this.resetPasswordUrl, request);
+    const url = `${this.authBase}${this.resetPasswordUrl}`;
+    return this.getResource(url, request);
   }
 }
