@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import {
-  faFolderPlus
+  faEdit,
+  faFolderPlus,
+  faPlusCircle,
+  faTrashAlt
 } from '@fortawesome/free-solid-svg-icons';
 import { connect } from "react-redux";
 import './settings.css';
@@ -27,12 +30,32 @@ class Settings extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      variables: [ {
-        name: '',
-        value: ''
-      } ]
+      newKey: '',
+      newValue: '',
+      variables: []
     }
   }
+
+  componentDidMount() {
+    this.settingsService
+      .getSettings()
+      .then(response => {
+        const { status, variables } = response;
+        if (status === 200) {
+          this.setState({ variables });
+        }
+        if (status === 401) {
+          return this.unauthorizedRequestRedirect();
+        }
+      });
+  }
+
+  unauthorizedRequestRedirect = () => {
+    this.props.updateLoginWarn(true);
+    this.props.updateLoginModalStatus(true);
+    this.props.updateLoginWarnMessage('Please login');
+    return this.props.history.push('/');
+  };
 
   addVariableField = () => {
     const variables = this.state.variables;
@@ -63,22 +86,63 @@ class Settings extends Component {
     this.setState({ variables: variables })
   };
 
-  saveVariable = (position) => {
-    const variable = this.state.variables[position];
-    if (variable === undefined) {
+  onKeyChange = (event) => {
+    this.setState({ newKey: event.target.value })
+  };
+
+  onValueChange = (event) => {
+    this.setState({ newValue: event.target.value })
+  };
+
+  createVariable = () => {
+    const { newKey, newValue } = this.state;
+    if (!this.validValue(newKey) || !this.validValue(newValue)) {
       return;
     }
     this.settingsService
-      .saveVariable(variable.name, variable.value)
+      .createVariable(newKey, newValue)
       .then(response => {
-        const { status } = response;
+        const { status, variable } = response;
+        if (status === 200) {
+          const { variables } = this.state;
+          variables.push(variable);
+          this.setState({
+            newKey: '',
+            newValue: '',
+            variables
+          });
+        }
         if (status === 401) {
-          this.props.updateLoginWarn(true);
-          this.props.updateLoginModalStatus(true);
-          this.props.updateLoginWarnMessage('Please login');
-          return this.props.history.push('/');
+          return this.unauthorizedRequestRedirect();
         }
       });
+  };
+
+  updateVariable = (position) => {
+    const variable = this.state.variables[position];
+    console.log('updating variable: ', variable);
+  };
+
+  removeVariable = (position) => {
+    const variable = this.state.variables[position];
+    this.settingsService
+      .removeVariable(variable.id)
+      .then(response => {
+        const { status } = response;
+        if (status === 200) {
+          const { variables } = this.state;
+          this.setState({
+            variables: variables.filter(element => element.id !== variable.id)
+          })
+        }
+        if (status === 401) {
+          return this.unauthorizedRequestRedirect();
+        }
+      });
+  };
+
+  validValue = (value) => {
+    return value !== undefined && value.trim() !== '';
   };
 
   render() {
@@ -98,18 +162,18 @@ class Settings extends Component {
             { this.state.variables.map((variable, index) => (
               <Form.Group className="var-group" key={ index }>
                 <Form.Row>
-                  <Col xs={ 12 } sm={ 4 } md={ 4 } lg={ 3 }>
+                  <Col xs={ 12 } sm={ 3 } md={ 3 } lg={ 3 }>
                     <FormGroup>
                       <Form.Control
                         type="text"
                         placeholder="Variable name"
-                        value={ variable.name }
+                        value={ variable.key }
                         onChange={ (event) => {
                           this.onChangeVariableName(index, event)
                         } }/>
                     </FormGroup>
                   </Col>
-                  <Col xs={ 12 } sm={ 6 } md={ 6 } lg={ 8 }>
+                  <Col xs={ 12 } sm={ 5 } md={ 5 } lg={ 7 }>
                     <FormGroup>
                       <Form.Control
                         type="text"
@@ -120,18 +184,52 @@ class Settings extends Component {
                         } }/>
                     </FormGroup>
                   </Col>
-                  <Col xs={ 12 } sm={ 2 } md={ 2 } lg={ 1 }>
+                  <Col xs={ 12 } sm={ 4 } md={ 4 } lg={ 2 }>
                     <FormGroup>
                       <Button variant="success" onClick={ () => {
-                        this.saveVariable(index)
+                        this.updateVariable(index)
                       } }>
-                        Save
+                        <FontAwesomeIcon icon={ faEdit }/>
+                      </Button>
+                      <Button variant="success" onClick={ () => {
+                        this.removeVariable(index)
+                      } }>
+                        <FontAwesomeIcon icon={ faTrashAlt }/>
                       </Button>
                     </FormGroup>
                   </Col>
                 </Form.Row>
               </Form.Group>
             )) }
+            <Form.Group className="var-group">
+              <Form.Row>
+                <Col xs={ 12 } sm={ 4 } md={ 4 } lg={ 3 }>
+                  <FormGroup>
+                    <Form.Control
+                      type="text"
+                      placeholder="Variable name"
+                      value={ this.state.newKey }
+                      onChange={ this.onKeyChange }/>
+                  </FormGroup>
+                </Col>
+                <Col xs={ 12 } sm={ 6 } md={ 6 } lg={ 8 }>
+                  <FormGroup>
+                    <Form.Control
+                      type="text"
+                      placeholder="Variable value"
+                      value={ this.state.newValue }
+                      onChange={ this.onValueChange }/>
+                  </FormGroup>
+                </Col>
+                <Col xs={ 12 } sm={ 2 } md={ 2 } lg={ 1 }>
+                  <FormGroup>
+                    <Button variant="success" onClick={ this.createVariable }>
+                      <FontAwesomeIcon icon={ faPlusCircle }/>
+                    </Button>
+                  </FormGroup>
+                </Col>
+              </Form.Row>
+            </Form.Group>
             <Form.Group>
               <Button variant="success" onClick={ this.addVariableField }>
                 <FontAwesomeIcon icon={ faFolderPlus }/> Add variable

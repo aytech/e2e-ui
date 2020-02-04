@@ -3,17 +3,17 @@ package com.idm.e2e.models;
 import java.util.*;
 
 public class SettingsResponse {
-    private Map<String, String> variables;
+    private List<BasicVariable> variables;
 
     public SettingsResponse() {
-        this.variables = new HashMap<>();
+        this.variables = new ArrayList<>();
     }
 
-    public Map<String, String> getVariables() {
+    public List<BasicVariable> getVariables() {
         return variables;
     }
 
-    public void setVariables(Map<String, String> variables) {
+    public void setVariables(List<BasicVariable> variables) {
         this.variables = variables;
     }
 }

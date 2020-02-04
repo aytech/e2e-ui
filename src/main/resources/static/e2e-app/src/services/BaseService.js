@@ -3,6 +3,7 @@ export default class BaseService {
   apiBase = '/api';
   authBase = '/auth';
   registerUrl = '/register';
+  removeVarUrl = '/var/remove';
   resetCodeUrl = '/code/reset';
   resetPasswordUrl = '/password/reset';
   saveVariableUrl = '/var/create';

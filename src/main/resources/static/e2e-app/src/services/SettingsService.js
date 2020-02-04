@@ -6,7 +6,7 @@ export default class SettingsService extends BaseService {
     return this.getResource(`${this.apiBase}${this.settingsUrl}`);
   };
 
-  saveVariable = async (key, value) => {
+  createVariable = async (key, value) => {
     const request = {
       body: JSON.stringify({ key, value }),
       headers: { 'Content-Type': 'application/json' },
@@ -14,6 +14,17 @@ export default class SettingsService extends BaseService {
       mode: 'cors'
     };
     const url = `${this.apiBase}${this.saveVariableUrl}`;
+    return this.getResource(url, request);
+  };
+
+  removeVariable = async (id) => {
+    const request = {
+      body: JSON.stringify({ id }),
+      headers: { 'Content-Type': 'application/json' },
+      method: 'DELETE',
+      mode: 'cors'
+    };
+    const url = `${this.apiBase}${this.removeVarUrl}`;
     return this.getResource(url, request);
   };
 }
