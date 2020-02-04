@@ -2,8 +2,12 @@ import React, { Component } from 'react';
 import { connect } from "react-redux";
 import {
   updateAuthenticatedStatus,
+  updateLoginError,
+  updateLoginErrorMessage,
   updateLoginSuccess,
   updateLoginSuccessMessage,
+  updateLoginWarn,
+  updateLoginWarnMessage,
   updateUserEmail,
   updateUserPassword
 } from "../../actions/authActions";
@@ -32,8 +36,6 @@ class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      errors: [],
-      isError: false,
       isLoading: false
     };
   }
@@ -51,6 +53,8 @@ class Login extends Component {
   };
 
   sendSignInRequest = (email, password) => {
+    this.props.updateLoginWarn(false);
+    this.props.updateLoginWarnMessage('');
     this.authService
       .login(email, password)
       .then(response => {
@@ -60,10 +64,8 @@ class Login extends Component {
           this.props.updateLoginModalStatus(false);
         }
         if (status === 401) {
-          this.setState({
-            errors: [ 'Login failed, try to reset password or sign up' ],
-            isError: true
-          });
+          this.props.updateLoginError(true);
+          this.props.updateLoginErrorMessage('Login failed, try to reset password or sign up');
         }
       })
       .finally(() => {
@@ -77,20 +79,16 @@ class Login extends Component {
       .then(response => {
         const { errors, status } = response;
         if (status === 200) {
-          this.setState({
-            errors: [],
-            isError: false
-          });
+          this.props.updateLoginError(false);
+          this.props.updateLoginErrorMessage('');
           this.props.updateLoginSuccess(true);
           this.props.updateLoginSuccessMessage(
             'Success, please check email to activate the new profile'
           );
         } else {
-          this.setState({
-            errors: errors,
-            isError: true
-          });
+          this.props.updateLoginError(true);
           this.props.updateLoginSuccess(false);
+          this.props.updateLoginErrorMessage(errors[0]);
         }
       })
       .finally(() => {
@@ -110,10 +108,8 @@ class Login extends Component {
           );
         }
         if (status === 404) {
-          this.setState({
-            errors: [ 'User not found, try to sign up instead' ],
-            isError: true
-          });
+          this.props.updateLoginError(true);
+          this.props.updateLoginErrorMessage('User not found, try to sign up instead');
         }
       })
       .finally(() => {
@@ -124,8 +120,7 @@ class Login extends Component {
   signIn = () => {
     const { email, password } = this.props.auth;
     this.props.updateLoginSuccess(false);
-    const errors = this.getValidationErrors();
-    if (errors.length === 0) {
+    if (this.isFormValid()) {
       this.setState({ isLoading: true });
       this.sendSignInRequest(email, password);
     }
@@ -133,8 +128,7 @@ class Login extends Component {
 
   signUp = () => {
     const { email, password } = this.props.auth;
-    const errors = this.getValidationErrors();
-    if (errors.length === 0) {
+    if (this.isFormValid()) {
       this.setState({ isLoading: true });
       this.sendSignUpRequest(email, password);
     }
@@ -142,37 +136,37 @@ class Login extends Component {
 
   reset = () => {
     this.props.updateLoginSuccess(false);
-    this.setState({
-      isError: false,
-      isLoading: true
-    });
+    this.props.updateLoginError(false);
+    this.setState({ isLoading: true });
     const { email } = this.props.auth;
     if (this.isValidEmail(email) === true) {
       this.sendResetRequest(email);
     } else {
       this.props.updateLoginSuccess(false);
-      this.setState({
-        errors: [ 'Please enter valid email address' ],
-        isError: true,
-        isLoading: false
-      });
+      this.props.updateLoginError(true);
+      this.props.updateLoginErrorMessage('Please enter valid email address');
+      this.setState({ isLoading: false });
     }
   };
 
-  getValidationErrors = () => {
+  isFormValid = () => {
     const { email, password } = this.props.auth;
-    let errors = [];
     if (this.isValidEmail(email) === false) {
-      errors.push('Please enter valid email address');
+      this.props.updateLoginError(true);
+      this.props.updateLoginErrorMessage('Please enter valid email address');
+      this.props.updateLoginWarn(false);
+      this.props.updateLoginWarnMessage('');
+      return false;
     }
     if (password === undefined || password.trim() === '') {
-      errors.push('Enter your password');
+      this.props.updateLoginError(true);
+      this.props.updateLoginErrorMessage('Enter your password');
+      this.props.updateLoginWarn(false);
+      this.props.updateLoginWarnMessage('');
+      return false;
     }
-    this.setState({
-      errors: errors,
-      isError: errors.length > 0
-    });
-    return errors;
+    this.props.updateLoginError(false);
+    return true;
   };
 
   isValidEmail = (email) => {
@@ -182,10 +176,14 @@ class Login extends Component {
   render() {
     const {
       email,
+      isLoginError,
       isLoginModalOpen,
       isLoginSuccess,
-      password,
-      successMessage
+      isLoginWarn,
+      loginErrorMessage,
+      loginSuccessMessage,
+      loginWarnMessage,
+      password
     } = this.props.auth;
     const { isLoading } = this.state;
 
@@ -238,14 +236,13 @@ class Login extends Component {
             </div>
           </form>
           { isLoginSuccess === true &&
-          <Alert variant="success">{ successMessage }</Alert>
+          <Alert variant="success">{ loginSuccessMessage }</Alert>
           }
-          { this.state.isError === true &&
-          <Alert variant="danger">
-            { this.state.errors.map((value, index) => {
-              return <p key={ index }>{ value }</p>
-            }) }
-          </Alert>
+          { isLoginWarn === true &&
+          <Alert variant="warning">{ loginWarnMessage }</Alert>
+          }
+          { isLoginError === true &&
+          <Alert variant="danger">{ loginErrorMessage }</Alert>
           }
           { this.state.isLoading === true &&
           <ProgressBar animated now={ 100 } variant="success"/>
@@ -283,9 +280,13 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   updateAuthenticatedStatus: (status) => dispatch(updateAuthenticatedStatus(status)),
+  updateLoginError: (status) => dispatch(updateLoginError(status)),
+  updateLoginErrorMessage: (message) => dispatch(updateLoginErrorMessage(message)),
   updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status)),
   updateLoginSuccess: (status) => dispatch(updateLoginSuccess(status)),
   updateLoginSuccessMessage: (message) => dispatch(updateLoginSuccessMessage(message)),
+  updateLoginWarn: (status) => dispatch(updateLoginWarn(status)),
+  updateLoginWarnMessage: (message) => dispatch(updateLoginWarnMessage(message)),
   updateUserEmail: (email) => dispatch(updateUserEmail(email)),
   updateUserPassword: (password) => dispatch(updateUserPassword(password))
 });

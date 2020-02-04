@@ -5,7 +5,7 @@ export default class BaseService {
   registerUrl = '/register';
   resetCodeUrl = '/code/reset';
   resetPasswordUrl = '/password/reset';
-  saveVariableUrl = '/variable/save';
+  saveVariableUrl = '/var/create';
   settingsUrl = '/settings';
   springLogin = '/login';
 

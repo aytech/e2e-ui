@@ -6,11 +6,15 @@ import rootReducer from "./reducers/rootReducer";
 const initialState = {
   auth: {
     email: '',
+    loginErrorMessage: '',
+    loginSuccessMessage: '',
+    loginWarnMessage: '',
     isAuthenticated: false,
+    isLoginError: false,
     isLoginModalOpen: false,
     isLoginSuccess: false,
-    password: '',
-    successMessage: ''
+    isLoginWarn: false,
+    password: ''
   },
   state: {
     branch: '',

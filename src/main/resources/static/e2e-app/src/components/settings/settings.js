@@ -12,6 +12,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PageHeader from "../page-header/page-header";
 import Container from "react-bootstrap/Container";
 import SettingsService from "../../services/SettingsService";
+import {
+  updateLoginError,
+  updateLoginErrorMessage,
+  updateLoginModalStatus,
+  updateLoginWarn,
+  updateLoginWarnMessage
+} from "../../actions/authActions";
 
 class Settings extends Component {
 
@@ -64,7 +71,13 @@ class Settings extends Component {
     this.settingsService
       .saveVariable(variable.name, variable.value)
       .then(response => {
-        console.log('Get response: ', response);
+        const { status } = response;
+        if (status === 401) {
+          this.props.updateLoginWarn(true);
+          this.props.updateLoginModalStatus(true);
+          this.props.updateLoginWarnMessage('Please login');
+          return this.props.history.push('/');
+        }
       });
   };
 
@@ -107,11 +120,11 @@ class Settings extends Component {
                         } }/>
                     </FormGroup>
                   </Col>
-                  <Col xs={12} sm={2} md={2} lg={1}>
+                  <Col xs={ 12 } sm={ 2 } md={ 2 } lg={ 1 }>
                     <FormGroup>
-                      <Button variant="success" onClick={() => {
+                      <Button variant="success" onClick={ () => {
                         this.saveVariable(index)
-                      }}>
+                      } }>
                         Save
                       </Button>
                     </FormGroup>
@@ -135,6 +148,12 @@ const mapStateToProps = state => ({
   ...state
 });
 
-const mapDispatchToProps = dispatch => ({});
+const mapDispatchToProps = dispatch => ({
+  updateLoginError: (status) => dispatch(updateLoginError(status)),
+  updateLoginErrorMessage: (message) => dispatch(updateLoginErrorMessage(message)),
+  updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status)),
+  updateLoginWarn: (status) => dispatch(updateLoginWarn(status)),
+  updateLoginWarnMessage: (message) => dispatch(updateLoginWarnMessage(message))
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Settings);

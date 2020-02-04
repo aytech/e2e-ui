@@ -35,6 +35,7 @@ public class AppConstants {
     public static final String URI_REGISTER = "/register";
     public static final String URI_RUN_E2E = "/build/run";
     public static final String URI_STOP_PROCESS = "/build/stop";
+    public static final String URI_VAR_CREATE = "/var/create";
 
     public static final String ROLE_ADMIN = "ADMIN";
     public static final String ROLE_USER = "USER";

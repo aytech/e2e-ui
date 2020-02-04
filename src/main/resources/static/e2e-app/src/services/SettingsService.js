@@ -6,9 +6,9 @@ export default class SettingsService extends BaseService {
     return this.getResource(`${this.apiBase}${this.settingsUrl}`);
   };
 
-  saveVariable = async (name, value) => {
+  saveVariable = async (key, value) => {
     const request = {
-      body: JSON.stringify({ name, value }),
+      body: JSON.stringify({ key, value }),
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
       mode: 'cors'
