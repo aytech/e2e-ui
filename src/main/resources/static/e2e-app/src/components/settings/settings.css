@@ -10,6 +10,15 @@
     padding: 1rem .5rem 0 .5rem;
 }
 
+.var-group button:first-child {
+    margin-right: 1rem;
+}
+
+.var-group button {
+    max-width: 50px;
+    width: 50px;
+}
+
 button.close {
     outline: none;
 }

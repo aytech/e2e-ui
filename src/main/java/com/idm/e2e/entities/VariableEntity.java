@@ -12,7 +12,7 @@ public class VariableEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(referencedColumnName = "ID")
+    @JoinColumn(name = "USER_ID")
     private UserEntity user;
 
     @Column

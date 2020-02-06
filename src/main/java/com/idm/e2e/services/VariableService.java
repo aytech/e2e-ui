@@ -36,6 +36,10 @@ public class VariableService {
         return repository.removeById(variable.getId(), user.getId());
     }
 
+    public BasicVariable updateVariable(UserEntity user, VariableEntity variable) {
+        return basicVariable(variable);
+    }
+
     public List<BasicVariable> getBasicVariables(UserEntity userEntity) {
         List<BasicVariable> variables = new ArrayList<>();
         for (VariableEntity variable : repository.findAllByUser(userEntity.getId())) {

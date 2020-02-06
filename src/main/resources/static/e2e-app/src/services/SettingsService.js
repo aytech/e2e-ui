@@ -3,7 +3,7 @@ import BaseService from "./BaseService";
 export default class SettingsService extends BaseService {
 
   getSettings = async () => {
-    return this.getResource(`${this.apiBase}${this.settingsUrl}`);
+    return this.getResource(`${ this.apiBase }${ this.settingsUrl }`);
   };
 
   createVariable = async (key, value) => {
@@ -13,7 +13,18 @@ export default class SettingsService extends BaseService {
       method: 'POST',
       mode: 'cors'
     };
-    const url = `${this.apiBase}${this.saveVariableUrl}`;
+    const url = `${ this.apiBase }${ this.saveVariableUrl }`;
+    return this.getResource(url, request);
+  };
+
+  updateVariable = async (id, key, value) => {
+    const request = {
+      body: JSON.stringify({ id, key, value }),
+      headers: { 'Content-Type': 'application/json' },
+      method: 'PUT',
+      mode: 'cors'
+    };
+    const url = `${ this.apiBase }${ this.updateVariableUrl }`;
     return this.getResource(url, request);
   };
 
@@ -24,7 +35,7 @@ export default class SettingsService extends BaseService {
       method: 'DELETE',
       mode: 'cors'
     };
-    const url = `${this.apiBase}${this.removeVarUrl}`;
+    const url = `${ this.apiBase }${ this.removeVarUrl }`;
     return this.getResource(url, request);
   };
 }

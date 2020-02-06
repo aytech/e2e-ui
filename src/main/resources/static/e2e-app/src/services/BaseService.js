@@ -9,6 +9,7 @@ export default class BaseService {
   saveVariableUrl = '/var/create';
   settingsUrl = '/settings';
   springLogin = '/login';
+  updateVariableUrl = '/var/update';
 
   async getResource(url, request) {
     const resource = await fetch(url, request);

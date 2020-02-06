@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import {
   faEdit,
-  faFolderPlus,
   faPlusCircle,
   faTrashAlt
 } from '@fortawesome/free-solid-svg-icons';
@@ -57,19 +56,10 @@ class Settings extends Component {
     return this.props.history.push('/');
   };
 
-  addVariableField = () => {
-    const variables = this.state.variables;
-    variables.push({
-      name: '',
-      value: ''
-    });
-    this.setState({ variables });
-  };
-
   onChangeVariableName = (position, event) => {
     const variables = this.state.variables.map((variable, index) => {
       if (position === index) {
-        variable.name = event.target.value;
+        variable.key = event.target.value;
       }
       return variable;
     });
@@ -120,7 +110,26 @@ class Settings extends Component {
 
   updateVariable = (position) => {
     const variable = this.state.variables[position];
-    console.log('updating variable: ', variable);
+    if (variable === undefined) {
+      return;
+    }
+    const { id, key, value } = variable;
+    if (!this.validValue(key) || !this.validValue(value)) {
+      return;
+    }
+    this.settingsService
+      .updateVariable(id, key, value)
+      .then(response => {
+        const { status, variable } = response;
+        if (status === 200) {
+          const { variables } = this.state;
+          variables.push(variable);
+          this.setState({ variables });
+        }
+        if (status === 401) {
+          return this.unauthorizedRequestRedirect();
+        }
+      });
   };
 
   removeVariable = (position) => {
@@ -173,7 +182,7 @@ class Settings extends Component {
                         } }/>
                     </FormGroup>
                   </Col>
-                  <Col xs={ 12 } sm={ 5 } md={ 5 } lg={ 7 }>
+                  <Col xs={ 12 } sm={ 5 } md={ 6 } lg={ 7 }>
                     <FormGroup>
                       <Form.Control
                         type="text"
@@ -184,7 +193,7 @@ class Settings extends Component {
                         } }/>
                     </FormGroup>
                   </Col>
-                  <Col xs={ 12 } sm={ 4 } md={ 4 } lg={ 2 }>
+                  <Col xs={ 12 } sm={ 4 } md={ 3 } lg={ 2 }>
                     <FormGroup>
                       <Button variant="success" onClick={ () => {
                         this.updateVariable(index)
@@ -203,7 +212,7 @@ class Settings extends Component {
             )) }
             <Form.Group className="var-group">
               <Form.Row>
-                <Col xs={ 12 } sm={ 4 } md={ 4 } lg={ 3 }>
+                <Col xs={ 12 } sm={ 3 } md={ 3 } lg={ 3 }>
                   <FormGroup>
                     <Form.Control
                       type="text"
@@ -212,7 +221,7 @@ class Settings extends Component {
                       onChange={ this.onKeyChange }/>
                   </FormGroup>
                 </Col>
-                <Col xs={ 12 } sm={ 6 } md={ 6 } lg={ 8 }>
+                <Col xs={ 12 } sm={ 5 } md={ 6 } lg={ 7 }>
                   <FormGroup>
                     <Form.Control
                       type="text"
@@ -221,7 +230,7 @@ class Settings extends Component {
                       onChange={ this.onValueChange }/>
                   </FormGroup>
                 </Col>
-                <Col xs={ 12 } sm={ 2 } md={ 2 } lg={ 1 }>
+                <Col xs={ 12 } sm={ 4 } md={ 3 } lg={ 2 }>
                   <FormGroup>
                     <Button variant="success" onClick={ this.createVariable }>
                       <FontAwesomeIcon icon={ faPlusCircle }/>
@@ -229,11 +238,6 @@ class Settings extends Component {
                   </FormGroup>
                 </Col>
               </Form.Row>
-            </Form.Group>
-            <Form.Group>
-              <Button variant="success" onClick={ this.addVariableField }>
-                <FontAwesomeIcon icon={ faFolderPlus }/> Add variable
-              </Button>
             </Form.Group>
           </Form>
         </Container>

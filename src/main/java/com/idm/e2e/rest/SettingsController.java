@@ -37,6 +37,14 @@ public class SettingsController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @RequestMapping(method = RequestMethod.POST, value = URI_VAR_UPDATE)
+    public ResponseEntity<VariableResponse> updateVariable(Authentication authentication, @RequestBody VariableEntity entity) {
+        VariableResponse response = new VariableResponse();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+        response.setVariable(service.updateVariable(user, entity));
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @RequestMapping(method = RequestMethod.DELETE, value = URI_VAR_REMOVE)
     public ResponseEntity<VariableResponse> removeVariable(Authentication authentication, @RequestBody VariableEntity entity) {
         VariableResponse response = new VariableResponse();
