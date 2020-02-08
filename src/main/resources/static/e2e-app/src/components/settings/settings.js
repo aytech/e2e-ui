@@ -21,6 +21,7 @@ import {
   updateLoginWarn,
   updateLoginWarnMessage
 } from "../../actions/authActions";
+import { updateVariables } from "../../actions/stateActions";
 
 class Settings extends Component {
 
@@ -30,50 +31,38 @@ class Settings extends Component {
     super(props);
     this.state = {
       newKey: '',
-      newValue: '',
-      variables: []
+      newValue: ''
     }
-  }
-
-  componentDidMount() {
-    this.settingsService
-      .getSettings()
-      .then(response => {
-        const { status, variables } = response;
-        if (status === 200) {
-          this.setState({ variables });
-        }
-        if (status === 401) {
-          return this.unauthorizedRequestRedirect();
-        }
-      });
   }
 
   unauthorizedRequestRedirect = () => {
     this.props.updateLoginWarn(true);
     this.props.updateLoginModalStatus(true);
     this.props.updateLoginWarnMessage('Please login');
-    return this.props.history.push('/');
   };
 
   onChangeVariableName = (position, event) => {
-    const variables = this.state.variables.map((variable, index) => {
+    const { variables } = this.props.state;
+    variables.every((variable, index) => {
       if (position === index) {
         variable.key = event.target.value;
+        return false;
       }
-      return variable;
+      return true;
     });
-    this.setState({ variables: variables })
+    this.props.updateVariables(variables);
   };
 
   onChangeVariableValue = (position, event) => {
-    const variables = this.state.variables.map((variable, index) => {
+    const { variables } = this.props.state;
+    variables.every((variable, index) => {
       if (position === index) {
         variable.value = event.target.value;
+        return false;
       }
-      return variable;
+      return true;
     });
-    this.setState({ variables: variables })
+    this.props.updateVariables(variables);
   };
 
   onKeyChange = (event) => {
@@ -94,12 +83,12 @@ class Settings extends Component {
       .then(response => {
         const { status, variable } = response;
         if (status === 200) {
-          const { variables } = this.state;
+          const { variables } = this.props.state;
           variables.push(variable);
+          this.props.updateVariables(variables);
           this.setState({
             newKey: '',
-            newValue: '',
-            variables
+            newValue: ''
           });
         }
         if (status === 401) {
@@ -109,7 +98,8 @@ class Settings extends Component {
   };
 
   updateVariable = (position) => {
-    const variable = this.state.variables[position];
+    const { variables } = this.props.state;
+    const variable = variables[position];
     if (variable === undefined) {
       return;
     }
@@ -120,11 +110,10 @@ class Settings extends Component {
     this.settingsService
       .updateVariable(id, key, value)
       .then(response => {
-        const { status, variable } = response;
+        const { status } = response;
         if (status === 200) {
-          const { variables } = this.state;
-          variables.push(variable);
-          this.setState({ variables });
+          // No need to handle success, variable
+          // was already updated during onChange
         }
         if (status === 401) {
           return this.unauthorizedRequestRedirect();
@@ -133,16 +122,15 @@ class Settings extends Component {
   };
 
   removeVariable = (position) => {
-    const variable = this.state.variables[position];
+    const { variables } = this.props.state;
+    const variable = variables[position];
     this.settingsService
       .removeVariable(variable.id)
       .then(response => {
         const { status } = response;
         if (status === 200) {
-          const { variables } = this.state;
-          this.setState({
-            variables: variables.filter(element => element.id !== variable.id)
-          })
+          const newVariables = variables.filter(v => v.id === variable.id);
+          this.props.updateVariables(newVariables);
         }
         if (status === 401) {
           return this.unauthorizedRequestRedirect();
@@ -155,6 +143,7 @@ class Settings extends Component {
   };
 
   render() {
+    const { variables } = this.props.state;
     return (
       <React.Fragment>
         <PageHeader/>
@@ -168,7 +157,7 @@ class Settings extends Component {
             </small>
           </p>
           <Form>
-            { this.state.variables.map((variable, index) => (
+            { variables.map((variable, index) => (
               <Form.Group className="var-group" key={ index }>
                 <Form.Row>
                   <Col xs={ 12 } sm={ 3 } md={ 3 } lg={ 3 }>
@@ -195,12 +184,12 @@ class Settings extends Component {
                   </Col>
                   <Col xs={ 12 } sm={ 4 } md={ 3 } lg={ 2 }>
                     <FormGroup>
-                      <Button variant="success" onClick={ () => {
+                      <Button variant="warning" onClick={ () => {
                         this.updateVariable(index)
                       } }>
                         <FontAwesomeIcon icon={ faEdit }/>
                       </Button>
-                      <Button variant="success" onClick={ () => {
+                      <Button variant="danger" onClick={ () => {
                         this.removeVariable(index)
                       } }>
                         <FontAwesomeIcon icon={ faTrashAlt }/>
@@ -255,7 +244,8 @@ const mapDispatchToProps = dispatch => ({
   updateLoginErrorMessage: (message) => dispatch(updateLoginErrorMessage(message)),
   updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status)),
   updateLoginWarn: (status) => dispatch(updateLoginWarn(status)),
-  updateLoginWarnMessage: (message) => dispatch(updateLoginWarnMessage(message))
+  updateLoginWarnMessage: (message) => dispatch(updateLoginWarnMessage(message)),
+  updateVariables: (variables) => dispatch(updateVariables(variables))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Settings);

@@ -2,7 +2,6 @@ package com.idm.e2e.rest;
 
 import com.idm.e2e.entities.UserEntity;
 import com.idm.e2e.entities.VariableEntity;
-import com.idm.e2e.models.BasicVariable;
 import com.idm.e2e.models.SettingsResponse;
 import com.idm.e2e.models.VariableResponse;
 import com.idm.e2e.services.VariableService;
@@ -13,9 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.idm.e2e.configuration.AppConstants.*;
 
@@ -37,11 +33,16 @@ public class SettingsController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = URI_VAR_UPDATE)
+    @RequestMapping(method = RequestMethod.PUT, value = URI_VAR_UPDATE)
     public ResponseEntity<VariableResponse> updateVariable(Authentication authentication, @RequestBody VariableEntity entity) {
         VariableResponse response = new VariableResponse();
         UserEntity user = (UserEntity) authentication.getPrincipal();
-        response.setVariable(service.updateVariable(user, entity));
+        try {
+            response.setVariable(service.updateVariable(user, entity));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -64,6 +65,7 @@ public class SettingsController {
         SettingsResponse response = new SettingsResponse();
         UserEntity user = (UserEntity) authentication.getPrincipal();
         response.setVariables(service.getBasicVariables(user));
+        response.setSystemVariables(service.getSystemVariables());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -3,9 +3,15 @@ import { faSignInAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Login from "../login/login";
 import { connect } from "react-redux";
-import { updateAuthenticatedStatus, updateLoginModalStatus } from "../../actions/authActions";
+import {
+  updateAuthenticatedStatus,
+  updateLoginModalStatus,
+  updateLoginWarn,
+  updateLoginWarnMessage
+} from "../../actions/authActions";
 import SettingsService from "../../services/SettingsService";
 import { Link } from "react-router-dom";
+import { updateVariables } from "../../actions/stateActions";
 
 class PageHeader extends Component {
 
@@ -15,11 +21,15 @@ class PageHeader extends Component {
     this.settingsService
       .getSettings()
       .then(response => {
-        const { status } = response;
+        const { status, variables } = response;
         if (status === 200) {
           this.props.updateAuthenticatedStatus(true);
-        } else {
+          this.props.updateVariables(variables);
+        } else if (status === 401) {
           this.props.updateAuthenticatedStatus(false);
+          this.props.updateLoginModalStatus(true);
+          this.props.updateLoginWarnMessage('Please login');
+          this.props.updateLoginWarn(true);
         }
       })
       .catch(error => {
@@ -79,7 +89,10 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   updateAuthenticatedStatus: (status) => dispatch(updateAuthenticatedStatus(status)),
-  updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status))
+  updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status)),
+  updateLoginWarn: (status) => dispatch(updateLoginWarn(status)),
+  updateLoginWarnMessage: (message) => dispatch(updateLoginWarnMessage(message)),
+  updateVariables: (variables) => dispatch(updateVariables(variables))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(PageHeader)

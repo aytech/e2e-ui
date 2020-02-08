@@ -45,6 +45,8 @@ const initialState = {
     stdErr: [],
     stdInput: [],
     successfulRun: false,
+    variables: [],
+    systemVariables: []
   }
 };
 

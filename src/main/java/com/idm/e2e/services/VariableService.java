@@ -36,7 +36,14 @@ public class VariableService {
         return repository.removeById(variable.getId(), user.getId());
     }
 
-    public BasicVariable updateVariable(UserEntity user, VariableEntity variable) {
+    public BasicVariable updateVariable(UserEntity user, VariableEntity variable) throws Exception {
+        VariableEntity entity = repository.findByIdAndUser(user.getId(), variable.getId());
+        if (entity != null) {
+            Integer saveSuccess = repository.updateVariable(variable.getKey(), variable.getValue(), variable.getId());
+            if (saveSuccess != 1) {
+                throw new Exception("Could not save variable with ID " + variable.getId());
+            }
+        }
         return basicVariable(variable);
     }
 
@@ -48,7 +55,13 @@ public class VariableService {
         return variables;
     }
 
-    public List<VariableEntity> getVariables(UserEntity userEntity) {
-        return repository.findAllByUser(userEntity.getId());
+    public List<BasicVariable> getSystemVariables() {
+        List<BasicVariable> variables = new ArrayList<>();
+
+        BasicVariable network = new BasicVariable();
+        network.setKey("DOCKER_NETWORK_NAME");
+        network.setValue("e2e-network");
+
+        return variables;
     }
 }
