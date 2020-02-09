@@ -1,5 +1,6 @@
 package com.idm.e2e.rest;
 
+import com.idm.e2e.entities.SystemVariableEntity;
 import com.idm.e2e.entities.UserEntity;
 import com.idm.e2e.entities.VariableEntity;
 import com.idm.e2e.models.SettingsResponse;
@@ -64,7 +65,7 @@ public class SettingsController {
     public ResponseEntity<SettingsResponse> getSettings(Authentication authentication) {
         SettingsResponse response = new SettingsResponse();
         UserEntity user = (UserEntity) authentication.getPrincipal();
-        response.setVariables(service.getBasicVariables(user));
+        response.setVariables(service.getCustomVariables(user));
         response.setSystemVariables(service.getSystemVariables());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

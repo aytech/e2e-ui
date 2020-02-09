@@ -11,6 +11,7 @@ const initialState = {
     loginWarnMessage: '',
     isAuthenticated: false,
     isLoginError: false,
+    isLoginInProgress: false,
     isLoginModalOpen: false,
     isLoginSuccess: false,
     isLoginWarn: false,
@@ -44,9 +45,13 @@ const initialState = {
     startedTimestamp: 0,
     stdErr: [],
     stdInput: [],
-    successfulRun: false,
-    variables: [],
-    systemVariables: []
+    successfulRun: false
+  },
+  settings: {
+    key: '',
+    systemVariables: [],
+    value: '',
+    variables: []
   }
 };
 

@@ -1,8 +1,9 @@
 DROP TABLE IF EXISTS users;
 
-CREATE TABLE users (
+CREATE TABLE Users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   activation_code VARCHAR (100),
+  username VARCHAR (100),
   email VARCHAR (250) UNIQUE NOT NULL,
   password VARCHAR (250) NOT NULL,
   role VARCHAR (250) NOT NULL,
@@ -11,15 +12,22 @@ CREATE TABLE users (
   deleted INT NOT NULL DEFAULT 0
 );
 
-CREATE TABLE variables (
-    id      INT AUTO_INCREMENT PRIMARY KEY,
-    user    INT NOT NULL,
-    key     VARCHAR (100) NOT NULL,
-    value   VARCHAR (100) NOT NULL
+CREATE TABLE Variables (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    key VARCHAR (100) NOT NULL,
+    value VARCHAR (100) NOT NULL
 );
 
-ALTER TABLE variables
+CREATE TABLE SYSTEM_VARIABLES (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    key VARCHAR (100) NOT NULL,
+    value VARCHAR (100) NOT NULL
+)
+
+ALTER TABLE Variables
     ADD CONSTRAINT user_fk
-    FOREIGN KEY (user)
-    REFERENCES users(id)
-    ON DELETE NO ACTION ON UPDATE NO ACTION;
+    FOREIGN KEY (user_id)
+    REFERENCES users(id);
+
+INSERT INTO SYSTEM_VARIABLES (key, value) VALUES ('DOCKER_NETWORK_NAME', 'e2e-network')

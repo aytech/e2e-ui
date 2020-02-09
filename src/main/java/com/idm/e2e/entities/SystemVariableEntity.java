@@ -2,18 +2,13 @@ package com.idm.e2e.entities;
 
 import javax.persistence.*;
 
-import static javax.persistence.GenerationType.IDENTITY;
-
 @Entity
-@Table(name = "VARIABLES")
-public class VariableEntity implements VariablesEntity {
+@Table(name = "SYSTEM_VARIABLES")
+public class SystemVariableEntity implements VariablesEntity {
     @Id
     @Column(name = "id")
-    @GeneratedValue(strategy = IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private UserEntity user;
     @Column
     private String key;
     @Column
@@ -23,16 +18,8 @@ public class VariableEntity implements VariablesEntity {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
-    }
-
-    public UserEntity getUser() {
-        return user;
-    }
-
-    public void setUser(UserEntity user) {
-        this.user = user;
     }
 
     public String getKey() {

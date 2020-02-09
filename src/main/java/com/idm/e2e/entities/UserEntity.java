@@ -19,40 +19,34 @@ public class UserEntity implements UserDetails {
     }
 
     @Id
-    @Column
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column
-    private String email;
-    @Column
-    private String password;
-    @Column
+    @Column(name = "activation_code")
     private String activationCode;
-    @Column
+    @Column(name = "username")
+    private String username;
+    @Column(name = "email")
+    private String email;
+    @Column(name = "password")
+    private String password;
+    @Column(name = "role")
     private String role;
+    @Column(name = "enabled")
+    private boolean enabled;
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Column
+    @Column(name = "created")
     private Date created;
-    @Column
-    private boolean enabled;
-    @Column
+    @Column(name = "deleted")
     private boolean deleted;
 
     public Long getId() {
         return id;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getActivationCode() {
@@ -63,20 +57,53 @@ public class UserEntity implements UserDetails {
         this.activationCode = activationCode;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public Date getCreated() {
-        return created;
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
     public boolean isDeleted() {
         return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 
     @Override

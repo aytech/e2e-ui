@@ -1,8 +1,11 @@
 package com.idm.e2e.services;
 
+import com.idm.e2e.entities.SystemVariableEntity;
 import com.idm.e2e.entities.UserEntity;
 import com.idm.e2e.entities.VariableEntity;
+import com.idm.e2e.entities.VariablesEntity;
 import com.idm.e2e.models.BasicVariable;
+import com.idm.e2e.repositories.SystemVariableRepository;
 import com.idm.e2e.repositories.VariableRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,12 +16,14 @@ import java.util.List;
 public class VariableService {
 
     private final VariableRepository repository;
+    private final SystemVariableRepository sRepository;
 
-    public VariableService(VariableRepository repository) {
+    public VariableService(VariableRepository repository, SystemVariableRepository sRepository) {
         this.repository = repository;
+        this.sRepository = sRepository;
     }
 
-    private BasicVariable basicVariable(VariableEntity entity) {
+    private BasicVariable basicVariable(VariablesEntity entity) {
         BasicVariable variable = new BasicVariable();
         variable.setId(entity.getId());
         variable.setKey(entity.getKey());
@@ -47,7 +52,7 @@ public class VariableService {
         return basicVariable(variable);
     }
 
-    public List<BasicVariable> getBasicVariables(UserEntity userEntity) {
+    public List<BasicVariable> getCustomVariables(UserEntity userEntity) {
         List<BasicVariable> variables = new ArrayList<>();
         for (VariableEntity variable : repository.findAllByUser(userEntity.getId())) {
             variables.add(basicVariable(variable));
@@ -57,11 +62,9 @@ public class VariableService {
 
     public List<BasicVariable> getSystemVariables() {
         List<BasicVariable> variables = new ArrayList<>();
-
-        BasicVariable network = new BasicVariable();
-        network.setKey("DOCKER_NETWORK_NAME");
-        network.setValue("e2e-network");
-
+        for (SystemVariableEntity variable : sRepository.findAll()) {
+            variables.add(basicVariable(variable));
+        }
         return variables;
     }
 }

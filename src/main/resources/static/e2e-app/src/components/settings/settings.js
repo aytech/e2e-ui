@@ -13,7 +13,6 @@ import FormGroup from "react-bootstrap/FormGroup";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PageHeader from "../page-header/page-header";
 import Container from "react-bootstrap/Container";
-import SettingsService from "../../services/SettingsService";
 import {
   updateLoginError,
   updateLoginErrorMessage,
@@ -21,28 +20,20 @@ import {
   updateLoginWarn,
   updateLoginWarnMessage
 } from "../../actions/authActions";
-import { updateVariables } from "../../actions/stateActions";
+import {
+  removeVariable,
+  saveVariable,
+  updateSystemVariables,
+  updateVariable,
+  updateVariableKey,
+  updateVariables,
+  updateVariableValue
+} from "../../actions/settingsActions";
 
 class Settings extends Component {
 
-  settingsService = new SettingsService();
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      newKey: '',
-      newValue: ''
-    }
-  }
-
-  unauthorizedRequestRedirect = () => {
-    this.props.updateLoginWarn(true);
-    this.props.updateLoginModalStatus(true);
-    this.props.updateLoginWarnMessage('Please login');
-  };
-
-  onChangeVariableName = (position, event) => {
-    const { variables } = this.props.state;
+  onChangeVariableKey = (position, event) => {
+    const { variables } = this.props.settings;
     variables.every((variable, index) => {
       if (position === index) {
         variable.key = event.target.value;
@@ -54,7 +45,7 @@ class Settings extends Component {
   };
 
   onChangeVariableValue = (position, event) => {
-    const { variables } = this.props.state;
+    const { variables } = this.props.settings;
     variables.every((variable, index) => {
       if (position === index) {
         variable.value = event.target.value;
@@ -66,39 +57,22 @@ class Settings extends Component {
   };
 
   onKeyChange = (event) => {
-    this.setState({ newKey: event.target.value })
+    this.props.updateVariableKey(event.target.value);
   };
 
   onValueChange = (event) => {
-    this.setState({ newValue: event.target.value })
+    this.props.updateVariableValue(event.target.value);
   };
 
   createVariable = () => {
-    const { newKey, newValue } = this.state;
-    if (!this.validValue(newKey) || !this.validValue(newValue)) {
-      return;
+    const { key, value, variables } = this.props.settings;
+    if (this.validValue(key) && this.validValue(value)) {
+      this.props.saveVariable(key, value, variables);
     }
-    this.settingsService
-      .createVariable(newKey, newValue)
-      .then(response => {
-        const { status, variable } = response;
-        if (status === 200) {
-          const { variables } = this.props.state;
-          variables.push(variable);
-          this.props.updateVariables(variables);
-          this.setState({
-            newKey: '',
-            newValue: ''
-          });
-        }
-        if (status === 401) {
-          return this.unauthorizedRequestRedirect();
-        }
-      });
   };
 
   updateVariable = (position) => {
-    const { variables } = this.props.state;
+    const { variables } = this.props.settings;
     const variable = variables[position];
     if (variable === undefined) {
       return;
@@ -107,35 +81,13 @@ class Settings extends Component {
     if (!this.validValue(key) || !this.validValue(value)) {
       return;
     }
-    this.settingsService
-      .updateVariable(id, key, value)
-      .then(response => {
-        const { status } = response;
-        if (status === 200) {
-          // No need to handle success, variable
-          // was already updated during onChange
-        }
-        if (status === 401) {
-          return this.unauthorizedRequestRedirect();
-        }
-      });
+    this.props.updateVariable(id, key, value);
   };
 
   removeVariable = (position) => {
-    const { variables } = this.props.state;
+    const { variables } = this.props.settings;
     const variable = variables[position];
-    this.settingsService
-      .removeVariable(variable.id)
-      .then(response => {
-        const { status } = response;
-        if (status === 200) {
-          const newVariables = variables.filter(v => v.id === variable.id);
-          this.props.updateVariables(newVariables);
-        }
-        if (status === 401) {
-          return this.unauthorizedRequestRedirect();
-        }
-      });
+    this.props.removeVariable(variable.id, variables);
   };
 
   validValue = (value) => {
@@ -143,7 +95,12 @@ class Settings extends Component {
   };
 
   render() {
-    const { variables } = this.props.state;
+    const {
+      key,
+      systemVariables,
+      value,
+      variables
+    } = this.props.settings;
     return (
       <React.Fragment>
         <PageHeader/>
@@ -151,11 +108,28 @@ class Settings extends Component {
           <h1>Settings</h1>
           <hr/>
           <h3>Environment variables</h3>
-          <p>
-            <small className="form-text text-muted">
+          <p className="text-info">
+            <small className="form-text">
               Provided environment variables will be available when running tests
             </small>
           </p>
+          <hr/>
+          <h4>System variables</h4>
+          <p className="text-info">
+            <small className="form-text">
+              System wide variables. Custom variables with the same name will override system environments
+            </small>
+          </p>
+          <hr/>
+          <div className="system-vars list-group">
+            { systemVariables.map((systemVariable, index) => (
+              <span className="list-group-item list-group-item-action active" key={ index }>
+                { systemVariable.key } : { systemVariable.value }
+              </span>
+            )) }
+          </div>
+          <h4>Custom variables</h4>
+          <hr/>
           <Form>
             { variables.map((variable, index) => (
               <Form.Group className="var-group" key={ index }>
@@ -167,7 +141,7 @@ class Settings extends Component {
                         placeholder="Variable name"
                         value={ variable.key }
                         onChange={ (event) => {
-                          this.onChangeVariableName(index, event)
+                          this.onChangeVariableKey(index, event)
                         } }/>
                     </FormGroup>
                   </Col>
@@ -206,7 +180,7 @@ class Settings extends Component {
                     <Form.Control
                       type="text"
                       placeholder="Variable name"
-                      value={ this.state.newKey }
+                      value={ key }
                       onChange={ this.onKeyChange }/>
                   </FormGroup>
                 </Col>
@@ -215,7 +189,7 @@ class Settings extends Component {
                     <Form.Control
                       type="text"
                       placeholder="Variable value"
-                      value={ this.state.newValue }
+                      value={ value }
                       onChange={ this.onValueChange }/>
                   </FormGroup>
                 </Col>
@@ -240,12 +214,18 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  removeVariable: (id, variables) => dispatch(removeVariable(id, variables)),
+  saveVariable: (key, value, variables) => dispatch(saveVariable(key, value, variables)),
   updateLoginError: (status) => dispatch(updateLoginError(status)),
   updateLoginErrorMessage: (message) => dispatch(updateLoginErrorMessage(message)),
   updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status)),
   updateLoginWarn: (status) => dispatch(updateLoginWarn(status)),
   updateLoginWarnMessage: (message) => dispatch(updateLoginWarnMessage(message)),
-  updateVariables: (variables) => dispatch(updateVariables(variables))
+  updateVariable: (id, key, value) => dispatch(updateVariable(id, key, value)),
+  updateVariables: (variables) => dispatch(updateVariables(variables)),
+  updateSystemVariables: (variables) => dispatch(updateSystemVariables(variables)),
+  updateVariableKey: (key) => dispatch(updateVariableKey(key)),
+  updateVariableValue: (value) => dispatch(updateVariableValue(value))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Settings);

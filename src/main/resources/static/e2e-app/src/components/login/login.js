@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
 import {
+  signIn,
   updateAuthenticatedStatus,
   updateLoginError,
-  updateLoginErrorMessage,
+  updateLoginErrorMessage, updateLoginProgress,
   updateLoginSuccess,
   updateLoginSuccessMessage,
   updateLoginWarn,
@@ -33,12 +34,11 @@ class Login extends Component {
 
   authService = new AuthenticationService();
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      isLoading: false
-    };
-  }
+  onKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      this.signIn();
+    }
+  };
 
   updateUserEmail = (event) => {
     this.props.updateUserEmail(event.target.value);
@@ -50,27 +50,6 @@ class Login extends Component {
 
   onHide = () => {
     this.props.updateLoginModalStatus(false);
-  };
-
-  sendSignInRequest = (email, password) => {
-    this.props.updateLoginWarn(false);
-    this.props.updateLoginWarnMessage('');
-    this.authService
-      .login(email, password)
-      .then(response => {
-        const { status } = response;
-        if (status === 200) {
-          this.props.updateAuthenticatedStatus(true);
-          this.props.updateLoginModalStatus(false);
-        }
-        if (status === 401) {
-          this.props.updateLoginError(true);
-          this.props.updateLoginErrorMessage('Login failed, try to reset password or sign up');
-        }
-      })
-      .finally(() => {
-        this.setState({ isLoading: false });
-      });
   };
 
   sendSignUpRequest = (email, password) => {
@@ -92,7 +71,7 @@ class Login extends Component {
         }
       })
       .finally(() => {
-        this.setState({ isLoading: false });
+        this.props.updateLoginProgress(false);
       });
   };
 
@@ -113,7 +92,7 @@ class Login extends Component {
         }
       })
       .finally(() => {
-        this.setState({ isLoading: false });
+        this.props.updateLoginProgress(false);
       });
   };
 
@@ -121,15 +100,14 @@ class Login extends Component {
     const { email, password } = this.props.auth;
     this.props.updateLoginSuccess(false);
     if (this.isFormValid()) {
-      this.setState({ isLoading: true });
-      this.sendSignInRequest(email, password);
+      this.props.signIn(email, password);
     }
   };
 
   signUp = () => {
     const { email, password } = this.props.auth;
     if (this.isFormValid()) {
-      this.setState({ isLoading: true });
+      this.props.updateLoginProgress(true);
       this.sendSignUpRequest(email, password);
     }
   };
@@ -137,7 +115,7 @@ class Login extends Component {
   reset = () => {
     this.props.updateLoginSuccess(false);
     this.props.updateLoginError(false);
-    this.setState({ isLoading: true });
+    this.props.updateLoginProgress(true);
     const { email } = this.props.auth;
     if (this.isValidEmail(email) === true) {
       this.sendResetRequest(email);
@@ -145,7 +123,7 @@ class Login extends Component {
       this.props.updateLoginSuccess(false);
       this.props.updateLoginError(true);
       this.props.updateLoginErrorMessage('Please enter valid email address');
-      this.setState({ isLoading: false });
+      this.props.updateLoginProgress(false);
     }
   };
 
@@ -177,6 +155,7 @@ class Login extends Component {
     const {
       email,
       isLoginError,
+      isLoginInProgress,
       isLoginModalOpen,
       isLoginSuccess,
       isLoginWarn,
@@ -185,7 +164,6 @@ class Login extends Component {
       loginWarnMessage,
       password
     } = this.props.auth;
-    const { isLoading } = this.state;
 
     return (
       <Modal
@@ -213,6 +191,7 @@ class Login extends Component {
                   aria-describedby="email-addon"
                   value={ email }
                   onChange={ this.updateUserEmail }
+                  onKeyDown={ this.onKeyDown }
                   required
                   autoFocus
                 />
@@ -230,6 +209,7 @@ class Login extends Component {
                   aria-describedby="email-addon"
                   value={ password }
                   onChange={ this.updateUserPassword }
+                  onKeyDown={ this.onKeyDown }
                   required
                 />
               </InputGroup>
@@ -244,7 +224,7 @@ class Login extends Component {
           { isLoginError === true &&
           <Alert variant="danger">{ loginErrorMessage }</Alert>
           }
-          { this.state.isLoading === true &&
+          { isLoginInProgress === true &&
           <ProgressBar animated now={ 100 } variant="success"/>
           }
         </Modal.Body>
@@ -252,20 +232,20 @@ class Login extends Component {
           <Button
             variant="danger"
             onClick={ this.reset }
-            disabled={ isLoading }>
+            disabled={ isLoginInProgress }>
             <FontAwesomeIcon icon={ faRedoAlt }/> Reset password
           </Button>
           <Button
             variant="warning"
             onClick={ this.signUp }
-            disabled={ isLoading }>
+            disabled={ isLoginInProgress }>
             <FontAwesomeIcon icon={ faUserPlus }/> Sign up
           </Button>
           <Button
             variant="success"
             className="login"
             onClick={ this.signIn }
-            disabled={ isLoading }>
+            disabled={ isLoginInProgress }>
             <FontAwesomeIcon icon={ faSignInAlt }/> Sign in
           </Button>
         </Modal.Footer>
@@ -279,10 +259,12 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  signIn: (email, password) => dispatch(signIn(email, password)),
   updateAuthenticatedStatus: (status) => dispatch(updateAuthenticatedStatus(status)),
   updateLoginError: (status) => dispatch(updateLoginError(status)),
   updateLoginErrorMessage: (message) => dispatch(updateLoginErrorMessage(message)),
   updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status)),
+  updateLoginProgress: (status) => dispatch(updateLoginProgress(status)),
   updateLoginSuccess: (status) => dispatch(updateLoginSuccess(status)),
   updateLoginSuccessMessage: (message) => dispatch(updateLoginSuccessMessage(message)),
   updateLoginWarn: (status) => dispatch(updateLoginWarn(status)),

@@ -3,6 +3,10 @@
     max-width: none !important;
 }
 
+.system-vars {
+    margin-bottom: 2rem;
+}
+
 .var-group {
     background-color: #272B30;
     border: 1px solid rgba(0, 0, 0, 0.6);

@@ -9,32 +9,20 @@ import {
   updateLoginWarn,
   updateLoginWarnMessage
 } from "../../actions/authActions";
-import SettingsService from "../../services/SettingsService";
 import { Link } from "react-router-dom";
-import { updateVariables } from "../../actions/stateActions";
+import {
+  fetchSettings,
+  updateSystemVariables,
+  updateVariables
+} from "../../actions/settingsActions";
 
 class PageHeader extends Component {
 
-  settingsService = new SettingsService();
-
   componentDidMount() {
-    this.settingsService
-      .getSettings()
-      .then(response => {
-        const { status, variables } = response;
-        if (status === 200) {
-          this.props.updateAuthenticatedStatus(true);
-          this.props.updateVariables(variables);
-        } else if (status === 401) {
-          this.props.updateAuthenticatedStatus(false);
-          this.props.updateLoginModalStatus(true);
-          this.props.updateLoginWarnMessage('Please login');
-          this.props.updateLoginWarn(true);
-        }
-      })
-      .catch(error => {
-        console.log('Error: ', error)
-      })
+    const {variables} = this.props.settings;
+    if (variables.length === 0) {
+      this.props.fetchSettings();
+    }
   }
 
   openLoginModal = () => {
@@ -88,10 +76,12 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  fetchSettings: () => dispatch(fetchSettings()),
   updateAuthenticatedStatus: (status) => dispatch(updateAuthenticatedStatus(status)),
   updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status)),
   updateLoginWarn: (status) => dispatch(updateLoginWarn(status)),
   updateLoginWarnMessage: (message) => dispatch(updateLoginWarnMessage(message)),
+  updateSystemVariables: (variables) => dispatch(updateSystemVariables(variables)),
   updateVariables: (variables) => dispatch(updateVariables(variables))
 });
 

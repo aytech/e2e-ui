@@ -50,7 +50,7 @@ class Activate extends Component {
           }));
           this.props.updateLoginModalStatus(true);
           this.props.updateLoginSuccess(true);
-          this.props.updateLoginSuccessMessage('You profile was activated, please login');
+          this.props.updateLoginSuccessMessage('You profile was activated');
           this.props.updateUserEmail(email);
           this.props.history.push('/');
         }

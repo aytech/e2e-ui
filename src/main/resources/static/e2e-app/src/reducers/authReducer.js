@@ -3,7 +3,7 @@ import {
   UPDATE_EMAIL,
   UPDATE_LOGIN_ERROR,
   UPDATE_LOGIN_ERROR_MESSAGE,
-  UPDATE_LOGIN_MODAL_STATUS,
+  UPDATE_LOGIN_MODAL_STATUS, UPDATE_LOGIN_PROGRESS,
   UPDATE_LOGIN_SUCCESS,
   UPDATE_LOGIN_SUCCESS_MESSAGE,
   UPDATE_LOGIN_WARN,
@@ -42,6 +42,11 @@ export default (state = {}, action) => {
       return {
         ...state,
         isLoginModalOpen: action.status
+      };
+    case UPDATE_LOGIN_PROGRESS:
+      return {
+        ...state,
+        isLoginInProgress: action.status
       };
     case UPDATE_LOGIN_SUCCESS:
       return {
