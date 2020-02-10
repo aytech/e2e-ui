@@ -11,8 +11,8 @@ public class VariableEntity implements VariablesEntity {
     @Column(name = "id")
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinColumn(name = "user_id")
     private UserEntity user;
     @Column
     private String key;

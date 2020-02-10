@@ -1,6 +1,5 @@
 package com.idm.e2e.rest;
 
-import com.idm.e2e.entities.SystemVariableEntity;
 import com.idm.e2e.entities.UserEntity;
 import com.idm.e2e.entities.VariableEntity;
 import com.idm.e2e.models.SettingsResponse;
@@ -48,17 +47,9 @@ public class SettingsController {
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = URI_VAR_REMOVE)
-    public ResponseEntity<VariableResponse> removeVariable(Authentication authentication, @RequestBody VariableEntity entity) {
-        VariableResponse response = new VariableResponse();
-        UserEntity user = (UserEntity) authentication.getPrincipal();
-        response.setStatus(service.removeVariable(user, entity));
-        if (response.getStatus() == 1) {
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
-        if (response.getStatus() == 0) {
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<VariableResponse> removeVariable(@RequestBody VariableEntity entity) {
+        service.removeVariable(entity);
+        return new ResponseEntity<>(null, HttpStatus.GONE);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = URI_SETTINGS)

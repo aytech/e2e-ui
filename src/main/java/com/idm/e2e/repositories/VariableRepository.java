@@ -7,12 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 public interface VariableRepository extends JpaRepository<VariableEntity, Long> {
-
-    @Query("select Variable from VariableEntity Variable join Variable.user User where User.id = ?1")
-    List<VariableEntity> findAllByUser(long userID);
 
     @Query("select Variable from VariableEntity Variable join Variable.user User where User.id = :user_id and Variable.id = :variable_id")
     VariableEntity findByIdAndUser(@Param("user_id") long userID, @Param("variable_id") long variableID);
@@ -21,9 +16,4 @@ public interface VariableRepository extends JpaRepository<VariableEntity, Long> 
     @Modifying
     @Query("update VariableEntity Variable set Variable.key = :key, Variable.value = :value where Variable.id  = :variable_id")
     Integer updateVariable(@Param("key") String key, @Param("value") String value, @Param("variable_id") long variable_id);
-
-    @Transactional
-    @Modifying
-    @Query("delete from VariableEntity Variable where Variable.id = :variable_id and Variable.user.id = :user_id")
-    Integer removeById(@Param("variable_id") long variableID, @Param("user_id") long userID);
 }

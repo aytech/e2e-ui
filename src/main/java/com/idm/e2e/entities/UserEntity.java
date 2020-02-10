@@ -8,9 +8,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
+@SuppressWarnings("unused")
 @Entity
 @Table(name = "USERS")
 public class UserEntity implements UserDetails {
@@ -40,6 +43,9 @@ public class UserEntity implements UserDetails {
     private Date created;
     @Column(name = "deleted")
     private boolean deleted;
+    @OneToMany(mappedBy = "user",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    private List<VariableEntity> variables;
 
     public Long getId() {
         return id;
@@ -104,6 +110,22 @@ public class UserEntity implements UserDetails {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public List<VariableEntity> getVariables() {
+        return variables;
+    }
+
+    public void setVariables(List<VariableEntity> variables) {
+        this.variables = variables;
+    }
+
+    public void addVariable(VariableEntity variableEntity) {
+        if (variables == null) {
+            variables = new ArrayList<>();
+        }
+        variables.add(variableEntity);
+        variableEntity.setUser(this);
     }
 
     @Override
