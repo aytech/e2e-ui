@@ -94,6 +94,12 @@ class Settings extends Component {
     return value !== undefined && value.trim() !== '';
   };
 
+  onKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      this.createVariable();
+    }
+  };
+
   render() {
     const {
       key,
@@ -181,7 +187,8 @@ class Settings extends Component {
                       type="text"
                       placeholder="Variable name"
                       value={ key }
-                      onChange={ this.onKeyChange }/>
+                      onChange={ this.onKeyChange }
+                      onKeyDown={ this.onKeyDown }/>
                   </FormGroup>
                 </Col>
                 <Col xs={ 12 } sm={ 5 } md={ 6 } lg={ 7 }>
@@ -190,7 +197,8 @@ class Settings extends Component {
                       type="text"
                       placeholder="Variable value"
                       value={ value }
-                      onChange={ this.onValueChange }/>
+                      onChange={ this.onValueChange }
+                      onKeyDown={ this.onKeyDown }/>
                   </FormGroup>
                 </Col>
                 <Col xs={ 12 } sm={ 4 } md={ 3 } lg={ 2 }>
