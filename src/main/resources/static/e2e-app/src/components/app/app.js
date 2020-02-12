@@ -1,7 +1,7 @@
 import React from 'react';
 import PageHeader from "../page-header/page-header";
 import './app.css';
-import Form from "../form/form";
+import Runner from "../runner/runner";
 import Output from "../output/output";
 import Container from "react-bootstrap/Container";
 
@@ -10,7 +10,7 @@ const App = () => {
     <React.Fragment>
       <PageHeader/>
       <Container>
-        <Form/>
+        <Runner/>
         <Output/>
       </Container>
     </React.Fragment>

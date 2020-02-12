@@ -22,7 +22,7 @@ class StandardOutput extends Component {
       messagesSkipped,
       stdErr,
       stdInput
-    } = this.props.state;
+    } = this.props.runner;
 
     if (debugOutputEnabled === true) {
       return this.getMessageElements(stdInput, 'text-warning')

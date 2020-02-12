@@ -1,8 +1,5 @@
 import {
   UPDATE_SERVER_ERROR,
-  UPDATE_FORM_MESSAGES,
-  UPDATE_FORM_STATUS,
-  UPDATE_LOADING_RUN,
   UPDATE_LOADING_STATUS,
   UPDATE_BUILD_STATUS,
   UPDATE_DEBUG_ENABLED,
@@ -13,8 +10,6 @@ import {
   UPDATE_ERROR_ENABLED,
   UPDATE_REPORT_LOADING,
   UPDATE_REPORT_STATUS,
-  UPDATE_BRANCH,
-  UPDATE_DOCUMENT_TYPE,
   UPDATE_STOP_LOADING,
   UPDATE_MODAL_OPEN,
   UPDATE_CAN_BE_STOPPED,
@@ -31,11 +26,6 @@ import {
 
 export default (state = {}, action) => {
   switch (action.type) {
-    case UPDATE_BRANCH:
-      return {
-        ...state,
-        branch: action.branch
-      };
     case UPDATE_BUILD_STATUS:
       return {
         ...state,
@@ -50,11 +40,6 @@ export default (state = {}, action) => {
       return {
         ...state,
         debugOutputEnabled: action.status
-      };
-    case UPDATE_DOCUMENT_TYPE:
-      return {
-        ...state,
-        documentType: action.documentType
       };
     case UPDATE_ERROR_ENABLED:
       return {
@@ -75,21 +60,6 @@ export default (state = {}, action) => {
       return {
         ...state,
         finishedTimestamp: action.timestamp
-      };
-    case UPDATE_FORM_MESSAGES:
-      return {
-        ...state,
-        formMessages: action.messages
-      };
-    case UPDATE_FORM_STATUS:
-      return {
-        ...state,
-        formStatus: action.status
-      };
-    case UPDATE_LOADING_RUN:
-      return {
-        ...state,
-        isLoading: action.isLoading
       };
     case UPDATE_LOADING_STATUS:
       return {

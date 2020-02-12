@@ -1,12 +1,12 @@
 import { combineReducers } from "redux";
-import formReducer from "./formReducer";
+import runnerReducer from "./runnerReducer";
 import authReducer from "./authReducer";
 import settingsReducer from "./settingsReducer";
 import stateReducer from "./stateReducer";
 
 export default combineReducers({
   auth: authReducer,
-  form: formReducer,
+  runner: runnerReducer,
   settings: settingsReducer,
   state: stateReducer
 })

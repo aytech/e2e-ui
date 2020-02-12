@@ -17,19 +17,14 @@ const initialState = {
     isLoginWarn: false,
     password: ''
   },
-  state: {
-    branch: '',
+  runner: {
     buildInProgress: false,
     canProcessBeStopped: false,
     debugOutputEnabled: false,
-    documentType: '',
     errorOutputEnabled: false,
     executionTime: '',
     finishedTimestamp: 0,
-    formStatus: null,
-    formMessages: [],
     isFailedOutputActive: false,
-    isLoading: false,
     isModalOpen: false,
     isPassedOutputActive: false,
     isReportAvailable: false,

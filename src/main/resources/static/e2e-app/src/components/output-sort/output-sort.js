@@ -46,7 +46,7 @@ class OutputSort extends Component {
   };
 
   getPassedOutputSwitch = () => {
-    const { isPassedOutputActive, messagesPassed } = this.props.state;
+    const { isPassedOutputActive, messagesPassed } = this.props.runner;
     if (messagesPassed.length === 0) {
       return null
     }
@@ -54,7 +54,7 @@ class OutputSort extends Component {
   };
 
   getFailedOutputSwitch = () => {
-    const { isFailedOutputActive, messagesFailed } = this.props.state;
+    const { isFailedOutputActive, messagesFailed } = this.props.runner;
     if (messagesFailed.length === 0) {
       return null
     }
@@ -62,7 +62,7 @@ class OutputSort extends Component {
   };
 
   getSkippedOutputSwitch = () => {
-    const { isSkippedOutputActive, messagesSkipped } = this.props.state;
+    const { isSkippedOutputActive, messagesSkipped } = this.props.runner;
     if (messagesSkipped.length === 0) {
       return null
     }
@@ -73,7 +73,7 @@ class OutputSort extends Component {
     const {
       debugOutputEnabled,
       errorOutputEnabled
-    } = this.props.state;
+    } = this.props.runner;
 
     if (debugOutputEnabled === true || errorOutputEnabled === true) {
       return null

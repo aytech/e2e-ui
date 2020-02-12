@@ -38,7 +38,7 @@ class OutputMode extends Component {
   };
 
   getDebugOutputSwitch = () => {
-    const { debugOutputEnabled, stdInput } = this.props.state;
+    const { debugOutputEnabled, stdInput } = this.props.runner;
     if (stdInput.length === 0) {
       return null
     }
@@ -46,7 +46,7 @@ class OutputMode extends Component {
   };
 
   getErrorOutputSwitch = () => {
-    const { errorOutputEnabled, stdErr } = this.props.state;
+    const { errorOutputEnabled, stdErr } = this.props.runner;
     if (stdErr.length === 0) {
       return null
     }
