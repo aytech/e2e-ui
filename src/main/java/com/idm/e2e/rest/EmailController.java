@@ -44,6 +44,23 @@ public class EmailController {
     }
 
     @RequestMapping(
+            method = RequestMethod.GET,
+            value = URI_GMAIL_RENEW_CREDENTIALS
+    )
+    public HttpEntity<EmailResponse> renewGmailCredentials() {
+        EmailResource emailResource = new EmailResource();
+        EmailResponse response = new EmailResponse();
+        try {
+            emailResource.setNewAuthorizationUrl();
+            response.setAuthURL(emailResource.getAuthorizationURL());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (GeneralSecurityException | IOException e) {
+            response.setError(e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(
             method = RequestMethod.POST,
             value = URI_GMAIL_STORE_CREDENTIALS
     )

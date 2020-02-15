@@ -1,8 +1,8 @@
 package com.idm.e2e.processes;
 
-import com.idm.e2e.configuration.DockerCommands;
+import com.idm.e2e.resources.DockerCommandsResource;
 import com.idm.e2e.data.FilesResource;
-import com.idm.e2e.data.ProcessLogger;
+import com.idm.e2e.loggers.ProcessLogger;
 import com.idm.e2e.interfaces.DockerRunnable;
 import com.idm.e2e.models.E2EConfiguration;
 
@@ -31,7 +31,7 @@ public class DockerBuild implements DockerRunnable {
             String dockerContext = file.getParent();
             String imageTag = String.format(DOCKER_E2E_NODE, logID);
 
-            process = DockerCommands.buildImage(dockerFilePath, imageTag, dockerContext).start();
+            process = DockerCommandsResource.buildImage(dockerFilePath, imageTag, dockerContext).start();
 
             ProcessLogger logger = new ProcessLogger(process);
             logger.log(logID);

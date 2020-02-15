@@ -1,4 +1,4 @@
-package com.idm.e2e.configuration;
+package com.idm.e2e.resources;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -7,7 +7,7 @@ import java.util.HashSet;
 
 import static com.idm.e2e.configuration.DockerConstants.*;
 
-public class DockerCommands {
+public class DockerCommandsResource {
 
     private static HashSet<String> nodes;
 
@@ -21,7 +21,7 @@ public class DockerCommands {
         return getBuilder(arguments);
     }
 
-    public static ProcessBuilder getRunningStatus(String containerName) {
+    public static ProcessBuilder getContainerRunningStatus(String containerName) {
         ArrayList<String> arguments = getArguments();
         arguments.add("inspect");
         arguments.add("-f");
@@ -30,7 +30,7 @@ public class DockerCommands {
         return getBuilder(arguments);
     }
 
-    public static ProcessBuilder getContainerRunningStatus(String containerName) {
+    public static ProcessBuilder getContainerStatus(String containerName) {
         ArrayList<String> arguments = getArguments();
         arguments.add("inspect");
         arguments.add("-f");
@@ -50,7 +50,7 @@ public class DockerCommands {
     }
 
     public static ProcessBuilder startSeleniumGrid() {
-        ArrayList<String> arguments = getRunArguments(DOCKER_GRID_CONTAINER_NAME);
+        ArrayList<String> arguments = getRunArguments(SELENIUM_GRID_CONTAINER_NAME);
         arguments.add("-p");
         arguments.add(String.format("%s:%s", DOCKER_GRID_CONTAINER_PORT, DOCKER_GRID_CONTAINER_PORT));
         arguments.add("-e");
@@ -127,7 +127,7 @@ public class DockerCommands {
         arguments.add("-v");
         arguments.add(String.format("%s:%s", volumeHost, volumeContainer));
         arguments.add("-e");
-        arguments.add(String.format("HUB_HOST=%s", DOCKER_GRID_CONTAINER_NAME));
+        arguments.add(String.format("HUB_HOST=%s", SELENIUM_GRID_CONTAINER_NAME));
         arguments.add("-e");
         arguments.add(String.format("HUB_PORT=%s", DOCKER_GRID_CONTAINER_PORT));
         return arguments;

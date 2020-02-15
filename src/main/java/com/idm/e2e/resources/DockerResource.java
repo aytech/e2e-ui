@@ -1,29 +1,30 @@
-package com.idm.e2e.processes;
+package com.idm.e2e.resources;
 
-import com.idm.e2e.configuration.DockerCommands;
-import com.idm.e2e.data.ProcessLogger;
+import com.idm.e2e.loggers.ProcessLogger;
 
 import java.io.IOException;
 import java.util.List;
 
-import static com.idm.e2e.configuration.DockerConstants.DOCKER_GRID_CONTAINER_NAME;
 import static com.idm.e2e.configuration.DockerConstants.DOCKER_STATUS_RUNNING;
 
-public class DockerUtility {
+public class DockerResource {
     private String containerName;
 
-    public DockerUtility(String containerName) {
+    public DockerResource() {
+    }
+
+    public void setContainerName(String containerName) {
         this.containerName = containerName;
     }
 
     public void startSeleniumGridContainer() {
         try {
-            Process process = DockerCommands.getRunningStatus(DOCKER_GRID_CONTAINER_NAME).start();
+            Process process = DockerCommandsResource.getContainerRunningStatus(containerName).start();
             ProcessLogger logger = new ProcessLogger(process);
             if (!logger.getLogBoolean()) {
                 prune();
                 createNetwork();
-                startContainer(DockerCommands.startSeleniumGrid(), containerName);
+                startContainer(DockerCommandsResource.startSeleniumGrid(), containerName);
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -32,7 +33,7 @@ public class DockerUtility {
 
     public Boolean isContainerRunning(String containerName) {
         try {
-            Process process = DockerCommands.getContainerRunningStatus(containerName).start();
+            Process process = DockerCommandsResource.getContainerStatus(containerName).start();
             ProcessLogger logger = new ProcessLogger(process);
             return logger.getLogString().equals(DOCKER_STATUS_RUNNING);
         } catch (IOException e) {
@@ -42,20 +43,20 @@ public class DockerUtility {
     }
 
     public Boolean isContainerCreated() throws IOException {
-        Process process = DockerCommands.isContainerCreated(containerName).start();
+        Process process = DockerCommandsResource.isContainerCreated(containerName).start();
         ProcessLogger logger = new ProcessLogger(process);
         return logger.getLogString() != null;
     }
 
     private void prune() throws IOException, InterruptedException {
-        Process process = DockerCommands.prune().start();
+        Process process = DockerCommandsResource.prune().start();
         ProcessLogger logger = new ProcessLogger(process);
         logger.log(null);
         process.waitFor();
     }
 
     private void createNetwork() throws IOException, InterruptedException {
-        Process process = DockerCommands.networkCreate().start();
+        Process process = DockerCommandsResource.networkCreate().start();
         ProcessLogger logger = new ProcessLogger(process);
         logger.log(null);
         process.waitFor();
@@ -81,7 +82,7 @@ public class DockerUtility {
         for (String containerName : containerNames) {
             try {
                 if (isContainerRunning(containerName)) {
-                    Process process = DockerCommands.getStopContainerCommand(containerName).start();
+                    Process process = DockerCommandsResource.getStopContainerCommand(containerName).start();
                     ProcessLogger logger = new ProcessLogger(process);
                     logger.log(containerName);
                     process.waitFor();

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
 import {
+  reset,
   signIn,
   updateAuthenticatedStatus,
   updateLoginError,
@@ -29,10 +30,12 @@ import Alert from "react-bootstrap/Alert";
 import AuthenticationService from "../../services/AuthenticationService";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import './login.css';
+import ValidationService from "../../services/ValidationService";
 
 class Login extends Component {
 
   authService = new AuthenticationService();
+  validationService = new ValidationService();
 
   onKeyDown = (event) => {
     if (event.key === 'Enter') {
@@ -75,27 +78,6 @@ class Login extends Component {
       });
   };
 
-  sendResetRequest = (email) => {
-    this.authService
-      .resetCode(email)
-      .then(response => {
-        const { status } = response;
-        if (status === 200) {
-          this.props.updateLoginSuccess(true);
-          this.props.updateLoginSuccessMessage(
-            'Success, please check your email to reset password'
-          );
-        }
-        if (status === 404) {
-          this.props.updateLoginError(true);
-          this.props.updateLoginErrorMessage('User not found, try to sign up instead');
-        }
-      })
-      .finally(() => {
-        this.props.updateLoginProgress(false);
-      });
-  };
-
   signIn = () => {
     const { email, password } = this.props.auth;
     this.props.updateLoginSuccess(false);
@@ -113,23 +95,12 @@ class Login extends Component {
   };
 
   reset = () => {
-    this.props.updateLoginSuccess(false);
-    this.props.updateLoginError(false);
-    this.props.updateLoginProgress(true);
-    const { email } = this.props.auth;
-    if (this.isValidEmail(email) === true) {
-      this.sendResetRequest(email);
-    } else {
-      this.props.updateLoginSuccess(false);
-      this.props.updateLoginError(true);
-      this.props.updateLoginErrorMessage('Please enter valid email address');
-      this.props.updateLoginProgress(false);
-    }
+    this.props.reset(this.props.auth.email);
   };
 
   isFormValid = () => {
     const { email, password } = this.props.auth;
-    if (this.isValidEmail(email) === false) {
+    if (this.validationService.isValidEmail(email) === false) {
       this.props.updateLoginError(true);
       this.props.updateLoginErrorMessage('Please enter valid email address');
       this.props.updateLoginWarn(false);
@@ -145,10 +116,6 @@ class Login extends Component {
     }
     this.props.updateLoginError(false);
     return true;
-  };
-
-  isValidEmail = (email) => {
-    return /\S+@\S+\.\S+/.test(email);
   };
 
   render() {
@@ -259,6 +226,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  reset: (email) => dispatch(reset(email)),
   signIn: (email, password) => dispatch(signIn(email, password)),
   updateAuthenticatedStatus: (status) => dispatch(updateAuthenticatedStatus(status)),
   updateLoginError: (status) => dispatch(updateLoginError(status)),

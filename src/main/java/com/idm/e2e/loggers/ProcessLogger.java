@@ -1,5 +1,6 @@
-package com.idm.e2e.data;
+package com.idm.e2e.loggers;
 
+import com.idm.e2e.data.StatusStorage;
 import com.idm.e2e.models.DockerBuildStatus;
 
 import java.io.BufferedReader;
@@ -14,6 +15,10 @@ public class ProcessLogger {
     private Process process;
 
     public ProcessLogger(Process process) {
+        this.process = process;
+    }
+
+    public void setProcess(Process process) {
         this.process = process;
     }
 

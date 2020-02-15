@@ -28,6 +28,7 @@ public class AppConstants {
     public static final String URI_DOWNLOAD_REPORT = "/build/report";
     public static final String URI_DOWNLOAD_REPORT_PATH = "/download/report";
     public static final String URI_GMAIL_CHECK_CREDENTIALS = "/gmail/credentials";
+    public static final String URI_GMAIL_RENEW_CREDENTIALS = "/gmail/credentials/renew";
     public static final String URI_GMAIL_SEND = "/gmail/send";
     public static final String URI_GMAIL_STORE_CREDENTIALS = "/gmail/credentials/store";
     public static final String URI_PASSWORD_RESET = "/password/reset";

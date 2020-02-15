@@ -85,6 +85,12 @@ public class EmailResource {
         return true;
     }
 
+    public void setNewAuthorizationUrl() throws IOException, GeneralSecurityException {
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        setAuthorizationFlow(HTTP_TRANSPORT);
+        authorizationURL = authorizationCodeFlow.newAuthorizationUrl().setRedirectUri(OOB_REDIRECT_URI).build();
+    }
+
     public void createAndStoreCredential(String authCode) throws IOException, GeneralSecurityException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         setAuthorizationFlow(HTTP_TRANSPORT);

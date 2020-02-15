@@ -13,7 +13,7 @@ public class E2EApplication {
     // https://www.baeldung.com/spring-boot-h2-database
 //    @EventListener(ApplicationReadyEvent.class)
 //    public void applicationStartUp() {
-//        DockerUtility utility = new DockerUtility(null);
+//        DockerResource utility = new DockerResource(null);
 //        utility.startSeleniumGridContainer();
 //    }
 }

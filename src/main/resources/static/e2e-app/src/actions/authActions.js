@@ -12,6 +12,7 @@ import {
 } from "./constants";
 import AuthenticationService from "../services/AuthenticationService";
 import { fetchSettings } from "./settingsActions";
+import ValidationService from "../services/ValidationService";
 
 export const updateAuthenticatedStatus = (status) => ({ type: UPDATE_AUTH_STATUS, status });
 export const updateLoginError = (status) => ({ type: UPDATE_LOGIN_ERROR, status });
@@ -26,6 +27,7 @@ export const updateUserEmail = (email) => ({ type: UPDATE_EMAIL, email });
 export const updateUserPassword = (password) => ({ type: UPDATE_PASSWORD, password });
 
 const authenticationService = new AuthenticationService();
+const validationService = new ValidationService();
 
 export const signIn = (email, password) => {
   return (dispatch) => {
@@ -45,9 +47,44 @@ export const signIn = (email, password) => {
           dispatch(updateLoginError(true));
           dispatch(updateLoginErrorMessage('Login failed, try to reset password or sign up'));
         }
+        if (status === 500) {
+          dispatch(updateLoginError(true));
+          dispatch(updateLoginErrorMessage('Server error, try again later'));
+        }
       })
       .finally(() => {
         dispatch(updateLoginProgress(false));
       });
   };
+};
+
+export const reset = (email) => {
+  return (dispatch) => {
+    dispatch(updateLoginSuccess(false));
+    dispatch(updateLoginError(false));
+    dispatch(updateLoginProgress(true));
+    if (validationService.isValidEmail(email) === false) {
+      dispatch(updateLoginSuccess(false));
+      dispatch(updateLoginError(true));
+      dispatch(updateLoginErrorMessage('Please enter valid email address'));
+      dispatch(updateLoginProgress(false));
+      return;
+    }
+    authenticationService
+      .resetCode(email)
+      .then(response => {
+        const { status } = response;
+        if (status === 200) {
+          dispatch(updateLoginSuccess(true));
+          dispatch(updateLoginSuccessMessage('Success, please check your email to reset password'));
+        }
+        if (status === 404) {
+          dispatch(updateLoginError(true));
+          dispatch(updateLoginErrorMessage('User not found, try to sign up instead'));
+        }
+      })
+      .finally(() => {
+        dispatch(updateLoginProgress(false));
+      });
+  }
 };

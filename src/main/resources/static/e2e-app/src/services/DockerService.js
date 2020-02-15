@@ -33,9 +33,9 @@ export default class DockerService {
     return await this.getResource(`${ this.pathGetBuildStatus }?node=${ this.getE2eNodeCookie() }`)
   };
 
-  runE2ESuite = async (request) => {
+  runE2ESuite = async () => {
     const data = {
-      body: JSON.stringify(request),
+      body: JSON.stringify({}),
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
       mode: 'cors'

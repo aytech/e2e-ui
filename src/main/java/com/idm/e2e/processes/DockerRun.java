@@ -1,6 +1,7 @@
 package com.idm.e2e.processes;
 
-import com.idm.e2e.configuration.DockerCommands;
+import com.idm.e2e.resources.DockerCommandsResource;
+import com.idm.e2e.resources.DockerResource;
 import com.idm.e2e.resources.EmailResource;
 import com.idm.e2e.data.FilesResource;
 import com.idm.e2e.data.StatusStorage;
@@ -26,7 +27,7 @@ public class DockerRun implements DockerRunnable {
     private String e2eNodeID;
     private String logID;
     private FilesResource filesResource;
-    private DockerUtility dockerUtility;
+    private DockerResource dockerUtility;
     private DockerBuildStatus status;
     private E2EConfiguration configuration;
 
@@ -36,7 +37,7 @@ public class DockerRun implements DockerRunnable {
         chromeNodeID = String.format(DOCKER_CHROME_NODE, configuration.getNodeID());
         logID = configuration.getNodeID();
         filesResource = new FilesResource(configuration);
-        dockerUtility = new DockerUtility(e2eNodeID);
+//        dockerUtility = new DockerResource(e2eNodeID);
         status = StatusStorage.getStatus(configuration.getNodeID());
     }
 
@@ -70,8 +71,8 @@ public class DockerRun implements DockerRunnable {
 
     @Override
     public void run() {
-        ProcessBuilder chromeBuilder = DockerCommands.runChromeNode(chromeNodeID);
-        ProcessBuilder e2eBuilder = DockerCommands.runE2ENode(e2eNodeID, filesResource.getReportsPath());
+        ProcessBuilder chromeBuilder = DockerCommandsResource.runChromeNode(chromeNodeID);
+        ProcessBuilder e2eBuilder = DockerCommandsResource.runE2ENode(e2eNodeID, filesResource.getReportsPath());
         status.setStartedTimestamp(System.currentTimeMillis());
 
         try {
