@@ -90,6 +90,8 @@ public class DockerCommandsResource {
         arguments.add("SCREEN_DEPTH=32");
         arguments.add("-d");
         arguments.add(CHROME_IMAGE);
+        System.out.println("Running: " + getBuilder(arguments).command());
+        System.out.println("Running: " + getBuilder(arguments).toString());
         return getBuilder(arguments);
     }
 
@@ -139,7 +141,7 @@ public class DockerCommandsResource {
         return builder;
     }
 
-    private static String getNewNodeID() {
+    public static String getNewNodeID() {
         return RandomStringUtils.random(10, false, true);
     }
 

@@ -24,7 +24,7 @@ public class SeleniumGrid implements DockerRunnable {
 
     @Override
     public Boolean isAlive() {
-        System.out.println("Getting alive: " + process.isAlive());
+        System.out.println("Alive: " + (process != null && process.isAlive()));
         return process != null && process.isAlive();
     }
 
@@ -46,12 +46,10 @@ public class SeleniumGrid implements DockerRunnable {
             process = DockerCommandsResource.getContainerRunningStatus(SELENIUM_GRID_CONTAINER_NAME).start();
             ProcessLogger logger = new ProcessLogger(process);
             if (!logger.getLogBoolean()) {
-                System.out.println("Prune");
                 process = DockerCommandsResource.prune().start();
                 logger.setProcess(process);
                 logger.log(null);
                 process.waitFor();
-                System.out.println("Create network");
                 process = DockerCommandsResource.networkCreate().start();
                 logger.setProcess(process);
                 logger.log(null);

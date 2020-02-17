@@ -2,6 +2,7 @@ package com.idm.e2e.rest;
 
 import com.idm.e2e.interfaces.DockerRunnable;
 import com.idm.e2e.models.*;
+import com.idm.e2e.processes.ChromeNode;
 import com.idm.e2e.processes.SeleniumGrid;
 import com.idm.e2e.processes.ThreadRunner;
 import com.idm.e2e.resources.DockerResource;
@@ -43,9 +44,9 @@ public class BuildController {
     @RequestMapping(method = RequestMethod.POST, value = URI_RUN_E2E)
     public HttpEntity<DockerRunResponse> runSuite(HttpServletRequest request, @RequestBody Object body) {
         DockerRunResponse response = new DockerRunResponse();
-        // Run Selenium Grid, if not running already
         ArrayList<DockerRunnable> jobs = new ArrayList<>();
         jobs.add(new SeleniumGrid());
+        jobs.add(new ChromeNode());
 
         try {
             new ThreadRunner(jobs, "test").start();
