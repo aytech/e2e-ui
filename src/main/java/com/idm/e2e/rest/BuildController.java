@@ -1,12 +1,14 @@
 package com.idm.e2e.rest;
 
+import com.idm.e2e.entities.UserEntity;
 import com.idm.e2e.interfaces.DockerRunnable;
 import com.idm.e2e.models.*;
 import com.idm.e2e.processes.ChromeNode;
 import com.idm.e2e.processes.SeleniumGrid;
 import com.idm.e2e.processes.ThreadRunner;
-import com.idm.e2e.resources.DockerResource;
+import com.idm.e2e.services.NodeService;
 import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,18 +16,23 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 
 import static com.idm.e2e.configuration.AppConstants.*;
-import static com.idm.e2e.configuration.DockerConstants.*;
 
 @RestController
 @RequestMapping(value = URI_API_BASE)
 public class BuildController {
 
-//    @RequestMapping(
-//            method = RequestMethod.GET,
-//            value = URI_BUILD_STATUS,
-//            params = {"node"}
-//    )
-//    public HttpEntity<DockerBuildStatus> getStatus(@RequestParam("node") String nodeID) {
+    final NodeService nodeService;
+
+    public BuildController(NodeService nodeService) {
+        this.nodeService = nodeService;
+    }
+
+    @RequestMapping(
+            method = RequestMethod.GET,
+            value = URI_BUILD_STATUS,
+            params = {"node"}
+    )
+    public HttpEntity<DockerBuildStatus> getStatus() {
 //        DockerBuildStatus status = StatusStorage.getStatus(nodeID);
 //        E2EConfiguration configuration = new E2EConfiguration();
 //        configuration.setNodeID(nodeID);
@@ -38,15 +45,16 @@ public class BuildController {
 //        }
 //        ZipResource resource = new ZipResource(configuration);
 //        status.setReportAvailable(resource.isReportAvailable());
-//        return new ResponseEntity<>(status, HttpStatus.OK);
-//    }
+        return new ResponseEntity<>(null, HttpStatus.OK);
+    }
 
     @RequestMapping(method = RequestMethod.POST, value = URI_RUN_E2E)
-    public HttpEntity<DockerRunResponse> runSuite(HttpServletRequest request, @RequestBody Object body) {
+    public HttpEntity<DockerRunResponse> runSuite(Authentication authentication, @RequestBody Object body) {
         DockerRunResponse response = new DockerRunResponse();
+        UserEntity userEntity = (UserEntity) authentication.getPrincipal();
         ArrayList<DockerRunnable> jobs = new ArrayList<>();
         jobs.add(new SeleniumGrid());
-        jobs.add(new ChromeNode());
+        jobs.add(new ChromeNode(nodeService, userEntity));
 
         try {
             new ThreadRunner(jobs, "test").start();

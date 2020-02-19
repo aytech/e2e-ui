@@ -24,7 +24,7 @@ public class SeleniumGrid implements DockerRunnable {
 
     @Override
     public Boolean isAlive() {
-        System.out.println("Alive: " + (process != null && process.isAlive()));
+        System.out.println("GRID STATUS: " + (process != null && process.isAlive()));
         return process != null && process.isAlive();
     }
 
@@ -59,6 +59,7 @@ public class SeleniumGrid implements DockerRunnable {
                 logger.setProcess(process);
                 logger.log(null);
                 process.waitFor();
+                System.out.println("GRID finished");
             }
         } catch (IOException | InterruptedException e) {
             isFailed = true;

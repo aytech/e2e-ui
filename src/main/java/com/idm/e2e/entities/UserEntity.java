@@ -46,6 +46,9 @@ public class UserEntity implements UserDetails {
     @OneToMany(mappedBy = "user",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     private List<VariableEntity> variables;
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    private List<NodeEntity> nodes;
 
     public Long getId() {
         return id;
@@ -126,6 +129,22 @@ public class UserEntity implements UserDetails {
         }
         variables.add(variableEntity);
         variableEntity.setUser(this);
+    }
+
+    public List<NodeEntity> getNodes() {
+        return nodes;
+    }
+
+    public void setNodes(List<NodeEntity> nodes) {
+        this.nodes = nodes;
+    }
+
+    public void addNode(NodeEntity nodeEntity) {
+        if (nodes == null) {
+            nodes = new ArrayList<>();
+        }
+        nodes.add(nodeEntity);
+        nodeEntity.setUser(this);
     }
 
     @Override
