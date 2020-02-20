@@ -5,7 +5,7 @@ import rootReducer from "./reducers/rootReducer";
 
 const initialState = {
   auth: {
-    email: '',
+    email: 'oyapparov@gmail.com',
     loginErrorMessage: '',
     loginSuccessMessage: '',
     loginWarnMessage: '',
@@ -15,7 +15,7 @@ const initialState = {
     isLoginModalOpen: false,
     isLoginSuccess: false,
     isLoginWarn: false,
-    password: ''
+    password: 'sa'
   },
   runner: {
     buildInProgress: false,

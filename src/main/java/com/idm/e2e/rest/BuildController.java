@@ -11,8 +11,6 @@ import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-
 import java.util.ArrayList;
 
 import static com.idm.e2e.configuration.AppConstants.*;
@@ -54,7 +52,7 @@ public class BuildController {
         UserEntity userEntity = (UserEntity) authentication.getPrincipal();
         ArrayList<DockerRunnable> jobs = new ArrayList<>();
         jobs.add(new SeleniumGrid());
-        jobs.add(new ChromeNode(nodeService, userEntity));
+        jobs.add(new ChromeNode(userEntity));
 
         try {
             new ThreadRunner(jobs, "test").start();

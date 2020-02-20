@@ -69,4 +69,15 @@ public class NodeEntity {
         logs.add(log);
         log.setNode(this);
     }
+
+    @Override
+    public String toString() {
+        return "NodeEntity{" +
+                "id=" + id +
+                ", node='" + node + '\'' +
+                ", status='" + status + '\'' +
+                ", user=" + user +
+                ", logs=" + logs +
+                '}';
+    }
 }

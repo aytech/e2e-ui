@@ -36,6 +36,7 @@ CREATE TABLE NODE_LOGS (
     id INT AUTO_INCREMENT PRIMARY KEY,
     node_id INT NOT NULL,
     level VARCHAR (10) NOT NULL,
+    category VARCHAR (10) NOT NULL,
     log TEXT
 )
 

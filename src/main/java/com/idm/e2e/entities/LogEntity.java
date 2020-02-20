@@ -11,6 +11,8 @@ public class LogEntity {
     private long id;
     @Column(name = "level")
     private String level;
+    @Column(name = "category")
+    private String category;
     @Column(name = "log")
     private String log;
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
@@ -33,6 +35,14 @@ public class LogEntity {
         this.level = level;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     public String getLog() {
         return log;
     }
@@ -47,5 +57,16 @@ public class LogEntity {
 
     public void setNode(NodeEntity node) {
         this.node = node;
+    }
+
+    @Override
+    public String toString() {
+        return "LogEntity{" +
+                "id=" + id +
+                ", level='" + level + '\'' +
+                ", category='" + category + '\'' +
+                ", log='" + log + '\'' +
+                ", node=" + node +
+                '}';
     }
 }
