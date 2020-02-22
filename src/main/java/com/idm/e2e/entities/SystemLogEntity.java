@@ -7,7 +7,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "SYSTEM_LOGS")
-public class SystemLogEntity {
+public class SystemLogEntity implements LogEntity {
 
     @Id
     @Column(name = "id")
@@ -16,6 +16,9 @@ public class SystemLogEntity {
 
     @Column(name = "level")
     private String level;
+
+    @Column(name = "category")
+    private String category;
 
     @Column(name = "log")
     private String log;
@@ -41,6 +44,14 @@ public class SystemLogEntity {
         this.level = level;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     public String getLog() {
         return log;
     }
@@ -62,6 +73,7 @@ public class SystemLogEntity {
         return "SystemLogEntity{" +
                 "id=" + id +
                 ", level='" + level + '\'' +
+                ", category='" + category + '\'' +
                 ", log='" + log + '\'' +
                 ", created=" + created +
                 '}';

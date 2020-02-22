@@ -7,7 +7,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "NODE_LOGS")
-public class NodeLogEntity {
+public class NodeLogEntity implements LogEntity {
 
     @Id
     @Column(name = "id")

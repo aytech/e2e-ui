@@ -24,18 +24,18 @@ public class ProcessLogger {
 
     public void log(String nodeID, Boolean withSort) throws IOException {
         String line;
-//        DockerBuildStatus status = StatusStorage.getStatus(nodeID);
+        DockerBuildStatus status = StatusStorage.getStatus(nodeID);
         BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
         BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
         while ((line = input.readLine()) != null) {
-//            status.addStdInputEntry(line);
-//            if (withSort) {
-//                sortStatusMessages(line, status);
-//            }
+            status.addStdInputEntry(line);
+            if (withSort) {
+                sortStatusMessages(line, status);
+            }
             System.out.println("Input: " + line);
         }
         while ((line = error.readLine()) != null) {
-//            status.addStdErrorEntry(line);
+            status.addStdErrorEntry(line);
             System.out.println("Error: " + line);
         }
     }

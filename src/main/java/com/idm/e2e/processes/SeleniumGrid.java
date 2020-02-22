@@ -1,6 +1,5 @@
 package com.idm.e2e.processes;
 
-import com.idm.e2e.interfaces.DockerRunnable;
 import com.idm.e2e.loggers.ProcessLogger;
 import com.idm.e2e.resources.DockerCommandsResource;
 
@@ -8,7 +7,7 @@ import java.io.IOException;
 
 import static com.idm.e2e.configuration.DockerConstants.SELENIUM_GRID_CONTAINER_NAME;
 
-public class SeleniumGrid implements DockerRunnable {
+public class SeleniumGrid extends Node {
 
     private Process process;
     private Boolean isFailed;
@@ -47,19 +46,14 @@ public class SeleniumGrid implements DockerRunnable {
             ProcessLogger logger = new ProcessLogger(process);
             if (!logger.getLogBoolean()) {
                 process = DockerCommandsResource.prune().start();
-                logger.setProcess(process);
-                logger.log(null);
+                logSystem(process);
                 process.waitFor();
                 process = DockerCommandsResource.networkCreate().start();
-                logger.setProcess(process);
-                logger.log(null);
+                logSystem(process);
                 process.waitFor();
-                System.out.println("Start GRID");
                 process = DockerCommandsResource.startSeleniumGrid().start();
-                logger.setProcess(process);
-                logger.log(null);
+                logSystem(process);
                 process.waitFor();
-                System.out.println("GRID finished");
             }
         } catch (IOException | InterruptedException e) {
             isFailed = true;
