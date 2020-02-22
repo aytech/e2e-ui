@@ -1,6 +1,6 @@
 package com.idm.e2e.processes;
 
-import com.idm.e2e.entities.LogEntity;
+import com.idm.e2e.entities.NodeLogEntity;
 import com.idm.e2e.entities.NodeEntity;
 import com.idm.e2e.entities.UserEntity;
 import com.idm.e2e.entities.VariableEntity;
@@ -46,7 +46,7 @@ public abstract class Node implements DockerRunnable {
                 .configure("hibernate.cfg.xml")
                 .addAnnotatedClass(NodeEntity.class)
                 .addAnnotatedClass(UserEntity.class)
-                .addAnnotatedClass(LogEntity.class)
+                .addAnnotatedClass(NodeLogEntity.class)
                 .addAnnotatedClass(VariableEntity.class)
                 .buildSessionFactory();
         return sessionFactory.getCurrentSession();
@@ -73,7 +73,7 @@ public abstract class Node implements DockerRunnable {
     }
 
     private void saveLog(NodeEntity nodeEntity, String log, LogLevel logLevel) {
-        LogEntity logEntity = new LogEntity();
+        NodeLogEntity logEntity = new NodeLogEntity();
         logEntity.setLevel(logLevel.toString());
         // Figure out how to set category, maybe in log method
         logEntity.setLog(log);

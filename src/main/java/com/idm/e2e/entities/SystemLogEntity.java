@@ -6,50 +6,47 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "SYSTEM_VARIABLES")
-public class SystemVariableEntity implements VariablesEntity {
+@Table(name = "SYSTEM_LOGS")
+public class SystemLogEntity {
 
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+    private long id;
 
-    @Column(name = "key")
-    private String key;
+    @Column(name = "level")
+    private String level;
 
-    @Column(name = "value")
-    private String value;
+    @Column(name = "log")
+    private String log;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created")
     private Date created;
 
-    @Override
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
-    @Override
-    public String getKey() {
-        return key;
+    public String getLevel() {
+        return level;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public void setLevel(String level) {
+        this.level = level;
     }
 
-    @Override
-    public String getValue() {
-        return value;
+    public String getLog() {
+        return log;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setLog(String log) {
+        this.log = log;
     }
 
     public Date getCreated() {
@@ -62,10 +59,10 @@ public class SystemVariableEntity implements VariablesEntity {
 
     @Override
     public String toString() {
-        return "SystemVariableEntity{" +
+        return "SystemLogEntity{" +
                 "id=" + id +
-                ", key='" + key + '\'' +
-                ", value='" + value + '\'' +
+                ", level='" + level + '\'' +
+                ", log='" + log + '\'' +
                 ", created=" + created +
                 '}';
     }

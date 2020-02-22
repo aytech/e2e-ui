@@ -1,26 +1,49 @@
 package com.idm.e2e.entities;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
 @Table(name = "DOCKER_NODES")
 public class NodeEntity {
+
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long id;
+
     @Column(name = "node")
     private String node;
+
     @Column(name = "status")
     protected String status;
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+
+    @ManyToOne(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE,
+            CascadeType.DETACH,
+            CascadeType.REFRESH
+    })
     @JoinColumn(name = "user_id")
     private UserEntity user;
+
     @OneToMany(mappedBy = "node",
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
-    private List<LogEntity> logs;
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE,
+                    CascadeType.DETACH,
+                    CascadeType.REFRESH
+            })
+    private List<NodeLogEntity> logs;
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created")
+    private Date created;
 
     public long getId() {
         return id;
@@ -54,20 +77,28 @@ public class NodeEntity {
         this.user = user;
     }
 
-    public List<LogEntity> getLogs() {
+    public List<NodeLogEntity> getLogs() {
         return logs;
     }
 
-    public void setLogs(List<LogEntity> logs) {
+    public void setLogs(List<NodeLogEntity> logs) {
         this.logs = logs;
     }
 
-    public void setLog(LogEntity log) {
+    public void setLog(NodeLogEntity log) {
         if (logs == null) {
             logs = new ArrayList<>();
         }
         logs.add(log);
         log.setNode(this);
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
     }
 
     @Override
@@ -78,6 +109,7 @@ public class NodeEntity {
                 ", status='" + status + '\'' +
                 ", user=" + user +
                 ", logs=" + logs +
+                ", created=" + created +
                 '}';
     }
 }
