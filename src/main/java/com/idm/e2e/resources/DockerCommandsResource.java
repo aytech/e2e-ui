@@ -118,6 +118,7 @@ public class DockerCommandsResource {
     private static ArrayList<String> getRunArguments(String nodeID) {
         ArrayList<String> arguments = getArguments();
         arguments.add("run");
+        arguments.add("--rm");
         arguments.add("--name");
         arguments.add(nodeID);
         arguments.add(String.format("--network=%s", DOCKER_NETWORK_NAME));
@@ -150,11 +151,5 @@ public class DockerCommandsResource {
             nodes = new HashSet<>();
         }
         nodes.add(node);
-    }
-
-    public static String getNewE2ENode() {
-        String node = getNewNodeID();
-        addNode(node);
-        return node;
     }
 }

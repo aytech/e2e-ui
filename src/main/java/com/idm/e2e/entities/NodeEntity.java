@@ -35,6 +35,7 @@ public class NodeEntity {
             cascade = {
                     CascadeType.PERSIST,
                     CascadeType.MERGE,
+                    CascadeType.REMOVE,
                     CascadeType.DETACH,
                     CascadeType.REFRESH
             })

@@ -41,7 +41,6 @@ public class FileSystemConfiguration implements DockerRunnable {
         isAlive = true;
         fileResource.createConfigurationDirectory(null);
         try {
-            fileResource.copyConfigurationFiles();
             fileResource.writeNewConfigurationFile(CONFIGURATION);
             fileResource.writeNewCredentialsFile(CREDENTIALS);
             fileResource.writeDockerFile(DOCKERFILE);

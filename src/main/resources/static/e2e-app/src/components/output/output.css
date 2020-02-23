@@ -5,3 +5,7 @@
 .custom-control {
   user-select: none;
 }
+
+.node-refresh {
+  margin-left: 1rem;
+}

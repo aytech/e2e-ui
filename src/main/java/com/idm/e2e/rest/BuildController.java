@@ -1,5 +1,6 @@
 package com.idm.e2e.rest;
 
+import com.idm.e2e.entities.NodeEntity;
 import com.idm.e2e.entities.UserEntity;
 import com.idm.e2e.interfaces.DockerRunnable;
 import com.idm.e2e.models.*;
@@ -11,6 +12,7 @@ import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 
 import static com.idm.e2e.configuration.AppConstants.*;
@@ -44,6 +46,19 @@ public class BuildController {
 //        ZipResource resource = new ZipResource(configuration);
 //        status.setReportAvailable(resource.isReportAvailable());
         return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = URI_NODE, params = {"node"})
+    public HttpEntity<BasicNode> getNodeStatus(HttpServletRequest request, @RequestParam("node") String nodeId) {
+        return new ResponseEntity<>(nodeService.getNode(Long.parseLong(nodeId)), HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, value = URI_NODE_REMOVE)
+    public HttpEntity<Boolean> removeNode(HttpServletRequest request, @RequestBody NodeEntity nodeEntity) {
+        if (nodeService.removeNode(nodeEntity)) {
+            return new ResponseEntity<>(true, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(false, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = URI_RUN_E2E)

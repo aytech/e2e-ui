@@ -23,6 +23,9 @@ public class FilesResource {
         this.configuration = configuration;
     }
 
+    public FilesResource() {
+    }
+
     public void writeNewConfigurationFile(String targetFileName) throws IOException {
         setPrintWriter(targetFileName);
         printWriter.println(String.format("%s=%s", E2EConfiguration.ENV, configuration.getEnvironment()));
@@ -43,8 +46,17 @@ public class FilesResource {
         close();
     }
 
+    @Deprecated
     public void writeDockerFile(String targetFileName) throws IOException {
-        setPrintWriter(targetFileName);
+        loadPrintWriter(targetFileName, configuration.getNodeID(), configuration.getBranch());
+    }
+
+    public void writeDockerFile(String dockerFileName, String nodeId) throws IOException {
+        loadPrintWriter(dockerFileName, nodeId, "develop");
+    }
+
+    private void loadPrintWriter(String dockerFileName, String nodeId, String branchName) throws IOException {
+        setFileWriter(dockerFileName, getDockerFile(nodeId));
         printWriter.println("FROM alpine as repository");
         printWriter.println(String.format("LABEL maintainer=\"%s\"", MAINTAINER));
         printWriter.println("WORKDIR app");
@@ -57,12 +69,10 @@ public class FilesResource {
         printWriter.println("RUN ssh-keyscan -p 7999 oxfordssh.awsdev.infor.com >> ~/.ssh/known_hosts");
         printWriter.println("RUN eval $(ssh-agent -s) && \\");
         printWriter.println("\tssh-add ~/.ssh/id_rsa_teamcity-e2e && \\");
-        printWriter.println(String.format("\tgit clone -b %s ssh://git@oxfordssh.awsdev.infor.com:7999/itech/idm-e2e.git", configuration.getBranch()));
+        printWriter.println(String.format("\tgit clone -b %s ssh://git@oxfordssh.awsdev.infor.com:7999/itech/idm-e2e.git", branchName));
         printWriter.println("");
         printWriter.println("FROM gradle:5.6.2-jdk8");
         printWriter.println("WORKDIR app");
-        printWriter.println(String.format("COPY ./configuration %s", DOCKER_WORK_DIRECTORY));
-        printWriter.println(String.format("COPY ./credentials %s", DOCKER_WORK_DIRECTORY));
         printWriter.println(String.format("COPY --from=repository /app/idm-e2e/src %s/src", DOCKER_WORK_DIRECTORY));
         printWriter.println(String.format("COPY --from=repository /app/idm-e2e/build.gradle %s", DOCKER_WORK_DIRECTORY));
         printWriter.println(String.format("COPY --from=repository /app/idm-e2e/src/test/resources/Upload/1.jpg %s", DOCKER_WORK_DIRECTORY));
@@ -71,8 +81,8 @@ public class FilesResource {
         close();
     }
 
-    public void copyConfigurationFiles() throws IOException {
-        File configurationDirectory = getConfigurationDirectory(null);
+    public void copyConfigurationFiles(String nodeId) throws IOException {
+        File targetDirectory = getNodeDirectory(nodeId);
         String sourceFile = String.format("/%s/%s", RSA_DIR, RSA_FILE);
         InputStream sourceRSA = FilesResource.class.getResourceAsStream(sourceFile);
 
@@ -80,10 +90,11 @@ public class FilesResource {
             throw new IOException("Cannot get source file at " + sourceFile);
         }
 
-        String targetRSA = String.format("%s%s%s", configurationDirectory.getPath(), File.separator, RSA_FILE);
+        String targetRSA = String.format("%s%s%s", targetDirectory.getPath(), File.separator, RSA_FILE);
         Files.copy(sourceRSA, Paths.get(targetRSA), StandardCopyOption.REPLACE_EXISTING);
     }
 
+    @Deprecated
     public File getFile(String fileName) throws IOException {
         File file = getConfigurationDirectory(fileName);
         if (!file.exists()) {
@@ -94,6 +105,29 @@ public class FilesResource {
             }
         }
         return file;
+    }
+
+    public File getNodeDirectory(String nodeId) throws IOException {
+        File path = getNodePath(nodeId);
+        if (!path.exists()) {
+            if (path.mkdir()) {
+                System.out.println(String.format("%s file created", path.getPath()));
+            } else {
+                System.out.println(String.format("Failed to create %s file", path.getPath()));
+            }
+        }
+        return path;
+    }
+
+    public File getDockerFile(String nodeId) throws IOException {
+        File path = getNodeDirectory(nodeId);
+        String basePath = String.format(
+                "%s%s%s",
+                path.getAbsolutePath(),
+                File.separator,
+                DOCKERFILE
+        );
+        return new File(basePath);
     }
 
     public String getReportsPath() {
@@ -137,7 +171,9 @@ public class FilesResource {
 
     /*
      * Get configuration directory in format <home directory>/e2e
+     * Deprecated, use {#getNodeConfigurationDirectory} instead
      */
+    @Deprecated
     public File getConfigurationDirectory(String subDirectory) {
         String homeDirectory = System.getProperty("user.home");
         String basePath = String.format(
@@ -154,6 +190,19 @@ public class FilesResource {
         return new File(String.format("%s%s%s", basePath, File.separator, subDirectory));
     }
 
+    public File getNodePath(String nodeId) {
+        String homeDirectory = System.getProperty("user.home");
+        String basePath = String.format(
+                "%s%s%s%s%s",
+                homeDirectory,
+                File.separator,
+                CONFIGURATION_DIRECTORY,
+                File.separator,
+                nodeId
+        );
+        return new File(basePath);
+    }
+
     private void close() throws IOException {
         fileWriter.close();
         printWriter.close();
@@ -162,6 +211,11 @@ public class FilesResource {
     private void setPrintWriter(String targetFileName) throws IOException {
         File file = getFile(targetFileName);
         fileWriter = new FileWriter(String.format("%s%s%s", file.getParent(), File.separator, targetFileName));
+        printWriter = new PrintWriter(fileWriter);
+    }
+
+    private void setFileWriter(String fileName, File file) throws IOException {
+        fileWriter = new FileWriter(String.format("%s%s%s", file.getParent(), File.separator, fileName));
         printWriter = new PrintWriter(fileWriter);
     }
 }

@@ -31,6 +31,8 @@ public class AppConstants {
     public static final String URI_GMAIL_RENEW_CREDENTIALS = "/gmail/credentials/renew";
     public static final String URI_GMAIL_SEND = "/gmail/send";
     public static final String URI_GMAIL_STORE_CREDENTIALS = "/gmail/credentials/store";
+    public static final String URI_NODE = "/node";
+    public static final String URI_NODE_REMOVE = "/node/remove";
     public static final String URI_PASSWORD_RESET = "/password/reset";
     public static final String URI_RESET = "/reset";
     public static final String URI_REGISTER = "/register";

@@ -17,6 +17,11 @@ const initialState = {
     isLoginWarn: false,
     password: 'sa'
   },
+  output: {
+    isNodeUpdateProgress: false,
+    isNodeRemoveProgress: false,
+    nodes: []
+  },
   runner: {
     buildInProgress: false,
     canProcessBeStopped: false,

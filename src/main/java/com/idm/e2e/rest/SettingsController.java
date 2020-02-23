@@ -4,6 +4,7 @@ import com.idm.e2e.entities.UserEntity;
 import com.idm.e2e.entities.VariableEntity;
 import com.idm.e2e.models.SettingsResponse;
 import com.idm.e2e.models.VariableResponse;
+import com.idm.e2e.services.NodeService;
 import com.idm.e2e.services.VariableService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,17 +20,19 @@ import static com.idm.e2e.configuration.AppConstants.*;
 @RequestMapping(value = URI_API_BASE)
 public class SettingsController {
 
-    final VariableService service;
+    final VariableService variableService;
+    final NodeService nodeService;
 
-    public SettingsController(VariableService service) {
-        this.service = service;
+    public SettingsController(VariableService service, NodeService nodeService) {
+        this.variableService = service;
+        this.nodeService = nodeService;
     }
 
     @RequestMapping(method = RequestMethod.POST, value = URI_VAR_CREATE)
     public ResponseEntity<VariableResponse> createVariable(Authentication authentication, @RequestBody VariableEntity entity) {
         VariableResponse response = new VariableResponse();
         UserEntity user = (UserEntity) authentication.getPrincipal();
-        response.setVariable(service.createVariable(user, entity));
+        response.setVariable(variableService.createVariable(user, entity));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -38,7 +41,7 @@ public class SettingsController {
         VariableResponse response = new VariableResponse();
         UserEntity user = (UserEntity) authentication.getPrincipal();
         try {
-            response.setVariable(service.updateVariable(user, entity));
+            response.setVariable(variableService.updateVariable(user, entity));
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -48,7 +51,7 @@ public class SettingsController {
 
     @RequestMapping(method = RequestMethod.DELETE, value = URI_VAR_REMOVE)
     public ResponseEntity<VariableResponse> removeVariable(@RequestBody VariableEntity entity) {
-        service.removeVariable(entity);
+        variableService.removeVariable(entity);
         return new ResponseEntity<>(null, HttpStatus.GONE);
     }
 
@@ -56,8 +59,9 @@ public class SettingsController {
     public ResponseEntity<SettingsResponse> getSettings(Authentication authentication) {
         SettingsResponse response = new SettingsResponse();
         UserEntity user = (UserEntity) authentication.getPrincipal();
-        response.setVariables(service.getCustomVariables(user));
-        response.setSystemVariables(service.getSystemVariables());
+        response.setVariables(variableService.getCustomVariables(user));
+        response.setSystemVariables(variableService.getSystemVariables());
+        response.setNodes(nodeService.getNodes(user));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

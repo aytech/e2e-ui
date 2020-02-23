@@ -15,6 +15,8 @@ import './runner.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import Accordion from "react-bootstrap/Accordion";
+import Card from "react-bootstrap/Card";
 
 class Runner extends Component {
 
@@ -29,6 +31,7 @@ class Runner extends Component {
   render() {
     const { isAuthenticated } = this.props.auth;
     const { buildInProgress } = this.props.runner;
+
     return (
       <Jumbotron>
         <h1 className="display-3 text-center">

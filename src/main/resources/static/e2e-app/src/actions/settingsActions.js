@@ -11,6 +11,7 @@ import {
   updateLoginWarnMessage
 } from "./authActions";
 import SettingsService from "../services/SettingsService";
+import { updateNodes } from "./outputActions";
 
 export const updateSystemVariables = (variables) => ({ type: UPDATE_SYSTEM_VARIABLES, variables });
 export const updateVariableKey = (key) => ({ type: UPDATE_VARIABLE_KEY, key });
@@ -84,6 +85,7 @@ export const fetchSettings = () => {
       .getSettings()
       .then(response => {
         const {
+          nodes,
           status,
           systemVariables,
           variables
@@ -92,6 +94,7 @@ export const fetchSettings = () => {
           dispatch(updateAuthenticatedStatus(true));
           dispatch(updateSystemVariables(systemVariables));
           dispatch(updateVariables(variables));
+          dispatch(updateNodes(nodes));
         } else if (status === 401) {
           dispatch(updateAuthenticatedStatus(false));
           dispatch(updateLoginModalStatus(true));

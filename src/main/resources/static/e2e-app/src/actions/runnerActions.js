@@ -17,6 +17,12 @@ import {
 import DockerService from "../services/DockerService";
 import Cookies from "universal-cookie/lib";
 import { E2E_NODE, HttpStatuses } from "../constants/application";
+import {
+  updateAuthenticatedStatus,
+  updateLoginModalStatus,
+  updateLoginWarn,
+  updateLoginWarnMessage
+} from "./authActions";
 
 const cookies = new Cookies();
 const dockerService = new DockerService();
@@ -47,6 +53,10 @@ export const fetchStatus = () => {
           status
         } = response;
         if (status === HttpStatuses.UNAUTHORIZED) {
+          dispatch(updateAuthenticatedStatus(false));
+          dispatch(updateLoginModalStatus(true));
+          dispatch(updateLoginWarnMessage('Please login'));
+          dispatch(updateLoginWarn(true));
           // Disable all action buttons
           return;
         }
@@ -81,18 +91,18 @@ export const fetchRunRequest = () => {
     dockerService
       .runE2ESuite()
       .then(response => {
-        console.log('Response: ', response);
-        if (response.status === 200) {
-          //   cookies.set(E2E_NODE, response.nodeID, { path: '/' });
-          //   dispatch(updateRunStatus(true));
-          //   const timeoutID = setTimeout(() => {
-          //     fetchStatus();
-          //     clearTimeout(timeoutID);
-          //   });
+        const { status } = response;
+        if (status === HttpStatuses.UNAUTHORIZED) {
+          dispatch(updateAuthenticatedStatus(false));
+          dispatch(updateLoginModalStatus(true));
+          dispatch(updateLoginWarnMessage('Please login'));
+          dispatch(updateLoginWarn(true));
         }
       })
       .catch(() => {
         dispatch(updateServerErrorState(true));
-      });
+      }).finally(() => {
+      dispatch(updateBuildStatus(false));
+    });
   }
 };

@@ -1,7 +1,7 @@
 import React from 'react';
-import './button.css';
+import './app-button.css';
 
-const Button = (props) => {
+const AppButton = (props) => {
   const {
     className,
     disabled,
@@ -52,4 +52,4 @@ const Button = (props) => {
   )
 };
 
-export default Button;
+export default AppButton;
