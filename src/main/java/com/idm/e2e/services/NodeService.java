@@ -56,6 +56,7 @@ public class NodeService {
         List<BasicLog> logs = new ArrayList<>();
         for (NodeLogEntity logEntity : nodeEntity.getLogs()) {
             BasicLog log = new BasicLog();
+            log.setId(logEntity.getId());
             log.setLevel(logEntity.getLevel());
             log.setLog(logEntity.getLog());
             log.setNodeId(logEntity.getNode().getId());

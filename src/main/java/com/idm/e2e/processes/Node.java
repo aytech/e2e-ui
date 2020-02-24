@@ -45,16 +45,20 @@ public abstract class Node implements DockerRunnable {
         }
     }
 
+    private static SessionFactory sessionFactory;
+
     private static Session getSession() {
-        SessionFactory sessionFactory = new Configuration()
-                .configure("hibernate.cfg.xml")
-                .addAnnotatedClass(NodeEntity.class)
-                .addAnnotatedClass(UserEntity.class)
-                .addAnnotatedClass(NodeLogEntity.class)
-                .addAnnotatedClass(SystemLogEntity.class)
-                .addAnnotatedClass(VariableEntity.class)
-                .buildSessionFactory();
-        return sessionFactory.getCurrentSession();
+        if (sessionFactory == null) {
+            sessionFactory = new Configuration()
+                    .configure("hibernate.cfg.xml")
+                    .addAnnotatedClass(NodeEntity.class)
+                    .addAnnotatedClass(UserEntity.class)
+                    .addAnnotatedClass(NodeLogEntity.class)
+                    .addAnnotatedClass(SystemLogEntity.class)
+                    .addAnnotatedClass(VariableEntity.class)
+                    .buildSessionFactory();
+        }
+        return sessionFactory.openSession();
     }
 
     protected NodeEntity addNode(UserEntity userEntity, String tag) {
@@ -66,6 +70,7 @@ public abstract class Node implements DockerRunnable {
         session.beginTransaction();
         session.save(nodeEntity);
         session.getTransaction().commit();
+        session.close();
         return nodeEntity;
     }
 
@@ -75,6 +80,7 @@ public abstract class Node implements DockerRunnable {
         session.beginTransaction();
         session.update(nodeEntity);
         session.getTransaction().commit();
+        session.close();
     }
 
     public void log(Process process, NodeEntity node) throws IOException {
@@ -123,6 +129,7 @@ public abstract class Node implements DockerRunnable {
         session.beginTransaction();
         session.save(entity);
         session.getTransaction().commit();
+        session.close();
     }
 
     private Category getLogCategory(String logMessage) {

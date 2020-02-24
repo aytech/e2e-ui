@@ -4,11 +4,20 @@ import java.util.Date;
 
 @SuppressWarnings("unused")
 public class BasicLog {
+    private long id;
     private String level;
     private String log;
     private long nodeId;
     private String category;
     private Date created;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public String getLevel() {
         return level;

@@ -3,13 +3,10 @@ package com.idm.e2e.resources;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 import static com.idm.e2e.configuration.DockerConstants.*;
 
 public class DockerCommandsResource {
-
-    private static HashSet<String> nodes;
 
     public static ProcessBuilder networkCreate() {
         ArrayList<String> arguments = getArguments();
@@ -97,6 +94,9 @@ public class DockerCommandsResource {
 
     public static ProcessBuilder runE2ENode(String nodeID, String reportsPath) {
         ArrayList<String> arguments = getNodeArguments(nodeID, reportsPath, DOCKER_REPORTS_PATH);
+        for (String argument : arguments) {
+            System.out.println("Argument: " + argument);
+        }
         arguments.add(nodeID);
         return getBuilder(arguments);
     }
@@ -144,12 +144,5 @@ public class DockerCommandsResource {
 
     public static String getNewNodeID() {
         return RandomStringUtils.random(10, false, true);
-    }
-
-    private static void addNode(String node) {
-        if (nodes == null) {
-            nodes = new HashSet<>();
-        }
-        nodes.add(node);
     }
 }

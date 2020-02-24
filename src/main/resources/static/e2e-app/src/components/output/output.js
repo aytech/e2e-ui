@@ -81,39 +81,60 @@ class Output extends Component {
     } = this.props.output;
     const stopProcessText = isStopProcessLoading === true ? 'Stopping test' : 'Stop test';
     const downloadReportText = isReportLoading === true ? 'Downloading report' : 'Download report';
+    const logView = (logLine) => {
+      const { id, level, category, log } = logLine;
+      if (level !== 'INFO') {
+        return null;
+      }
+      switch (category) {
+        case 'FAILED':
+          return <p key={ id } className="text-danger">{ log }</p>;
+        case 'SKIPPED':
+          return <p key={ id } className="text-warning">{ log }</p>;
+        default:
+          return <p key={ id } className="text-info">{ log }</p>;
+      }
+    };
+    const nodeView = (node) => {
+      const { id, status, logs, created } = node;
+      return (
+        <Card key={ id }>
+          <Card.Header>
+            <Accordion.Toggle
+              as={ Button }
+              variant="link"
+              eventKey={ id }>
+              { node.tag }
+            </Accordion.Toggle>
+            <Badge variant="light">{ status }</Badge>
+            <Badge variant="light">{ created }</Badge>
+            { node.status === "in progress" &&
+            <Button className="node-refresh" onClick={ () => {
+              this.props.fetchNode(id, nodes)
+            } }>
+              <FontAwesomeIcon icon={ faSyncAlt } spin={ isNodeUpdateProgress === true }/>
+            </Button>
+            }
+            <Button className="fa-pull-right" onClick={ () => {
+              this.props.removeNode(id, nodes)
+            } }>
+              <FontAwesomeIcon icon={ faTrashAlt }/>
+            </Button>
+          </Card.Header>
+          <Accordion.Collapse eventKey={ id }>
+            <Card.Body>
+              { logs.map(logView) }
+            </Card.Body>
+          </Accordion.Collapse>
+        </Card>
+      );
+    };
 
     return (
       <div className="jumbotron">
         <h5 className="display-5">Recorded runs:</h5>
         <Accordion>
-          { nodes.map(node =>
-            <Card key={ node.id }>
-              <Card.Header>
-                <Accordion.Toggle
-                  as={ Button }
-                  variant="link"
-                  eventKey={ node.id }>
-                  { node.tag }
-                </Accordion.Toggle>
-                <Badge variant="light">{ node.status }</Badge>
-                { node.status === "in progress" &&
-                <Button className="node-refresh" onClick={ () => {
-                  this.props.fetchNode(node.id, nodes)
-                } }>
-                  <FontAwesomeIcon icon={ faSyncAlt } spin={ isNodeUpdateProgress === true }/>
-                </Button>
-                }
-                <Button className="fa-pull-right" onClick={ () => {
-                  this.props.removeNode(node.id, nodes)
-                } }>
-                  <FontAwesomeIcon icon={ faTrashAlt }/>
-                </Button>
-              </Card.Header>
-              <Accordion.Collapse eventKey={ node.id }>
-                <Card.Body>Hello! I'm the body</Card.Body>
-              </Accordion.Collapse>
-            </Card>
-          ) }
+          { nodes.map(nodeView) }
         </Accordion>
         <OutputMode/>
         <div className="form-group">

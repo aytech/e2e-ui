@@ -107,7 +107,7 @@ public class FilesResource {
         return file;
     }
 
-    public File getNodeDirectory(String nodeId) throws IOException {
+    public File getNodeDirectory(String nodeId) {
         File path = getNodePath(nodeId);
         if (!path.exists()) {
             if (path.mkdir()) {
@@ -119,7 +119,7 @@ public class FilesResource {
         return path;
     }
 
-    public File getDockerFile(String nodeId) throws IOException {
+    public File getDockerFile(String nodeId) {
         File path = getNodeDirectory(nodeId);
         String basePath = String.format(
                 "%s%s%s",
