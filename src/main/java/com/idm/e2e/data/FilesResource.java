@@ -52,7 +52,7 @@ public class FilesResource {
     }
 
     public void writeDockerFile(String dockerFileName, String nodeId) throws IOException {
-        loadPrintWriter(dockerFileName, nodeId, "develop");
+        loadPrintWriter(dockerFileName, nodeId, "master");
     }
 
     private void loadPrintWriter(String dockerFileName, String nodeId, String branchName) throws IOException {
@@ -62,14 +62,16 @@ public class FilesResource {
         printWriter.println("WORKDIR app");
         printWriter.println("RUN apk update && \\");
         printWriter.println("\tapk upgrade && \\");
-        printWriter.println("\tapk add git openssh");
-        printWriter.println("COPY ./id_rsa_teamcity-e2e /root/.ssh/");
-        printWriter.println("RUN chmod 400 /root/.ssh/id_rsa_teamcity-e2e");
-        printWriter.println("RUN mkdir -p /root/.ssh");
-        printWriter.println("RUN ssh-keyscan -p 7999 oxfordssh.awsdev.infor.com >> ~/.ssh/known_hosts");
-        printWriter.println("RUN eval $(ssh-agent -s) && \\");
-        printWriter.println("\tssh-add ~/.ssh/id_rsa_teamcity-e2e && \\");
-        printWriter.println(String.format("\tgit clone -b %s ssh://git@oxfordssh.awsdev.infor.com:7999/itech/idm-e2e.git", branchName));
+        printWriter.println("\tapk add git");
+        // printWriter.println("\tapk add git openssh");
+        // printWriter.println("COPY ./id_rsa_teamcity-e2e /root/.ssh/");
+        // printWriter.println("RUN chmod 400 /root/.ssh/id_rsa_teamcity-e2e");
+        // printWriter.println("RUN mkdir -p /root/.ssh");
+        // printWriter.println("RUN ssh-keyscan -p 7999 oxfordssh.awsdev.infor.com >> ~/.ssh/known_hosts");
+        // printWriter.println("RUN eval $(ssh-agent -s) && \\");
+        // printWriter.println("\tssh-add ~/.ssh/id_rsa_teamcity-e2e && \\");
+        // printWriter.println(String.format("\tgit clone -b %s ssh://git@oxfordssh.awsdev.infor.com:7999/itech/idm-e2e.git", branchName));
+        printWriter.println(String.format("RUN git clone -b %s https://github.com/aytech/idm-e2e.git", branchName));
         printWriter.println("");
         printWriter.println("FROM gradle:5.6.2-jdk8");
         printWriter.println("WORKDIR app");

@@ -14,6 +14,8 @@ import static com.idm.e2e.configuration.DockerConstants.DOCKERFILE;
 public class ChromeNode extends Node {
 
     private Process process;
+    private Process chromeProcess;
+    private Process e2eProcess;
     private NodeEntity nodeEntity;
     protected String nodeID;
     private Boolean isFailed;
@@ -28,7 +30,7 @@ public class ChromeNode extends Node {
 
     @Override
     public Process getProcess() {
-        return process;
+        return chromeProcess;
     }
 
     @Override
@@ -45,6 +47,12 @@ public class ChromeNode extends Node {
     public void destroy() {
         if (process != null) {
             process.destroy();
+        }
+        if (chromeProcess != null) {
+            chromeProcess.destroy();
+        }
+        if (e2eProcess != null) {
+            e2eProcess.destroy();
         }
         try {
             Process stopChromeProcess = DockerCommandsResource.getStopContainerCommand(nodeID).start();
@@ -70,14 +78,14 @@ public class ChromeNode extends Node {
             log(process, nodeEntity);
             process.waitFor();
             // Run Chrome
-            process = DockerCommandsResource.runChromeNode(nodeID).start();
-            log(process, nodeEntity);
-            process.waitFor();
+            chromeProcess = DockerCommandsResource.runChromeNode(nodeID).start();
+            log(chromeProcess, nodeEntity);
+            chromeProcess.waitFor();
             // Run tests suite from built image
             String reportsDirectory = filesResource.getNodeDirectory(nodeID).getPath();
-            process = DockerCommandsResource.runE2ENode(tag, reportsDirectory).start();
-            log(process, nodeEntity);
-            process.waitFor();
+            e2eProcess = DockerCommandsResource.runE2ENode(tag, reportsDirectory).start();
+            log(e2eProcess, nodeEntity);
+            e2eProcess.waitFor();
             isComplete = true;
         } catch (IOException | InterruptedException e) {
             isComplete = true;
