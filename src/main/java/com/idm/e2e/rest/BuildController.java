@@ -1,5 +1,7 @@
 package com.idm.e2e.rest;
 
+import com.idm.e2e.data.FilesResource;
+import com.idm.e2e.data.ZipResource;
 import com.idm.e2e.entities.NodeEntity;
 import com.idm.e2e.entities.UserEntity;
 import com.idm.e2e.interfaces.DockerRunnable;
@@ -8,11 +10,17 @@ import com.idm.e2e.processes.ChromeNode;
 import com.idm.e2e.processes.SeleniumGrid;
 import com.idm.e2e.processes.ThreadRunner;
 import com.idm.e2e.services.NodeService;
+import org.apache.commons.io.FileUtils;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import static com.idm.e2e.configuration.AppConstants.*;
@@ -55,10 +63,21 @@ public class BuildController {
 
     @RequestMapping(method = RequestMethod.DELETE, value = URI_NODE_REMOVE)
     public HttpEntity<Boolean> removeNode(HttpServletRequest request, @RequestBody NodeEntity nodeEntity) {
-        if (nodeService.removeNode(nodeEntity)) {
-            return new ResponseEntity<>(true, HttpStatus.NOT_FOUND);
+        BasicNode node = nodeService.getNode(nodeEntity.getId());
+        if (node.getTag() == null) {
+            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(false, HttpStatus.OK);
+        FilesResource filesResource = new FilesResource(node.getTag());
+        try {
+            if (!filesResource.getNodePath().exists()) {
+                return new ResponseEntity<>(nodeService.removeNode(nodeEntity), HttpStatus.OK);
+            }
+            FileUtils.forceDelete(filesResource.getNodePath());
+            return new ResponseEntity<>(nodeService.removeNode(nodeEntity), HttpStatus.OK);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = URI_RUN_E2E)
@@ -74,10 +93,6 @@ public class BuildController {
         } catch (IllegalStateException e) {
             System.out.println("Exception: " + e.getMessage());
         }
-
-        // Run Chrome Node (make sure it's killed after run)
-
-        // Run suite
 
         return new ResponseEntity<>(response, HttpStatus.OK);
 //        if (body.isEmailValid()) {
@@ -112,35 +127,33 @@ public class BuildController {
 //        }
     }
 
-//    @RequestMapping(
-//            method = RequestMethod.GET,
-//            value = URI_DOWNLOAD_REPORT,
-//            params = {"node"}
-//    )
-//    public ResponseEntity<Resource> downloadReport(
-//            HttpServletRequest request,
-//            @RequestParam("node") String nodeID
-//    ) {
-//        E2EConfiguration configuration = new E2EConfiguration();
-//        configuration.setNodeID(nodeID);
-//        ZipResource zipResource = new ZipResource(configuration);
-//        String zipFilePath = zipResource.zipE2EReports();
-//        Path path = Paths.get(zipFilePath);
-//        try {
-//            Resource resource = new UrlResource(path.toUri());
-//            String contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
-//            if (contentType == null) {
-//                contentType = "application/octet-stream";
-//            }
-//            return ResponseEntity.ok()
-//                    .contentType(MediaType.parseMediaType(contentType))
-//                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename())
-//                    .body(resource);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
+    @RequestMapping(method = RequestMethod.GET, value = URI_DOWNLOAD_REPORT, params = {"node"})
+    public ResponseEntity<Resource> downloadReport(
+            HttpServletRequest request,
+            @RequestParam("node") String nodeId
+    ) {
+        BasicNode node = nodeService.getNode(Long.parseLong(nodeId));
+        if (node.getTag() == null) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+        ZipResource zipResource = new ZipResource(node.getTag());
+        String zipFilePath = zipResource.zipE2EReports();
+        Path path = Paths.get(zipFilePath);
+        try {
+            Resource resource = new UrlResource(path.toUri());
+            String contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename())
+                    .body(resource);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 //    @RequestMapping(
 //            method = RequestMethod.GET,

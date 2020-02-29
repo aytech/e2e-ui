@@ -15,8 +15,7 @@ import './runner.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import Accordion from "react-bootstrap/Accordion";
-import Card from "react-bootstrap/Card";
+import { fetchSettings } from "../../actions/settingsActions";
 
 class Runner extends Component {
 
@@ -25,7 +24,7 @@ class Runner extends Component {
   };
 
   fetchStatus = () => {
-    this.props.fetchStatus();
+    this.props.fetchSettings();
   };
 
   render() {
@@ -59,7 +58,7 @@ class Runner extends Component {
             <Button
               variant="info"
               size="lg"
-              onClick={ this.fetchStatus }
+              onClick={ this.props.fetchSettings }
               block>
               <FontAwesomeIcon icon={ faSyncAlt }/>
               <span className="animated-button-text">
@@ -86,6 +85,7 @@ const
 const
   mapDispatchToProps = dispatch => ({
     fetchRunRequest: (request) => dispatch(fetchRunRequest(request)),
+    fetchSettings: () => dispatch(fetchSettings()),
     fetchStatus: () => dispatch(fetchStatus()),
     updateCanBeStopped: (status) => dispatch(updateCanBeStopped(status))
   });

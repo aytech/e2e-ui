@@ -1,6 +1,7 @@
 package com.idm.e2e.data;
 
 import com.idm.e2e.models.E2EConfiguration;
+import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -18,9 +19,14 @@ public class FilesResource {
     private E2EConfiguration configuration;
     private PrintWriter printWriter;
     private FileWriter fileWriter;
+    private String nodeId;
 
     public FilesResource(E2EConfiguration configuration) {
         this.configuration = configuration;
+    }
+
+    public FilesResource(String nodeId) {
+        this.nodeId = nodeId;
     }
 
     public FilesResource() {
@@ -46,17 +52,18 @@ public class FilesResource {
         close();
     }
 
-    @Deprecated
-    public void writeDockerFile(String targetFileName) throws IOException {
-        loadPrintWriter(targetFileName, configuration.getNodeID(), configuration.getBranch());
+    public boolean writeDockerFile(String branchName) throws IOException {
+        loadPrintWriter(branchName);
+        boolean readable = getDockerFile().setReadable(true, false);
+        boolean writable = getDockerFile().setWritable(true, false);
+        boolean executable = getDockerFile().setExecutable(true, false);
+        return readable && writable && executable;
     }
 
-    public void writeDockerFile(String dockerFileName, String nodeId) throws IOException {
-        loadPrintWriter(dockerFileName, nodeId, "master");
-    }
-
-    private void loadPrintWriter(String dockerFileName, String nodeId, String branchName) throws IOException {
-        setFileWriter(dockerFileName, getDockerFile(nodeId));
+    private void loadPrintWriter(String branchName) throws IOException {
+        File file = getDockerFile();
+        fileWriter = new FileWriter(String.format("%s%s%s", file.getParent(), File.separator, DOCKERFILE));
+        printWriter = new PrintWriter(fileWriter);
         printWriter.println("FROM alpine as repository");
         printWriter.println(String.format("LABEL maintainer=\"%s\"", MAINTAINER));
         printWriter.println("WORKDIR app");
@@ -83,8 +90,8 @@ public class FilesResource {
         close();
     }
 
-    public void copyConfigurationFiles(String nodeId) throws IOException {
-        File targetDirectory = getNodeDirectory(nodeId);
+    public void copyRsaFile() throws IOException {
+        File targetDirectory = getNodeDirectory();
         String sourceFile = String.format("/%s/%s", RSA_DIR, RSA_FILE);
         InputStream sourceRSA = FilesResource.class.getResourceAsStream(sourceFile);
 
@@ -109,10 +116,14 @@ public class FilesResource {
         return file;
     }
 
-    public File getNodeDirectory(String nodeId) {
-        File path = getNodePath(nodeId);
+    public File getNodeDirectory() {
+        File path = getNodePath();
         if (!path.exists()) {
-            if (path.mkdir()) {
+            Boolean isCreated = path.mkdir();
+            Boolean isReadable = path.setReadable(true, false);
+            Boolean isWritable = path.setWritable(true, false);
+            Boolean isExecutable = path.setExecutable(true, false);
+            if (isCreated && isReadable && isWritable && isExecutable) {
                 System.out.println(String.format("%s file created", path.getPath()));
             } else {
                 System.out.println(String.format("Failed to create %s file", path.getPath()));
@@ -121,15 +132,27 @@ public class FilesResource {
         return path;
     }
 
-    public File getDockerFile(String nodeId) {
-        File path = getNodeDirectory(nodeId);
+    private File getFileFromNodeDirectory(String fileName) {
+        File path = getNodeDirectory();
         String basePath = String.format(
                 "%s%s%s",
                 path.getAbsolutePath(),
                 File.separator,
-                DOCKERFILE
+                fileName
         );
         return new File(basePath);
+    }
+
+    public File getDockerFile() {
+        return getFileFromNodeDirectory(DOCKERFILE);
+    }
+
+    public File getRsaFile() {
+        return getFileFromNodeDirectory(RSA_FILE);
+    }
+
+    public File getTestReportDirectory() {
+        return getFileFromNodeDirectory(REPORT_DIR);
     }
 
     public String getReportsPath() {
@@ -192,7 +215,7 @@ public class FilesResource {
         return new File(String.format("%s%s%s", basePath, File.separator, subDirectory));
     }
 
-    public File getNodePath(String nodeId) {
+    public File getNodePath() {
         String homeDirectory = System.getProperty("user.home");
         String basePath = String.format(
                 "%s%s%s%s%s",
@@ -216,8 +239,11 @@ public class FilesResource {
         printWriter = new PrintWriter(fileWriter);
     }
 
-    private void setFileWriter(String fileName, File file) throws IOException {
-        fileWriter = new FileWriter(String.format("%s%s%s", file.getParent(), File.separator, fileName));
-        printWriter = new PrintWriter(fileWriter);
+    public void removeDockerFile() throws IOException {
+        FileUtils.forceDelete(getDockerFile());
+    }
+
+    public void removeRsaFile() throws IOException {
+        FileUtils.forceDelete(getRsaFile());
     }
 }

@@ -43,7 +43,6 @@ public class FileSystemConfiguration implements DockerRunnable {
         try {
             fileResource.writeNewConfigurationFile(CONFIGURATION);
             fileResource.writeNewCredentialsFile(CREDENTIALS);
-            fileResource.writeDockerFile(DOCKERFILE);
         } catch (IOException e) {
             System.out.println("Configuration error: " + e);
             e.printStackTrace();

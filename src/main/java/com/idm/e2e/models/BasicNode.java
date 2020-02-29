@@ -50,4 +50,15 @@ public class BasicNode {
     public void setLogs(List<BasicLog> logs) {
         this.logs = logs;
     }
+
+    @Override
+    public String toString() {
+        return "BasicNode{" +
+                "id=" + id +
+                ", tag='" + tag + '\'' +
+                ", status='" + status + '\'' +
+                ", created=" + created +
+                ", logs=" + logs +
+                '}';
+    }
 }

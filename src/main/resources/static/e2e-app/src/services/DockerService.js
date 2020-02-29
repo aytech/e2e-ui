@@ -43,9 +43,8 @@ export default class DockerService {
     return await this.getResource(this.pathRunE2E, data)
   };
 
-  downloadReportZip = async (nodeID) => {
-    const node = nodeID === undefined ? this.getE2eNodeCookie() : nodeID;
-    return await this.getBlob(`${ this.reportZip }?node=${ node }`)
+  downloadReportZip = async (nodeId) => {
+    return await this.getBlob(`${ this.reportZip }?node=${ nodeId }`)
   };
 
   stopProcess = async () => {

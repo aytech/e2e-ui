@@ -87,16 +87,24 @@ public class DockerCommandsResource {
         arguments.add("SCREEN_DEPTH=32");
         arguments.add("-d");
         arguments.add(CHROME_IMAGE);
-        System.out.println("Running: " + getBuilder(arguments).command());
-        System.out.println("Running: " + getBuilder(arguments).toString());
         return getBuilder(arguments);
     }
 
     public static ProcessBuilder runE2ENode(String nodeID, String reportsPath) {
         ArrayList<String> arguments = getNodeArguments(nodeID, reportsPath, DOCKER_REPORTS_PATH);
-        for (String argument : arguments) {
-            System.out.println("Argument: " + argument);
-        }
+        // This should come from settings
+        arguments.add("-e");
+        arguments.add("E2E_BASE_URL=https://nlbavwidm3.infor.com/infor");
+        arguments.add("-e");
+        arguments.add("E2E_ENVIRONMENT=staging");
+        arguments.add("-e");
+        arguments.add("E2E_DOCUMENT_TYPE=AA");
+        arguments.add("-e");
+        arguments.add("E2E_FILE_PATH=/home/gradle/app/1.jpg");
+        arguments.add("-e");
+        arguments.add("E2E_USER=oleg.yapparov@infor.com");
+        arguments.add("-e");
+        arguments.add("E2E_PASSWORD=foo");
         arguments.add(nodeID);
         return getBuilder(arguments);
     }

@@ -9,19 +9,19 @@ import java.util.zip.ZipOutputStream;
 import static com.idm.e2e.configuration.AppConstants.*;
 
 public class ZipResource {
-    private E2EConfiguration configuration;
+    private String nodeId;
 
-    public ZipResource(E2EConfiguration configuration) {
-        this.configuration = configuration;
+    public ZipResource(String nodeId) {
+        this.nodeId = nodeId;
     }
 
     public String zipE2EReports() {
-        FilesResource resource = new FilesResource(configuration);
-        File reportsDirectory = resource.getConfigurationDirectory(REPORT_DIR);
+        FilesResource resource = new FilesResource(nodeId);
+        File reportsDirectory = resource.getTestReportDirectory();
         String zipFile =
                 String.format(
                         "%s%s%s",
-                        resource.getConfigurationDirectory(null),
+                        resource.getNodePath(),
                         File.separator,
                         REPORT_ZIP
                 );
@@ -66,12 +66,12 @@ public class ZipResource {
         fileInputStream.close();
     }
 
-    public Boolean isReportAvailable() {
-        if (configuration.getNodeID() == null) {
-            return false;
-        }
-        FilesResource resource = new FilesResource(configuration);
-        File reportsDirectory = resource.getConfigurationDirectory(REPORT_DIR);
-        return reportsDirectory.exists();
-    }
+//    public Boolean isReportAvailable() {
+//        if (configuration.getNodeID() == null) {
+//            return false;
+//        }
+//        FilesResource resource = new FilesResource(configuration);
+//        File reportsDirectory = resource.getConfigurationDirectory(REPORT_DIR);
+//        return reportsDirectory.exists();
+//    }
 }

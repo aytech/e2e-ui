@@ -83,3 +83,26 @@ export const fetchNode = (nodeId, nodes) => {
       });
   };
 };
+
+export const downloadReportZip = (nodeId) => {
+  return (dispatch) => {
+    dockerService
+      .downloadReportZip(nodeId)
+      .then(blob => {
+        if (blob !== null) {
+          let url = window.URL.createObjectURL(blob);
+          let a = document.createElement('a');
+          a.href = url;
+          a.download = 'e2e_report.zip';
+          a.click();
+        }
+      })
+      .finally(() => {
+        // this.props.updateReportLoading(false);
+      });
+  };
+  // if (this.props.state.isReportAvailable === true) {
+  //   this.props.updateReportLoading(true);
+
+  // }
+};

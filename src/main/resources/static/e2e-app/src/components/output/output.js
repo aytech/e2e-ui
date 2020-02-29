@@ -3,9 +3,10 @@ import { connect } from "react-redux";
 import { ProgressBar } from "./progress";
 import StandardOutput from "../standard-output/standard-output";
 import {
+  downloadReportZip,
   fetchNode,
-  fetchNodeStatus,
-  fetchStopRunningProcess, removeNode,
+  fetchStopRunningProcess,
+  removeNode,
   updateCanBeStopped,
   updateModalOpen,
   updateReportLoading,
@@ -24,6 +25,7 @@ import AppButton from "../app-button/app-button";
 import Badge from "react-bootstrap/Badge";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faDownload,
   faSyncAlt,
   faTrashAlt
 } from '@fortawesome/free-solid-svg-icons';
@@ -39,26 +41,6 @@ class Output extends Component {
 
   closeModal = () => {
     this.props.updateModalOpen(false);
-  };
-
-  downloadReportZip = () => {
-    if (this.props.state.isReportAvailable === true) {
-      this.props.updateReportLoading(true);
-      this.dockerService
-        .downloadReportZip()
-        .then(blob => {
-          if (blob !== null) {
-            let url = window.URL.createObjectURL(blob);
-            let a = document.createElement('a');
-            a.href = url;
-            a.download = 'e2e_report.zip';
-            a.click();
-          }
-        })
-        .finally(() => {
-          this.props.updateReportLoading(false);
-        });
-    }
   };
 
   stopRunningProcess = () => {
@@ -91,6 +73,8 @@ class Output extends Component {
           return <p key={ id } className="text-danger">{ log }</p>;
         case 'SKIPPED':
           return <p key={ id } className="text-warning">{ log }</p>;
+        case 'PASSED':
+          return <p key={ id } className="text-success">{ log }</p>;
         default:
           return <p key={ id } className="text-info">{ log }</p>;
       }
@@ -112,9 +96,16 @@ class Output extends Component {
             <Button className="node-refresh" onClick={ () => {
               this.props.fetchNode(id, nodes)
             } }>
-              <FontAwesomeIcon icon={ faSyncAlt } spin={ isNodeUpdateProgress === true }/>
+              <FontAwesomeIcon
+                icon={ faSyncAlt }
+                spin={ isNodeUpdateProgress === true }/>
             </Button>
             }
+            <Button className="fa-pull-right" onClick={ () => {
+              this.props.downloadReportZip(id)
+            } }>
+              <FontAwesomeIcon icon={ faDownload }/>
+            </Button>
             <Button className="fa-pull-right" onClick={ () => {
               this.props.removeNode(id, nodes)
             } }>
@@ -137,6 +128,7 @@ class Output extends Component {
           { nodes.map(nodeView) }
         </Accordion>
         <OutputMode/>
+
         <div className="form-group">
           <AppButton
             className="btn btn-primary btn-lg inline"
@@ -173,6 +165,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  downloadReportZip: (nodeId) => dispatch(downloadReportZip(nodeId)),
   fetchNode: (nodeId, nodes) => dispatch(fetchNode(nodeId, nodes)),
   fetchStopRunningProcess: () => dispatch(fetchStopRunningProcess()),
   updateCanBeStopped: (status) => dispatch(updateCanBeStopped(status)),
