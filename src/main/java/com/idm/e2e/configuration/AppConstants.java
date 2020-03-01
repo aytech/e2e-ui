@@ -17,6 +17,8 @@ public class AppConstants {
     public static final String RSA_DIR = "keys";
     public static final String RSA_FILE = "id_rsa_teamcity-e2e";
 
+    public static final String NODE_E2E_SUFFIX = "_suite";
+
     public static final String URI_ACTIVATE = "/activate";
 
     public static final String URI_CODE_RESET = "/code/reset";
@@ -26,7 +28,6 @@ public class AppConstants {
     public static final String URI_BUILD_STATUS = "/build/status";
     public static final String URI_CONTACT = "/contact";
     public static final String URI_DOWNLOAD_REPORT = "/build/report";
-    public static final String URI_DOWNLOAD_REPORT_PATH = "/download/report";
     public static final String URI_GMAIL_CHECK_CREDENTIALS = "/gmail/credentials";
     public static final String URI_GMAIL_RENEW_CREDENTIALS = "/gmail/credentials/renew";
     public static final String URI_GMAIL_SEND = "/gmail/send";

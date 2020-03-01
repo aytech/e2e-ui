@@ -4,10 +4,11 @@ import java.util.Date;
 import java.util.List;
 
 @SuppressWarnings("unused")
-public class BasicNode {
+public class JobNode {
     private long id;
     private String tag;
     private String status;
+    private Boolean stoppable;
     private Date created;
     private List<BasicLog> logs;
 
@@ -35,6 +36,14 @@ public class BasicNode {
         this.status = status;
     }
 
+    public Boolean getStoppable() {
+        return stoppable;
+    }
+
+    public void setStoppable(Boolean stoppable) {
+        this.stoppable = stoppable;
+    }
+
     public Date getCreated() {
         return created;
     }
@@ -53,7 +62,7 @@ public class BasicNode {
 
     @Override
     public String toString() {
-        return "BasicNode{" +
+        return "JobNode{" +
                 "id=" + id +
                 ", tag='" + tag + '\'' +
                 ", status='" + status + '\'' +

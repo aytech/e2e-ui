@@ -3,13 +3,12 @@ package com.idm.e2e.processes;
 import com.idm.e2e.data.FilesResource;
 import com.idm.e2e.entities.*;
 import com.idm.e2e.resources.DockerCommandsResource;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
+
+import static com.idm.e2e.configuration.AppConstants.NODE_E2E_SUFFIX;
 
 @Transactional
 public class ChromeNode extends Node {
@@ -28,7 +27,7 @@ public class ChromeNode extends Node {
         isAlive = true;
         isFailed = false;
         nodeId = String.format("chrome_%s", DockerCommandsResource.getNewNodeID());
-        e2eNodeTag = String.format("%s_suite", nodeId);
+        e2eNodeTag = String.format("%s%s", nodeId, NODE_E2E_SUFFIX);
         filesResource = new FilesResource(nodeId);
         nodeEntity = addNode(userEntity, nodeId);
     }
@@ -77,7 +76,6 @@ public class ChromeNode extends Node {
                 buildDockerImage();
                 runChromeNode();
                 runE2eNode();
-                updateReportsDirectoryPermissions();
                 filesResource.removeDockerFile();
                 filesResource.removeRsaFile();
             }
@@ -109,18 +107,5 @@ public class ChromeNode extends Node {
         e2eProcess = DockerCommandsResource.runE2ENode(e2eNodeTag, reportsDirectory).start();
         log(e2eProcess, nodeEntity);
         e2eProcess.waitFor();
-    }
-
-    private void updateReportsDirectoryPermissions() {
-        final Iterator<File> files = FileUtils.iterateFilesAndDirs(
-                filesResource.getNodePath(),
-                new WildcardFileFilter("*.*"),
-                new WildcardFileFilter("*"));
-        while (files.hasNext()) {
-            File file = files.next();
-            file.setReadable(true, false);
-            file.setWritable(true, false);
-            file.setExecutable(true, false);
-        }
     }
 }

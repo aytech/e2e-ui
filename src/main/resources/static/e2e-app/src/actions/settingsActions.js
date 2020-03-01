@@ -102,11 +102,5 @@ export const fetchSettings = () => {
           dispatch(updateLoginWarn(true));
         }
       })
-      .catch(error => {
-        console.log('Error ', error)
-      })
-      .finally(() => {
-        console.log('Fetched settings')
-      })
   }
 };

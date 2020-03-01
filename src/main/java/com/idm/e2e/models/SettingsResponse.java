@@ -5,7 +5,7 @@ import java.util.*;
 public class SettingsResponse {
     private List<BasicVariable> variables;
     private List<BasicVariable> systemVariables;
-    private List<BasicNode> nodes;
+    private List<JobNode> nodes;
 
     public SettingsResponse() {
         this.variables = new ArrayList<>();
@@ -27,11 +27,11 @@ public class SettingsResponse {
         this.systemVariables = systemVariables;
     }
 
-    public List<BasicNode> getNodes() {
+    public List<JobNode> getNodes() {
         return nodes;
     }
 
-    public void setNodes(List<BasicNode> nodes) {
+    public void setNodes(List<JobNode> nodes) {
         this.nodes = nodes;
     }
 }

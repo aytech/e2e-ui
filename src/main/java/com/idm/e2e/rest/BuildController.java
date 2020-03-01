@@ -9,6 +9,7 @@ import com.idm.e2e.models.*;
 import com.idm.e2e.processes.ChromeNode;
 import com.idm.e2e.processes.SeleniumGrid;
 import com.idm.e2e.processes.ThreadRunner;
+import com.idm.e2e.services.DockerService;
 import com.idm.e2e.services.NodeService;
 import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.Resource;
@@ -30,9 +31,11 @@ import static com.idm.e2e.configuration.AppConstants.*;
 public class BuildController {
 
     final NodeService nodeService;
+    final DockerService dockerService;
 
-    public BuildController(NodeService nodeService) {
+    public BuildController(NodeService nodeService, DockerService dockerService) {
         this.nodeService = nodeService;
+        this.dockerService = dockerService;
     }
 
     @RequestMapping(
@@ -57,13 +60,21 @@ public class BuildController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = URI_NODE, params = {"node"})
-    public HttpEntity<BasicNode> getNodeStatus(HttpServletRequest request, @RequestParam("node") String nodeId) {
-        return new ResponseEntity<>(nodeService.getNode(Long.parseLong(nodeId)), HttpStatus.OK);
+    public HttpEntity<JobNode> getNodeStatus(HttpServletRequest request, @RequestParam("node") String nodeId) {
+        JobNode node = nodeService.getNode(Long.parseLong(nodeId));
+        if (node.getTag() == null) {
+            return new ResponseEntity<>(node, HttpStatus.NOT_FOUND);
+        }
+        String e2eContainerName = String.format("%s%s", node.getTag(), NODE_E2E_SUFFIX);
+        boolean isNodeContainerRunning = dockerService.getNodeRunningStatus(node.getTag());
+        boolean isSuiteContainerRunning = dockerService.getNodeRunningStatus(e2eContainerName);
+        node.setStoppable(isNodeContainerRunning || isSuiteContainerRunning);
+        return new ResponseEntity<>(node, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = URI_NODE_REMOVE)
     public HttpEntity<Boolean> removeNode(HttpServletRequest request, @RequestBody NodeEntity nodeEntity) {
-        BasicNode node = nodeService.getNode(nodeEntity.getId());
+        JobNode node = nodeService.getNode(nodeEntity.getId());
         if (node.getTag() == null) {
             return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
         }
@@ -95,36 +106,6 @@ public class BuildController {
         }
 
         return new ResponseEntity<>(response, HttpStatus.OK);
-//        if (body.isEmailValid()) {
-//            String nodeID = DockerCommandsResource.getNewE2ENode();
-//            E2EConfiguration configuration = new E2EConfiguration();
-//            configuration.setUser(body.getEmail());
-//            configuration.setPassword(body.getPassword());
-//            configuration.setBranch(body.getBranch());
-//            configuration.setNodeID(nodeID);
-//            configuration.setDocumentType(body.getDocumentType());
-//            configuration.setRequestHost(request.getRequestURL().toString());
-//            StatusStorage.setStatus(nodeID);
-//
-//            ArrayList<DockerRunnable> jobs = new ArrayList<>();
-//            jobs.add(new FileSystemConfiguration(configuration));
-//            jobs.add(new DockerBuild(configuration));
-//            jobs.add(new DockerRun(configuration));
-//
-//            try {
-//                new ThreadRunner(jobs, nodeID).start();
-//            } catch (IllegalStateException e) {
-//                System.out.println("Can't run jobs: " + e.getMessage());
-//                e.printStackTrace();
-//            }
-//            response.setNodeID(nodeID);
-//            response.setValid(true);
-//            return new ResponseEntity<>(response, HttpStatus.OK);
-//        } else {
-//            response.setValid(false);
-//            response.addError("Enter valid email");
-//            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-//        }
     }
 
     @RequestMapping(method = RequestMethod.GET, value = URI_DOWNLOAD_REPORT, params = {"node"})
@@ -132,7 +113,7 @@ public class BuildController {
             HttpServletRequest request,
             @RequestParam("node") String nodeId
     ) {
-        BasicNode node = nodeService.getNode(Long.parseLong(nodeId));
+        JobNode node = nodeService.getNode(Long.parseLong(nodeId));
         if (node.getTag() == null) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
@@ -155,20 +136,24 @@ public class BuildController {
         return null;
     }
 
-//    @RequestMapping(
-//            method = RequestMethod.GET,
-//            value = URI_STOP_PROCESS,
-//            params = {"node"}
-//    )
-//    public ResponseEntity<DockerStopResponse> stopTest(@RequestParam("node") String nodeID) {
-//        DockerStopResponse response = new DockerStopResponse(nodeID);
-//        DockerResource dockerUtility = new DockerResource(String.format(DOCKER_E2E_NODE, nodeID));
-//
-//        List<String> containers = new ArrayList<>();
-//        containers.add(String.format(DOCKER_CHROME_NODE, nodeID));
-//        containers.add(String.format(DOCKER_E2E_NODE, nodeID));
-//        dockerUtility.stopRunningContainers(containers);
-//
-//        return new ResponseEntity<>(response, HttpStatus.OK);
-//    }
+    @RequestMapping(method = RequestMethod.GET, value = URI_STOP_PROCESS, params = {"node"})
+    public ResponseEntity<GenericResponse> stopTest(@RequestParam("node") String nodeId) {
+        GenericResponse response = new GenericResponse();
+        JobNode node = nodeService.getNode(Long.parseLong(nodeId));
+        if (node.getTag() == null) {
+            response.setSuccess(false);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        String e2eContainerName = String.format("%s%s", node.getTag(), NODE_E2E_SUFFIX);
+        boolean isNodeContainerRunning = dockerService.getNodeRunningStatus(node.getTag());
+        boolean isSuiteContainerRunning = dockerService.getNodeRunningStatus(e2eContainerName);
+        if (isSuiteContainerRunning) {
+            dockerService.stopNodeContainer(e2eContainerName);
+        }
+        if (isNodeContainerRunning) {
+            dockerService.stopNodeContainer(node.getTag());
+        }
+        response.setSuccess(true);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

@@ -4,7 +4,7 @@ import com.idm.e2e.entities.NodeEntity;
 import com.idm.e2e.entities.NodeLogEntity;
 import com.idm.e2e.entities.UserEntity;
 import com.idm.e2e.models.BasicLog;
-import com.idm.e2e.models.BasicNode;
+import com.idm.e2e.models.JobNode;
 import com.idm.e2e.repositories.NodeLogRepository;
 import com.idm.e2e.repositories.NodeRepository;
 import org.springframework.stereotype.Service;
@@ -24,13 +24,13 @@ public class NodeService {
         this.nodeLogRepository = nodeLogRepository;
     }
 
-    public List<BasicNode> getNodes(UserEntity userEntity) {
+    public List<JobNode> getNodes(UserEntity userEntity) {
         return basicNodes(nodeRepository.findUserNodes(userEntity.getId()));
     }
 
-    public BasicNode getNode(long nodeId) {
+    public JobNode getNode(long nodeId) {
         Optional<NodeEntity> nodeEntity = nodeRepository.findById(nodeId);
-        return nodeEntity.map(this::basicNode).orElseGet(BasicNode::new);
+        return nodeEntity.map(this::getJobNode).orElseGet(JobNode::new);
     }
 
     public boolean removeNode(NodeEntity nodeEntity) {
@@ -39,16 +39,16 @@ public class NodeService {
         return nodeRepository.findById(nodeEntity.getId()).isPresent();
     }
 
-    private List<BasicNode> basicNodes(List<NodeEntity> nodeEntities) {
-        List<BasicNode> basicNodes = new ArrayList<>();
+    private List<JobNode> basicNodes(List<NodeEntity> nodeEntities) {
+        List<JobNode> basicNodes = new ArrayList<>();
         for (NodeEntity nodeEntity : nodeEntities) {
-            basicNodes.add(basicNode(nodeEntity));
+            basicNodes.add(getJobNode(nodeEntity));
         }
         return basicNodes;
     }
 
-    private BasicNode basicNode(NodeEntity nodeEntity) {
-        BasicNode basicNode = new BasicNode();
+    private JobNode getJobNode(NodeEntity nodeEntity) {
+        JobNode basicNode = new JobNode();
         basicNode.setId(nodeEntity.getId());
         basicNode.setTag(nodeEntity.getNode());
         basicNode.setStatus(nodeEntity.getStatus());

@@ -1,41 +1,47 @@
 import {
-  UPDATE_CAN_BE_STOPPED,
   UPDATE_EXECUTION_TIME,
   UPDATE_FAILED_OUTPUT,
-  UPDATE_MODAL_OPEN,
-  UPDATE_NODE_REMOVE_PROGRESS, UPDATE_NODE_UPDATE_PROGRESS, UPDATE_NODES,
+  UPDATE_NODE_REMOVE_PROGRESS,
+  UPDATE_NODE_UPDATE_PROGRESS,
+  UPDATE_NODES,
   UPDATE_PASSED_OUTPUT,
-  UPDATE_REPORT_LOADING,
-  UPDATE_SKIPPED_OUTPUT,
-  UPDATE_STOP_LOADING
+  UPDATE_SKIPPED_OUTPUT
 } from "./constants";
 import DockerService from "../services/DockerService";
 import OutputService from "../services/OutputService";
+import {
+  updateAuthenticatedStatus,
+  updateLoginModalStatus,
+  updateLoginWarn,
+  updateLoginWarnMessage
+} from "./authActions";
+import { HttpStatuses } from "../constants/application";
 
 const dockerService = new DockerService();
 const outputService = new OutputService();
 
-export const updateCanBeStopped = (status) => ({ type: UPDATE_CAN_BE_STOPPED, status });
 export const updateExecutionTime = (time) => ({ type: UPDATE_EXECUTION_TIME, time });
 export const updateNodes = (nodes) => ({ type: UPDATE_NODES, nodes });
-export const updateReportLoading = (status) => ({ type: UPDATE_REPORT_LOADING, status });
-export const updateStopProcessLoading = (status) => ({ type: UPDATE_STOP_LOADING, status });
-export const updateModalOpen = (status) => ({ type: UPDATE_MODAL_OPEN, status });
 export const updateNodeRemoveProgress = (status) => ({ type: UPDATE_NODE_REMOVE_PROGRESS, status });
 export const updateNodeUpdateProgress = (status) => ({ type: UPDATE_NODE_UPDATE_PROGRESS, status });
 export const updatePassedOutput = (status) => ({ type: UPDATE_PASSED_OUTPUT, status });
 export const updateFailedOutput = (status) => ({ type: UPDATE_FAILED_OUTPUT, status });
 export const updateSkippedOutput = (status) => ({ type: UPDATE_SKIPPED_OUTPUT, status });
 
-export const fetchStopRunningProcess = () => {
+export const stopNode = (nodeId) => {
   return (dispatch) => {
-    dispatch(updateModalOpen(false));
-    dispatch(updateStopProcessLoading(true));
     dockerService
-      .stopProcess()
+      .stopProcess(nodeId)
+      .then(response => {
+        const { status } = response;
+        if (status === HttpStatuses.UNAUTHORIZED) {
+          dispatch(updateAuthenticatedStatus(false));
+          dispatch(updateLoginModalStatus(true));
+          dispatch(updateLoginWarnMessage('Please login'));
+          dispatch(updateLoginWarn(true));
+        }
+      })
       .finally(() => {
-        dispatch(updateCanBeStopped(false));
-        dispatch(updateStopProcessLoading(false));
       });
   }
 };
@@ -88,6 +94,19 @@ export const downloadReportZip = (nodeId) => {
   return (dispatch) => {
     dockerService
       .downloadReportZip(nodeId)
+      .then(response => {
+        const {status} = response;
+        if (status === HttpStatuses.OK) {
+          return response.blob();
+        }
+        if (status === HttpStatuses.UNAUTHORIZED) {
+          dispatch(updateAuthenticatedStatus(false));
+          dispatch(updateLoginModalStatus(true));
+          dispatch(updateLoginWarnMessage('Please login'));
+          dispatch(updateLoginWarn(true));
+        }
+        return null;
+      })
       .then(blob => {
         if (blob !== null) {
           let url = window.URL.createObjectURL(blob);
@@ -98,11 +117,6 @@ export const downloadReportZip = (nodeId) => {
         }
       })
       .finally(() => {
-        // this.props.updateReportLoading(false);
       });
   };
-  // if (this.props.state.isReportAvailable === true) {
-  //   this.props.updateReportLoading(true);
-
-  // }
 };

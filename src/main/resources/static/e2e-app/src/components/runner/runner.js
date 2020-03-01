@@ -4,11 +4,7 @@ import {
   faCog,
   faSyncAlt
 } from '@fortawesome/free-solid-svg-icons';
-import {
-  fetchRunRequest,
-  fetchStatus,
-  updateCanBeStopped
-} from "../../actions/runnerActions";
+import { runSuite } from "../../actions/runnerActions";
 import Jumbotron from "react-bootstrap/Jumbotron";
 import Button from "react-bootstrap/Button";
 import './runner.css';
@@ -43,7 +39,7 @@ class Runner extends Component {
               size="lg"
               className="runner"
               disabled={ !isAuthenticated || buildInProgress }
-              onClick={ this.runE2E }
+              onClick={ this.props.runSuite }
               block>
               <FontAwesomeIcon
                 icon={ faCog }
@@ -84,10 +80,8 @@ const
   });
 const
   mapDispatchToProps = dispatch => ({
-    fetchRunRequest: (request) => dispatch(fetchRunRequest(request)),
-    fetchSettings: () => dispatch(fetchSettings()),
-    fetchStatus: () => dispatch(fetchStatus()),
-    updateCanBeStopped: (status) => dispatch(updateCanBeStopped(status))
+    runSuite: () => dispatch(runSuite()),
+    fetchSettings: () => dispatch(fetchSettings())
   });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Runner);
