@@ -45,9 +45,9 @@ public abstract class Node implements DockerRunnable {
         }
     }
 
-    private static SessionFactory sessionFactory;
+    protected static SessionFactory sessionFactory;
 
-    private static Session getSession() {
+    protected static Session getSession() {
         if (sessionFactory == null) {
             sessionFactory = new Configuration()
                     .configure("hibernate.cfg.xml")

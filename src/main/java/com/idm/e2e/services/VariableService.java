@@ -10,9 +10,7 @@ import com.idm.e2e.repositories.UserRepository;
 import com.idm.e2e.repositories.VariableRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class VariableService {
@@ -80,5 +78,36 @@ public class VariableService {
             variables.add(basicVariable(variable));
         }
         return variables;
+    }
+
+    private List<BasicVariable> addDefaultSystemVariables() {
+        List<BasicVariable> collection = new ArrayList<>();
+
+        BasicVariable host = new BasicVariable();
+        host.setKey(BasicVariable.DefaultVariableName.E2E_ENVIRONMENT.toString());
+        host.setValue("staging");
+        host.setType(BasicVariable.VariableType.TEXT);
+
+        BasicVariable documentType = new BasicVariable();
+        documentType.setKey(BasicVariable.DefaultVariableName.E2E_DOCUMENT_TYPE.toString());
+        documentType.setValue("AA");
+        documentType.setType(BasicVariable.VariableType.TEXT);
+
+        BasicVariable filePath = new BasicVariable();
+        filePath.setKey(BasicVariable.DefaultVariableName.E2E_FILE_PATH.toString());
+        filePath.setValue("/home/gradle/app/1.jpg");
+        filePath.setType(BasicVariable.VariableType.TEXT);
+
+        BasicVariable user = new BasicVariable();
+        user.setKey(BasicVariable.DefaultVariableName.E2E_USER.toString());
+        user.setValue("oleg.yapparov@infor.com");
+        user.setType(BasicVariable.VariableType.EMAIL);
+
+        BasicVariable password = new BasicVariable();
+        password.setKey(BasicVariable.DefaultVariableName.E2E_PASSWORD.toString());
+        password.setValue("dummy");
+        password.setType(BasicVariable.VariableType.PASSWORD);
+
+        return collection;
     }
 }

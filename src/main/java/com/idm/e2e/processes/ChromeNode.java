@@ -3,6 +3,7 @@ package com.idm.e2e.processes;
 import com.idm.e2e.data.FilesResource;
 import com.idm.e2e.entities.*;
 import com.idm.e2e.resources.DockerCommandsResource;
+import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
@@ -49,7 +50,6 @@ public class ChromeNode extends Node {
 
     @Override
     public void destroy() {
-        System.out.println("Destroy called");
         try {
             Process stopChromeProcess = DockerCommandsResource.getStopContainerCommand(nodeId).start();
             stopChromeProcess.waitFor();
@@ -73,14 +73,16 @@ public class ChromeNode extends Node {
     public void run() {
         try {
             if (filesResource.writeDockerFile("master")) {
-                buildDockerImage();
-                runChromeNode();
-                runE2eNode();
+//                buildDockerImage();
+//                runChromeNode();
+//                runE2eNode();
                 filesResource.removeDockerFile();
                 filesResource.removeRsaFile();
             }
+            Session session = getSession();
+
             isAlive = false;
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             isFailed = true;
             isAlive = false;
