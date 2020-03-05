@@ -25,10 +25,6 @@ public class VariableEntity implements VariablesEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
-    @JoinColumn(name = "type_id", referencedColumnName = "id")
-    private VariableDataTypeEntity dataType;
-
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created")
@@ -72,14 +68,6 @@ public class VariableEntity implements VariablesEntity {
 
     public void setUser(UserEntity user) {
         this.user = user;
-    }
-
-    public VariableDataTypeEntity getDataType() {
-        return dataType;
-    }
-
-    public void setDataType(VariableDataTypeEntity dataType) {
-        this.dataType = dataType;
     }
 
     public Date getCreated() {

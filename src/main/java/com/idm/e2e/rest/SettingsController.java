@@ -62,6 +62,7 @@ public class SettingsController {
         response.setVariables(variableService.getCustomVariables(user));
         response.setSystemVariables(variableService.getSystemVariables());
         response.setNodes(nodeService.getNodes(user));
+        response.setSystem(user.getRole().equals(UserEntity.Roles.ADMIN.toString()));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

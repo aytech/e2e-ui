@@ -18,6 +18,11 @@ import java.util.List;
 @Table(name = "USERS")
 public class UserEntity implements UserDetails {
 
+    public enum Roles {
+        ADMIN,
+        USER
+    }
+
     public UserEntity() {
     }
 

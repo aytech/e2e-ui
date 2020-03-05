@@ -1,6 +1,11 @@
 import {
+  UPDATE_SYSTEM,
+  UPDATE_SYSTEM_KEY,
+  UPDATE_SYSTEM_VALUE,
   UPDATE_SYSTEM_VARIABLES,
   UPDATE_VARIABLE_KEY,
+  UPDATE_VARIABLE_SYSTEM_TYPE,
+  UPDATE_VARIABLE_TYPE,
   UPDATE_VARIABLE_VALUE,
   UPDATE_VARIABLES
 } from "./constants";
@@ -13,7 +18,12 @@ import {
 import SettingsService from "../services/SettingsService";
 import { updateNodes } from "./outputActions";
 
+export const updateSystem = (isSystem) => ({ type: UPDATE_SYSTEM, isSystem });
+export const updateSystemKey = (key) => ({ type: UPDATE_SYSTEM_KEY, key });
+export const updateSystemValue = (value) => ({ type: UPDATE_SYSTEM_VALUE, value });
 export const updateSystemVariables = (variables) => ({ type: UPDATE_SYSTEM_VARIABLES, variables });
+export const updateSystemType = (newType) => ({ type: UPDATE_VARIABLE_SYSTEM_TYPE, newType });
+export const updateType = (newType) => ({ type: UPDATE_VARIABLE_TYPE, newType });
 export const updateVariableKey = (key) => ({ type: UPDATE_VARIABLE_KEY, key });
 export const updateVariables = (variables) => ({ type: UPDATE_VARIABLES, variables });
 export const updateVariableValue = (value) => ({ type: UPDATE_VARIABLE_VALUE, value });
@@ -88,13 +98,15 @@ export const fetchSettings = () => {
           nodes,
           status,
           systemVariables,
-          variables
+          variables,
+          system
         } = response;
         if (status === 200) {
           dispatch(updateAuthenticatedStatus(true));
           dispatch(updateSystemVariables(systemVariables));
           dispatch(updateVariables(variables));
           dispatch(updateNodes(nodes));
+          dispatch(updateSystem(system));
         } else if (status === 401) {
           dispatch(updateAuthenticatedStatus(false));
           dispatch(updateLoginModalStatus(true));

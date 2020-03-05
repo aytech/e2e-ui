@@ -20,11 +20,6 @@ public class SystemVariableEntity implements VariablesEntity {
     @Column(name = "value")
     private String value;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
-    @JoinColumn(name = "type_id", referencedColumnName = "id")
-    private VariableDataTypeEntity dataType;
-
-
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created")
@@ -55,14 +50,6 @@ public class SystemVariableEntity implements VariablesEntity {
 
     public void setValue(String value) {
         this.value = value;
-    }
-
-    public VariableDataTypeEntity getDataType() {
-        return dataType;
-    }
-
-    public void setDataType(VariableDataTypeEntity dataType) {
-        this.dataType = dataType;
     }
 
     public Date getCreated() {

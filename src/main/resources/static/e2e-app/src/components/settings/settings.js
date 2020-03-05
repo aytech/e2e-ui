@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import {
   faEdit,
-  faPlusCircle,
   faTrashAlt
 } from '@fortawesome/free-solid-svg-icons';
 import { connect } from "react-redux";
@@ -23,12 +22,17 @@ import {
 import {
   removeVariable,
   saveVariable,
+  updateSystemKey,
+  updateSystemType,
+  updateSystemValue,
   updateSystemVariables,
+  updateType,
   updateVariable,
   updateVariableKey,
   updateVariables,
   updateVariableValue
 } from "../../actions/settingsActions";
+import NewVariableForm from "./newVariableForm";
 
 class Settings extends Component {
 
@@ -60,6 +64,22 @@ class Settings extends Component {
     this.props.updateVariableKey(event.target.value);
   };
 
+  onSystemKeyChange = (event) => {
+    this.props.updateSystemKey(event.target.value);
+  };
+
+  onSystemValueChange = (event) => {
+    this.props.updateSystemValue(event.target.value);
+  };
+
+  onSystemTypeChange = (event) => {
+    this.props.updateSystemType(event.target.value);
+  };
+
+  onTypeChange = (event) => {
+    this.props.updateType(event.target.value);
+  };
+
   onValueChange = (event) => {
     this.props.updateVariableValue(event.target.value);
   };
@@ -69,6 +89,10 @@ class Settings extends Component {
     if (this.validValue(key) && this.validValue(value)) {
       this.props.saveVariable(key, value, variables);
     }
+  };
+
+  createSystemVariable = () => {
+    console.log('Creating system variable');
   };
 
   updateVariable = (position) => {
@@ -94,19 +118,17 @@ class Settings extends Component {
     return value !== undefined && value.trim() !== '';
   };
 
-  onKeyDown = (event) => {
-    if (event.key === 'Enter') {
-      this.createVariable();
-    }
-  };
-
   render() {
     const {
       key,
+      systemKey,
+      systemValue,
       systemVariables,
       value,
-      variables
+      variables,
+      system
     } = this.props.settings;
+
     return (
       <React.Fragment>
         <PageHeader/>
@@ -127,6 +149,7 @@ class Settings extends Component {
             </small>
           </p>
           <hr/>
+          { system === false &&
           <div className="system-vars list-group">
             { systemVariables.map((systemVariable, index) => (
               <span className="list-group-item list-group-item-action active" key={ index }>
@@ -134,6 +157,22 @@ class Settings extends Component {
               </span>
             )) }
           </div>
+          }
+          { system === true &&
+          <NewVariableForm
+            key={ systemKey }
+            onKeyChange={ this.onSystemKeyChange }
+            onKeyDown={ (event) => {
+              if (event.key === 'Enter') {
+                this.createSystemVariable();
+              }
+            } }
+            onSubmit={ this.createSystemVariable }
+            onTypeChange={ this.onSystemTypeChange }
+            onValueChange={ this.onSystemValueChange }
+            value={ systemValue }
+          />
+          }
           <h4>Custom variables</h4>
           <hr/>
           <Form>
@@ -179,37 +218,19 @@ class Settings extends Component {
                 </Form.Row>
               </Form.Group>
             )) }
-            <Form.Group className="var-group">
-              <Form.Row>
-                <Col xs={ 12 } sm={ 3 } md={ 3 } lg={ 3 }>
-                  <FormGroup>
-                    <Form.Control
-                      type="text"
-                      placeholder="Variable name"
-                      value={ key }
-                      onChange={ this.onKeyChange }
-                      onKeyDown={ this.onKeyDown }/>
-                  </FormGroup>
-                </Col>
-                <Col xs={ 12 } sm={ 5 } md={ 6 } lg={ 7 }>
-                  <FormGroup>
-                    <Form.Control
-                      type="text"
-                      placeholder="Variable value"
-                      value={ value }
-                      onChange={ this.onValueChange }
-                      onKeyDown={ this.onKeyDown }/>
-                  </FormGroup>
-                </Col>
-                <Col xs={ 12 } sm={ 4 } md={ 3 } lg={ 2 }>
-                  <FormGroup>
-                    <Button variant="success" onClick={ this.createVariable }>
-                      <FontAwesomeIcon icon={ faPlusCircle }/>
-                    </Button>
-                  </FormGroup>
-                </Col>
-              </Form.Row>
-            </Form.Group>
+            <NewVariableForm
+              key={ key }
+              onKeyChange={ this.onKeyChange }
+              onKeyDown={ (event) => {
+                if (event.key === 'Enter') {
+                  this.createVariable();
+                }
+              } }
+              onSubmit={ this.createVariable }
+              onTypeChange={ this.onTypeChange }
+              onValueChange={ this.onValueChange }
+              value={ value }
+            />
           </Form>
         </Container>
       </React.Fragment>
@@ -229,6 +250,10 @@ const mapDispatchToProps = dispatch => ({
   updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status)),
   updateLoginWarn: (status) => dispatch(updateLoginWarn(status)),
   updateLoginWarnMessage: (message) => dispatch(updateLoginWarnMessage(message)),
+  updateSystemKey: (key) => dispatch(updateSystemKey(key)),
+  updateSystemType: (type) => dispatch(updateSystemType(type)),
+  updateSystemValue: (value) => dispatch(updateSystemValue(value)),
+  updateType: (type) => dispatch(updateType(type)),
   updateVariable: (id, key, value) => dispatch(updateVariable(id, key, value)),
   updateVariables: (variables) => dispatch(updateVariables(variables)),
   updateSystemVariables: (variables) => dispatch(updateSystemVariables(variables)),

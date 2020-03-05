@@ -34,7 +34,12 @@ const initialState = {
   },
   settings: {
     key: '',
+    system: false,
+    systemKey: '',
+    systemType: 'text',
+    systemValue: '',
     systemVariables: [],
+    type: 'text',
     value: '',
     variables: []
   }

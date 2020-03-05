@@ -6,6 +6,7 @@ public class SettingsResponse {
     private List<BasicVariable> variables;
     private List<BasicVariable> systemVariables;
     private List<JobNode> nodes;
+    private boolean system;
 
     public SettingsResponse() {
         this.variables = new ArrayList<>();
@@ -33,5 +34,13 @@ public class SettingsResponse {
 
     public void setNodes(List<JobNode> nodes) {
         this.nodes = nodes;
+    }
+
+    public boolean isSystem() {
+        return system;
+    }
+
+    public void setSystem(boolean system) {
+        this.system = system;
     }
 }
