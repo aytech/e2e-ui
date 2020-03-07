@@ -41,8 +41,11 @@ public class AppConstants {
     public static final String URI_SETTINGS = "/settings";
     public static final String URI_STOP_PROCESS = "/build/stop";
     public static final String URI_VAR_CREATE = "/var/create";
+    public static final String URI_VAR_SYS_CREATE = "/var/system/create";
     public static final String URI_VAR_REMOVE = "/var/remove";
+    public static final String URI_VAR_SYS_REMOVE = "/var/system/remove";
     public static final String URI_VAR_UPDATE = "/var/update";
+    public static final String URI_VAR_SYS_UPDATE = "/var/system/update";
 
     public static final String ROLE_ADMIN = "ADMIN";
     public static final String ROLE_USER = "USER";

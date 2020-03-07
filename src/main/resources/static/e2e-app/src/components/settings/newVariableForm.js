@@ -8,7 +8,7 @@ import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 
 const NewVariableForm = (props) => {
   const {
-    key,
+    name,
     onKeyChange,
     onKeyDown,
     onSubmit,
@@ -16,6 +16,7 @@ const NewVariableForm = (props) => {
     onValueChange,
     value
   } = props;
+
   return (
     <Form.Group className="var-group">
       <Form.Row>
@@ -24,7 +25,7 @@ const NewVariableForm = (props) => {
             <Form.Control
               type="text"
               placeholder="Variable name"
-              value={ key }
+              value={ name }
               onChange={ onKeyChange }
               onKeyDown={ onKeyDown }/>
           </Form.Group>

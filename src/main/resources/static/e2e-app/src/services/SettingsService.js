@@ -6,9 +6,9 @@ export default class SettingsService extends BaseService {
     return this.getResource(`${ this.apiBase }${ this.settingsUrl }`);
   };
 
-  createVariable = async (key, value) => {
+  createVariable = async (variable) => {
     const request = {
-      body: JSON.stringify({ key, value }),
+      body: JSON.stringify(variable),
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
       mode: 'cors'
@@ -17,9 +17,20 @@ export default class SettingsService extends BaseService {
     return this.getResource(url, request);
   };
 
-  updateVariable = async (id, key, value) => {
+  createSystemVariable = async (variable) => {
     const request = {
-      body: JSON.stringify({ id, key, value }),
+      body: JSON.stringify(variable),
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      mode: 'cors'
+    };
+    const url = `${ this.apiBase }${ this.saveSystemVariableUrl }`;
+    return this.getResource(url, request);
+  };
+
+  updateVariable = async (variable) => {
+    const request = {
+      body: JSON.stringify(variable),
       headers: { 'Content-Type': 'application/json' },
       method: 'PUT',
       mode: 'cors'

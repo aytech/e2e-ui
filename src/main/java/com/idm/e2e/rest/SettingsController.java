@@ -1,5 +1,6 @@
 package com.idm.e2e.rest;
 
+import com.idm.e2e.entities.SystemVariableEntity;
 import com.idm.e2e.entities.UserEntity;
 import com.idm.e2e.entities.VariableEntity;
 import com.idm.e2e.models.SettingsResponse;
@@ -36,6 +37,18 @@ public class SettingsController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @RequestMapping(method = RequestMethod.POST, value = URI_VAR_SYS_CREATE)
+    public ResponseEntity<VariableResponse> createSystemVariable(Authentication authentication, @RequestBody SystemVariableEntity entity) {
+        VariableResponse response = new VariableResponse();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+        if (user.getRole().equals(UserEntity.Roles.ADMIN.toString())) {
+            response.setVariable(variableService.createSystemVariable(entity));
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+    }
+
     @RequestMapping(method = RequestMethod.PUT, value = URI_VAR_UPDATE)
     public ResponseEntity<VariableResponse> updateVariable(Authentication authentication, @RequestBody VariableEntity entity) {
         VariableResponse response = new VariableResponse();
@@ -49,10 +62,33 @@ public class SettingsController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @RequestMapping(method = RequestMethod.PUT, value = URI_VAR_SYS_UPDATE)
+    public ResponseEntity<VariableResponse> updateSystemVariable(Authentication authentication, @RequestBody SystemVariableEntity entity) {
+        VariableResponse response = new VariableResponse();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+        if (user.getRole().equals(UserEntity.Roles.ADMIN.toString())) {
+            response.setVariable(variableService.updateSystemVariable(entity));
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+    }
+
     @RequestMapping(method = RequestMethod.DELETE, value = URI_VAR_REMOVE)
     public ResponseEntity<VariableResponse> removeVariable(@RequestBody VariableEntity entity) {
         variableService.removeVariable(entity);
         return new ResponseEntity<>(null, HttpStatus.GONE);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, value = URI_VAR_SYS_REMOVE)
+    public ResponseEntity<VariableResponse> removeSystemVariable(Authentication authentication, @RequestBody SystemVariableEntity entity) {
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+        if (user.getRole().equals(UserEntity.Roles.ADMIN.toString())) {
+            variableService.removeSystemVariable(entity);
+            return new ResponseEntity<>(null, HttpStatus.GONE);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @RequestMapping(method = RequestMethod.GET, value = URI_SETTINGS)

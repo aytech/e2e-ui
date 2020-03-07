@@ -1,4 +1,5 @@
 export class HttpStatuses {
-  static UNAUTHORIZED = 401;
+  static GONE = 410;
   static OK = 200;
+  static UNAUTHORIZED = 401;
 }

@@ -20,6 +20,9 @@ public class SystemVariableEntity implements VariablesEntity {
     @Column(name = "value")
     private String value;
 
+    @Column(name = "type")
+    private String type;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created")
@@ -50,6 +53,14 @@ public class SystemVariableEntity implements VariablesEntity {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public Date getCreated() {

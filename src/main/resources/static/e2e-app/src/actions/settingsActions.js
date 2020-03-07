@@ -17,6 +17,7 @@ import {
 } from "./authActions";
 import SettingsService from "../services/SettingsService";
 import { updateNodes } from "./outputActions";
+import { HttpStatuses } from "../constants/application";
 
 export const updateSystem = (isSystem) => ({ type: UPDATE_SYSTEM, isSystem });
 export const updateSystemKey = (key) => ({ type: UPDATE_SYSTEM_KEY, key });
@@ -30,43 +31,76 @@ export const updateVariableValue = (value) => ({ type: UPDATE_VARIABLE_VALUE, va
 
 const settingsService = new SettingsService();
 
-export const saveVariable = (key, value, variables) => {
+const handleVariableResponse = (dispatch, response, variables) => {
+  const { status, variable } = response;
+  if (status === HttpStatuses.OK) {
+    variables.push(variable);
+    dispatch(updateVariables(variables));
+    dispatch(updateVariableKey(''));
+    dispatch(updateVariableValue(''));
+  }
+  if (status === HttpStatuses.UNAUTHORIZED) {
+    dispatch(updateLoginWarn(true));
+    dispatch(updateLoginModalStatus(true));
+    dispatch(updateLoginWarnMessage('Please login'));
+  }
+};
+
+const handleSystemVariableResponse = (dispatch, response, variables) => {
+  const { status, variable } = response;
+  if (status === HttpStatuses.OK) {
+    variables.push(variable);
+    dispatch(updateSystemVariables(variables));
+    dispatch(updateSystemKey(''));
+    dispatch(updateSystemValue(''));
+  }
+  if (status === HttpStatuses.UNAUTHORIZED) {
+    dispatch(updateLoginWarn(true));
+    dispatch(updateLoginModalStatus(true));
+    dispatch(updateLoginWarnMessage('Please login'));
+  }
+};
+
+export const saveVariable = (variable, variables) => {
   return (dispatch) => {
     settingsService
-      .createVariable(key, value)
+      .createVariable(variable)
       .then(response => {
-        const { status, variable } = response;
-        if (status === 200) {
-          variables.push(variable);
-          dispatch(updateVariables(variables));
-          dispatch(updateVariableKey(''));
-          dispatch(updateVariableValue(''));
-        }
-        if (status === 401) {
-          dispatch(updateLoginWarn(true));
-          dispatch(updateLoginModalStatus(true));
-          dispatch(updateLoginWarnMessage('Please login'));
-        }
+        handleVariableResponse(dispatch, response, variables)
       });
   }
 };
 
-export const updateVariable = (id, key, value) => {
+export const saveSystemVariable = (variable, variables) => {
   return (dispatch) => {
     settingsService
-      .updateVariable(id, key, value)
+      .createSystemVariable(variable)
       .then(response => {
-        const { status } = response;
-        if (status === 200) {
-          // No need to handle success, variable
-          // was already updated during onChange
-        }
-        if (status === 401) {
-          dispatch(updateLoginWarn(true));
-          dispatch(updateLoginModalStatus(true));
-          dispatch(updateLoginWarnMessage('Please login'));
-        }
+        handleSystemVariableResponse(dispatch, response, variables);
       });
+  }
+};
+
+export const updateVariable = (variable, variables) => {
+  return (dispatch) => {
+    settingsService
+      .updateVariable(variable)
+      .then(response => {
+        handleVariableResponse(dispatch, response, variables)
+      });
+  }
+};
+
+const removeVariableResponse = (dispatch, response, variableId, variables) => {
+  const { status } = response;
+  if (status === HttpStatuses.GONE) {
+    const newVariables = variables.filter(v => v.id !== variableId);
+    dispatch(updateVariables(newVariables));
+  }
+  if (status === HttpStatuses.UNAUTHORIZED) {
+    dispatch(updateLoginWarn(true));
+    dispatch(updateLoginModalStatus(true));
+    dispatch(updateLoginWarnMessage('Please login'));
   }
 };
 
@@ -75,16 +109,7 @@ export const removeVariable = (id, variables) => {
     settingsService
       .removeVariable(id)
       .then(response => {
-        const { status } = response;
-        if (status === 200) {
-          const newVariables = variables.filter(v => v.id !== id);
-          dispatch(updateVariables(newVariables));
-        }
-        if (status === 401) {
-          dispatch(updateLoginWarn(true));
-          dispatch(updateLoginModalStatus(true));
-          dispatch(updateLoginWarnMessage('Please login'));
-        }
+        removeVariableResponse(dispatch, response, id, variables)
       })
   }
 };

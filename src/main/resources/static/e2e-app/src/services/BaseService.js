@@ -8,6 +8,7 @@ export default class BaseService {
   removeVarUrl = '/var/remove';
   resetCodeUrl = '/code/reset';
   resetPasswordUrl = '/password/reset';
+  saveSystemVariableUrl = '/var/system/create';
   saveVariableUrl = '/var/create';
   settingsUrl = '/settings';
   springLogin = '/login';

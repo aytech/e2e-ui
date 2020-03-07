@@ -45,9 +45,22 @@ public class VariableService {
         return basicVariable(variable);
     }
 
+    public BasicVariable createSystemVariable(SystemVariableEntity variable) {
+        Optional<SystemVariableEntity> variableEntity = systemVariableRepository.findByKey(variable.getKey());
+        if (!variableEntity.isPresent()) {
+            return basicVariable(systemVariableRepository.save(variable));
+        }
+        return basicVariable(variable);
+    }
+
     public void removeVariable(VariableEntity variable) {
         Optional<VariableEntity> variableEntity = variableRepository.findById(variable.getId());
         variableEntity.ifPresent(variableRepository::delete);
+    }
+
+    public void removeSystemVariable(SystemVariableEntity variable) {
+        Optional<SystemVariableEntity> variableEntity = systemVariableRepository.findById(variable.getId());
+        variableEntity.ifPresent(systemVariableRepository::delete);
     }
 
     public BasicVariable updateVariable(UserEntity user, VariableEntity variable) throws Exception {
@@ -57,6 +70,17 @@ public class VariableService {
             if (saveSuccess != 1) {
                 throw new Exception("Could not save variable with ID " + variable.getId());
             }
+        }
+        return basicVariable(variable);
+    }
+
+    public BasicVariable updateSystemVariable(SystemVariableEntity variable) {
+        Optional<SystemVariableEntity> variableEntity = systemVariableRepository.findById(variable.getId());
+        if (variableEntity.isPresent()) {
+            SystemVariableEntity newVariable = variableEntity.get();
+            newVariable.setKey(variable.getKey());
+            newVariable.setValue(variable.getValue());
+            return basicVariable(systemVariableRepository.save(newVariable));
         }
         return basicVariable(variable);
     }
