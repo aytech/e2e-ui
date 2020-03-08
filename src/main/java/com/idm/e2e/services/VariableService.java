@@ -33,6 +33,7 @@ public class VariableService {
         variable.setId(entity.getId());
         variable.setKey(entity.getKey());
         variable.setValue(entity.getValue());
+        variable.setType(entity.getType());
         return variable;
     }
 
@@ -53,14 +54,22 @@ public class VariableService {
         return basicVariable(variable);
     }
 
-    public void removeVariable(VariableEntity variable) {
-        Optional<VariableEntity> variableEntity = variableRepository.findById(variable.getId());
-        variableEntity.ifPresent(variableRepository::delete);
+    public BasicVariable removeVariable(UserEntity user, VariableEntity variableEntity) {
+        Optional<VariableEntity> entity = variableRepository.findById(variableEntity.getId());
+        if (!entity.isPresent()) {
+            return null;
+        }
+        VariableEntity variable = entity.get();
+        if (variable.getUser().getId().equals(user.getId())) {
+            variableRepository.delete(variable);
+            return basicVariable(variable);
+        }
+        return null;
     }
 
     public void removeSystemVariable(SystemVariableEntity variable) {
-        Optional<SystemVariableEntity> variableEntity = systemVariableRepository.findById(variable.getId());
-        variableEntity.ifPresent(systemVariableRepository::delete);
+        Optional<SystemVariableEntity> entity = systemVariableRepository.findById(variable.getId());
+        entity.ifPresent(systemVariableRepository::delete);
     }
 
     public BasicVariable updateVariable(UserEntity user, VariableEntity variable) throws Exception {
@@ -80,6 +89,7 @@ public class VariableService {
             SystemVariableEntity newVariable = variableEntity.get();
             newVariable.setKey(variable.getKey());
             newVariable.setValue(variable.getValue());
+            newVariable.setType(variable.getType());
             return basicVariable(systemVariableRepository.save(newVariable));
         }
         return basicVariable(variable);
@@ -102,36 +112,5 @@ public class VariableService {
             variables.add(basicVariable(variable));
         }
         return variables;
-    }
-
-    private List<BasicVariable> addDefaultSystemVariables() {
-        List<BasicVariable> collection = new ArrayList<>();
-
-        BasicVariable host = new BasicVariable();
-        host.setKey(BasicVariable.DefaultVariableName.E2E_ENVIRONMENT.toString());
-        host.setValue("staging");
-        host.setType(BasicVariable.VariableType.TEXT);
-
-        BasicVariable documentType = new BasicVariable();
-        documentType.setKey(BasicVariable.DefaultVariableName.E2E_DOCUMENT_TYPE.toString());
-        documentType.setValue("AA");
-        documentType.setType(BasicVariable.VariableType.TEXT);
-
-        BasicVariable filePath = new BasicVariable();
-        filePath.setKey(BasicVariable.DefaultVariableName.E2E_FILE_PATH.toString());
-        filePath.setValue("/home/gradle/app/1.jpg");
-        filePath.setType(BasicVariable.VariableType.TEXT);
-
-        BasicVariable user = new BasicVariable();
-        user.setKey(BasicVariable.DefaultVariableName.E2E_USER.toString());
-        user.setValue("oleg.yapparov@infor.com");
-        user.setType(BasicVariable.VariableType.EMAIL);
-
-        BasicVariable password = new BasicVariable();
-        password.setKey(BasicVariable.DefaultVariableName.E2E_PASSWORD.toString());
-        password.setValue("dummy");
-        password.setType(BasicVariable.VariableType.PASSWORD);
-
-        return collection;
     }
 }

@@ -31,6 +31,12 @@ export const updateVariableValue = (value) => ({ type: UPDATE_VARIABLE_VALUE, va
 
 const settingsService = new SettingsService();
 
+const handleUnauthorized = (dispatch) => {
+  dispatch(updateLoginWarn(true));
+  dispatch(updateLoginModalStatus(true));
+  dispatch(updateLoginWarnMessage('Please login'));
+};
+
 const handleVariableResponse = (dispatch, response, variables) => {
   const { status, variable } = response;
   if (status === HttpStatuses.OK) {
@@ -40,9 +46,7 @@ const handleVariableResponse = (dispatch, response, variables) => {
     dispatch(updateVariableValue(''));
   }
   if (status === HttpStatuses.UNAUTHORIZED) {
-    dispatch(updateLoginWarn(true));
-    dispatch(updateLoginModalStatus(true));
-    dispatch(updateLoginWarnMessage('Please login'));
+    handleUnauthorized(dispatch);
   }
 };
 
@@ -55,9 +59,7 @@ const handleSystemVariableResponse = (dispatch, response, variables) => {
     dispatch(updateSystemValue(''));
   }
   if (status === HttpStatuses.UNAUTHORIZED) {
-    dispatch(updateLoginWarn(true));
-    dispatch(updateLoginModalStatus(true));
-    dispatch(updateLoginWarnMessage('Please login'));
+    handleUnauthorized(dispatch);
   }
 };
 
@@ -91,16 +93,20 @@ export const updateVariable = (variable, variables) => {
   }
 };
 
-const removeVariableResponse = (dispatch, response, variableId, variables) => {
-  const { status } = response;
-  if (status === HttpStatuses.GONE) {
-    const newVariables = variables.filter(v => v.id !== variableId);
-    dispatch(updateVariables(newVariables));
-  }
-  if (status === HttpStatuses.UNAUTHORIZED) {
-    dispatch(updateLoginWarn(true));
-    dispatch(updateLoginModalStatus(true));
-    dispatch(updateLoginWarnMessage('Please login'));
+export const updateSystemVariable = (variable) => {
+  return (dispatch) => {
+    settingsService
+      .updateSystemVariable(variable)
+      .then(response => {
+        const { status } = response;
+        if (status === HttpStatuses.OK) {
+          dispatch(updateSystemKey(''));
+          dispatch(updateSystemValue(''));
+        }
+        if (status === HttpStatuses.UNAUTHORIZED) {
+          handleUnauthorized(dispatch);
+        }
+      });
   }
 };
 
@@ -109,7 +115,31 @@ export const removeVariable = (id, variables) => {
     settingsService
       .removeVariable(id)
       .then(response => {
-        removeVariableResponse(dispatch, response, id, variables)
+        const { status } = response;
+        if (status === HttpStatuses.GONE) {
+          const newVariables = variables.filter(v => v.id !== id);
+          dispatch(updateVariables(newVariables));
+        }
+        if (status === HttpStatuses.UNAUTHORIZED) {
+          handleUnauthorized(dispatch);
+        }
+      })
+  }
+};
+
+export const removeSystemVariable = (id, variables) => {
+  return (dispatch) => {
+    settingsService
+      .removeSystemVariable(id)
+      .then(response => {
+        const { status } = response;
+        if (status === HttpStatuses.GONE) {
+          const newVariables = variables.filter(v => v.id !== id);
+          dispatch(updateSystemVariables(newVariables));
+        }
+        if (status === HttpStatuses.UNAUTHORIZED) {
+          handleUnauthorized(dispatch);
+        }
       })
   }
 };

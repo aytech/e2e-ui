@@ -3,6 +3,7 @@ package com.idm.e2e.rest;
 import com.idm.e2e.entities.SystemVariableEntity;
 import com.idm.e2e.entities.UserEntity;
 import com.idm.e2e.entities.VariableEntity;
+import com.idm.e2e.models.BasicVariable;
 import com.idm.e2e.models.SettingsResponse;
 import com.idm.e2e.models.VariableResponse;
 import com.idm.e2e.services.NodeService;
@@ -75,19 +76,26 @@ public class SettingsController {
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = URI_VAR_REMOVE)
-    public ResponseEntity<VariableResponse> removeVariable(@RequestBody VariableEntity entity) {
-        variableService.removeVariable(entity);
-        return new ResponseEntity<>(null, HttpStatus.GONE);
+    public ResponseEntity<VariableResponse> removeVariable(Authentication authentication, @RequestBody VariableEntity entity) {
+        VariableResponse response = new VariableResponse();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+        BasicVariable removedVariable = variableService.removeVariable(user, entity);
+        if (removedVariable == null) {
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        response.setVariable(removedVariable);
+        return new ResponseEntity<>(response, HttpStatus.GONE);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = URI_VAR_SYS_REMOVE)
     public ResponseEntity<VariableResponse> removeSystemVariable(Authentication authentication, @RequestBody SystemVariableEntity entity) {
+        VariableResponse response = new VariableResponse();
         UserEntity user = (UserEntity) authentication.getPrincipal();
         if (user.getRole().equals(UserEntity.Roles.ADMIN.toString())) {
             variableService.removeSystemVariable(entity);
-            return new ResponseEntity<>(null, HttpStatus.GONE);
+            return new ResponseEntity<>(response, HttpStatus.GONE);
         } else {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
     }
 

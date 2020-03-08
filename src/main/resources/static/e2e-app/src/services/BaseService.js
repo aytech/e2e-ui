@@ -5,6 +5,7 @@ export default class BaseService {
   node = '/node';
   nodeRemove = '/node/remove';
   registerUrl = '/register';
+  removeSystemVarUrl = '/var/system/remove';
   removeVarUrl = '/var/remove';
   resetCodeUrl = '/code/reset';
   resetPasswordUrl = '/password/reset';
@@ -12,6 +13,7 @@ export default class BaseService {
   saveVariableUrl = '/var/create';
   settingsUrl = '/settings';
   springLogin = '/login';
+  updateSystemVariableUrl = '/var/system/update';
   updateVariableUrl = '/var/update';
 
   async getResource(url, request) {

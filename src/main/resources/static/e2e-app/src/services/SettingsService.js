@@ -39,6 +39,17 @@ export default class SettingsService extends BaseService {
     return this.getResource(url, request);
   };
 
+  updateSystemVariable = async (variable) => {
+    const request = {
+      body: JSON.stringify(variable),
+      headers: { 'Content-Type': 'application/json' },
+      method: 'PUT',
+      mode: 'cors'
+    };
+    const url = `${ this.apiBase }${ this.updateSystemVariableUrl }`;
+    return this.getResource(url, request);
+  };
+
   removeVariable = async (id) => {
     const request = {
       body: JSON.stringify({ id }),
@@ -47,6 +58,17 @@ export default class SettingsService extends BaseService {
       mode: 'cors'
     };
     const url = `${ this.apiBase }${ this.removeVarUrl }`;
+    return this.getResource(url, request);
+  };
+
+  removeSystemVariable = async (id) => {
+    const request = {
+      body: JSON.stringify({ id }),
+      headers: { 'Content-Type': 'application/json' },
+      method: 'DELETE',
+      mode: 'cors'
+    };
+    const url = `${ this.apiBase }${ this.removeSystemVarUrl }`;
     return this.getResource(url, request);
   };
 }

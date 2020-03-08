@@ -24,6 +24,7 @@ import {
 } from "../../actions/settingsActions";
 import NewVariableForm from "./newVariableForm";
 import ListVariables from "./listVariables";
+import ListSystemVariables from "./listSystemVariables";
 
 class Settings extends Component {
 
@@ -113,13 +114,14 @@ class Settings extends Component {
           </p>
           <hr/>
           { system === true &&
-          <div className="system-vars list-group">
-            { systemVariables.map((systemVariable, index) => (
-              <span className="list-group-item list-group-item-action active" key={ index }>
-                { systemVariable.key } : { systemVariable.value }
-              </span>
-            )) }
-          </div>
+            <ListSystemVariables validator={ this.isValidVariable }/>
+          // <div className="system-vars list-group">
+          //   { systemVariables.map((systemVariable, index) => (
+          //     <span className="list-group-item list-group-item-action active" key={ index }>
+          //       { systemVariable.key } : { systemVariable.value }
+          //     </span>
+          //   )) }
+          // </div>
           }
           { system === true &&
           <NewVariableForm

@@ -18,7 +18,7 @@ public class BasicVariable {
     private long id;
     private String key;
     private String value;
-    private VariableType type;
+    private String type;
 
     public long getId() {
         return id;
@@ -44,11 +44,11 @@ public class BasicVariable {
         this.value = value;
     }
 
-    public VariableType getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(VariableType type) {
+    public void setType(String type) {
         this.type = type;
     }
 }

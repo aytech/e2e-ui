@@ -4,4 +4,5 @@ public interface VariablesEntity {
     Long getId();
     String getKey();
     String getValue();
+    String getType();
 }
