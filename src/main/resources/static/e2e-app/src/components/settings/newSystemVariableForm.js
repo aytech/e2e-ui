@@ -1,33 +1,33 @@
 import React, { Component } from 'react';
+import { connect } from "react-redux";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
 import FormGroup from "react-bootstrap/FormGroup";
 import Button from "react-bootstrap/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
-import { connect } from "react-redux";
 import {
-  saveVariable,
-  updateType,
-  updateVariableKey,
-  updateVariableValue
+  saveSystemVariable,
+  updateSystemKey,
+  updateSystemType,
+  updateSystemValue
 } from "../../actions/settingsActions";
 
-class NewVariableForm extends Component {
+class NewSystemVariableForm extends Component {
 
-  createVariable = () => {
-    const { key, value, type, variables } = this.props.settings;
-    const variable = { key, value, type };
+  createSystemVariable = () => {
+    const { systemKey, systemValue, systemType, systemVariables } = this.props.settings;
+    const variable = { key: systemKey, value: systemValue, type: systemType };
     if (this.props.validator(variable)) {
-      this.props.saveVariable(variable, variables);
+      this.props.saveSystemVariable(variable, systemVariables);
     }
   };
 
   render() {
     const {
-      key,
-      types,
-      value
+      systemKey,
+      systemValue,
+      types
     } = this.props.settings;
 
     return (
@@ -38,34 +38,34 @@ class NewVariableForm extends Component {
               <Form.Control
                 type="text"
                 placeholder="Variable name"
-                value={ key }
+                value={ systemKey }
                 onChange={ (event) => {
-                  this.props.updateVariableKey(event.target.value)
+                  this.props.updateSystemKey(event.target.value)
                 } }/>
             </Form.Group>
           </Col>
-          <Col xs={ 12 } sm={ 5 } md={ 4 } lg={ 5 }>
+          <Col xs={ 12 } sm={ 5 } md={ 3 } lg={ 5 }>
             <Form.Group>
               <Form.Control
                 type="text"
                 placeholder="Variable value"
-                value={ value }
+                value={ systemValue }
                 onChange={ (event) => {
-                  this.props.updateVariableValue(event.target.value)
+                  this.props.updateSystemValue(event.target.value)
                 } }
                 onKeyDown={ (event) => {
                   if (event.key === 'Enter') {
-                    this.createVariable();
+                    this.createSystemVariable()
                   }
                 } }/>
             </Form.Group>
           </Col>
-          <Col xs={ 12 } sm={ 3 } md={ 2 } lg={ 2 }>
+          <Col xs={ 12 } sm={ 3 } md={ 3 } lg={ 2 }>
             <Form.Group>
               <Form.Control
                 as="select"
                 onChange={ (event) => {
-                  this.props.updateType(event.target.value)
+                  this.props.updateSystemType(event.target.value)
                 } }>
                 { types.map((type, idx) => (
                   <option
@@ -79,7 +79,7 @@ class NewVariableForm extends Component {
           </Col>
           <Col xs={ 12 } sm={ 12 } md={ 3 } lg={ 2 } className="text-center">
             <FormGroup>
-              <Button variant="success" onClick={ this.createVariable }>
+              <Button variant="success" onClick={ this.createSystemVariable }>
                 <FontAwesomeIcon icon={ faPlusCircle }/>
               </Button>
             </FormGroup>
@@ -95,10 +95,10 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  saveVariable: (variable, variables) => dispatch(saveVariable(variable, variables)),
-  updateType: (type) => dispatch(updateType(type)),
-  updateVariableKey: (key) => dispatch(updateVariableKey(key)),
-  updateVariableValue: (value) => dispatch(updateVariableValue(value))
+  saveSystemVariable: (variable, variables) => dispatch(saveSystemVariable(variable, variables)),
+  updateSystemKey: (key) => dispatch(updateSystemKey(key)),
+  updateSystemType: (type) => dispatch(updateSystemType(type)),
+  updateSystemValue: (value) => dispatch(updateSystemValue(value)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewVariableForm);
+export default connect(mapStateToProps, mapDispatchToProps)(NewSystemVariableForm);

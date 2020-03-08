@@ -40,6 +40,7 @@ const initialState = {
     systemValue: '',
     systemVariables: [],
     type: 'text',
+    types: ['text', 'email', 'password'],
     value: '',
     variables: []
   }

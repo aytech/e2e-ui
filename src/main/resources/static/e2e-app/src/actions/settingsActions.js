@@ -83,12 +83,19 @@ export const saveSystemVariable = (variable, variables) => {
   }
 };
 
-export const updateVariable = (variable, variables) => {
+export const updateVariable = (variable) => {
   return (dispatch) => {
     settingsService
       .updateVariable(variable)
       .then(response => {
-        handleVariableResponse(dispatch, response, variables)
+        const { status } = response;
+        if (status === HttpStatuses.OK) {
+          dispatch(updateVariableKey(''));
+          dispatch(updateVariableValue(''));
+        }
+        if (status === HttpStatuses.UNAUTHORIZED) {
+          handleUnauthorized(dispatch);
+        }
       });
   }
 };

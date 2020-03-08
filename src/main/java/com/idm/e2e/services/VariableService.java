@@ -32,8 +32,12 @@ public class VariableService {
         BasicVariable variable = new BasicVariable();
         variable.setId(entity.getId());
         variable.setKey(entity.getKey());
-        variable.setValue(entity.getValue());
         variable.setType(entity.getType());
+        if (variable.getType().equals("password")) {
+            variable.setValue("*****");
+        } else {
+            variable.setValue(entity.getValue());
+        }
         return variable;
     }
 
