@@ -3,11 +3,12 @@ package com.idm.e2e.processes;
 import com.idm.e2e.data.FilesResource;
 import com.idm.e2e.entities.*;
 import com.idm.e2e.resources.DockerCommandsResource;
-import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 
 import static com.idm.e2e.configuration.AppConstants.NODE_E2E_SUFFIX;
 
@@ -23,14 +24,25 @@ public class ChromeNode extends Node {
     private FilesResource filesResource;
     private Boolean isFailed;
     private Boolean isAlive;
+    private HashMap<String, String> variables;
 
-    public ChromeNode(UserEntity userEntity) {
+    public ChromeNode(
+            UserEntity user,
+            List<SystemVariableEntity> systemVariables,
+            List<VariableEntity> userVariables) {
         isAlive = true;
         isFailed = false;
         nodeId = String.format("chrome_%s", DockerCommandsResource.getNewNodeID());
         e2eNodeTag = String.format("%s%s", nodeId, NODE_E2E_SUFFIX);
         filesResource = new FilesResource(nodeId);
-        nodeEntity = addNode(userEntity, nodeId);
+        nodeEntity = addNode(user, nodeId);
+        variables = new HashMap<>();
+        for (SystemVariableEntity systemVariable : systemVariables) {
+            variables.put(systemVariable.getKey(), systemVariable.getValue());
+        }
+        for (VariableEntity userVariable : userVariables) {
+            variables.put(userVariable.getKey(), userVariable.getValue());
+        }
     }
 
     @Override
@@ -73,16 +85,14 @@ public class ChromeNode extends Node {
     public void run() {
         try {
             if (filesResource.writeDockerFile("master")) {
-//                buildDockerImage();
-//                runChromeNode();
-//                runE2eNode();
+                buildDockerImage();
+                runChromeNode();
+                runE2eNode();
                 filesResource.removeDockerFile();
                 filesResource.removeRsaFile();
             }
-            Session session = getSession();
-
             isAlive = false;
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             isFailed = true;
             isAlive = false;
@@ -99,14 +109,18 @@ public class ChromeNode extends Node {
     }
 
     private void runChromeNode() throws IOException, InterruptedException {
-        chromeProcess = DockerCommandsResource.runChromeNode(nodeId).start();
+        ProcessBuilder builder = DockerCommandsResource.runChromeNode(nodeId);
+        System.out.println("Running Chrome node: " + builder.command().toString());
+        chromeProcess = builder.start();
         log(chromeProcess, nodeEntity);
         chromeProcess.waitFor();
     }
 
     private void runE2eNode() throws IOException, InterruptedException {
         String reportsDirectory = filesResource.getNodeDirectory().getPath();
-        e2eProcess = DockerCommandsResource.runE2ENode(e2eNodeTag, reportsDirectory).start();
+        ProcessBuilder builder = DockerCommandsResource.runE2ENode(e2eNodeTag, reportsDirectory, variables);
+        System.out.println("Running node: " + builder.command().toString());
+        e2eProcess = builder.start();
         log(e2eProcess, nodeEntity);
         e2eProcess.waitFor();
     }

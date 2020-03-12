@@ -12,7 +12,7 @@ import {
   faTrashAlt
 } from "@fortawesome/free-solid-svg-icons";
 import Row from "react-bootstrap/Row";
-import { downloadReportZip, removeNode } from "../../actions/outputActions";
+import { downloadReportZip, fetchNode, removeNode } from "../../actions/outputActions";
 import NodeStopModal from "./nodeStopModal";
 
 class NodeHeader extends Component {
@@ -133,6 +133,7 @@ const mapStateToProps = state => ({
 });
 const mapDispatchToProps = dispatch => ({
   downloadReportZip: (nodeId) => dispatch(downloadReportZip(nodeId)),
+  fetchNode: (nodeId, nodes) => dispatch(fetchNode(nodeId, nodes)),
   removeNode: (nodeId, nodes) => dispatch(removeNode(nodeId, nodes))
 });
 export default connect(mapStateToProps, mapDispatchToProps)(NodeHeader);

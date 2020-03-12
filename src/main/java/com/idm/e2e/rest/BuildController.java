@@ -3,7 +3,9 @@ package com.idm.e2e.rest;
 import com.idm.e2e.data.FilesResource;
 import com.idm.e2e.data.ZipResource;
 import com.idm.e2e.entities.NodeEntity;
+import com.idm.e2e.entities.SystemVariableEntity;
 import com.idm.e2e.entities.UserEntity;
+import com.idm.e2e.entities.VariableEntity;
 import com.idm.e2e.interfaces.DockerRunnable;
 import com.idm.e2e.models.*;
 import com.idm.e2e.processes.ChromeNode;
@@ -11,6 +13,7 @@ import com.idm.e2e.processes.SeleniumGrid;
 import com.idm.e2e.processes.ThreadRunner;
 import com.idm.e2e.services.DockerService;
 import com.idm.e2e.services.NodeService;
+import com.idm.e2e.services.VariableService;
 import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -23,6 +26,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.idm.e2e.configuration.AppConstants.*;
 
@@ -32,10 +36,15 @@ public class BuildController {
 
     final NodeService nodeService;
     final DockerService dockerService;
+    final VariableService variableService;
 
-    public BuildController(NodeService nodeService, DockerService dockerService) {
+    public BuildController(
+            NodeService nodeService,
+            DockerService dockerService,
+            VariableService variableService) {
         this.nodeService = nodeService;
         this.dockerService = dockerService;
+        this.variableService = variableService;
     }
 
     @RequestMapping(
@@ -94,17 +103,17 @@ public class BuildController {
     @RequestMapping(method = RequestMethod.POST, value = URI_RUN_E2E)
     public HttpEntity<DockerRunResponse> runSuite(Authentication authentication, @RequestBody Object body) {
         DockerRunResponse response = new DockerRunResponse();
-        UserEntity userEntity = (UserEntity) authentication.getPrincipal();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+        List<SystemVariableEntity> systemVariables = variableService.getSystemVariablesInternal();
+        List<VariableEntity> userVariables = variableService.getUserVariablesInternal(user);
         ArrayList<DockerRunnable> jobs = new ArrayList<>();
         jobs.add(new SeleniumGrid());
-        jobs.add(new ChromeNode(userEntity));
-
+        jobs.add(new ChromeNode(user, systemVariables, userVariables));
         try {
             new ThreadRunner(jobs, "test").start();
         } catch (IllegalStateException e) {
             System.out.println("Exception: " + e.getMessage());
         }
-
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

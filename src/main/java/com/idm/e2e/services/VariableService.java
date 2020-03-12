@@ -117,4 +117,12 @@ public class VariableService {
         }
         return variables;
     }
+
+    public List<SystemVariableEntity> getSystemVariablesInternal() {
+        return systemVariableRepository.findAll();
+    }
+
+    public List<VariableEntity> getUserVariablesInternal(UserEntity user) {
+        return variableRepository.findAllByUser(user.getId());
+    }
 }

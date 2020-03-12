@@ -3,6 +3,8 @@ package com.idm.e2e.resources;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.idm.e2e.configuration.DockerConstants.*;
 
@@ -90,6 +92,7 @@ public class DockerCommandsResource {
         return getBuilder(arguments);
     }
 
+    @Deprecated
     public static ProcessBuilder runE2ENode(String nodeID, String reportsPath) {
         ArrayList<String> arguments = getNodeArguments(nodeID, reportsPath, DOCKER_REPORTS_PATH);
         // This should come from settings
@@ -105,6 +108,16 @@ public class DockerCommandsResource {
         arguments.add("E2E_USER=oleg.yapparov@infor.com");
         arguments.add("-e");
         arguments.add("E2E_PASSWORD=foo");
+        arguments.add(nodeID);
+        return getBuilder(arguments);
+    }
+
+    public static ProcessBuilder runE2ENode(String nodeID, String reportsPath, HashMap<String, String> envVariables) {
+        ArrayList<String> arguments = getNodeArguments(nodeID, reportsPath, DOCKER_REPORTS_PATH);
+        for (Map.Entry<String, String> variable : envVariables.entrySet()) {
+            arguments.add("-e");
+            arguments.add(String.format("%s=%s", variable.getKey(), variable.getValue()));
+        }
         arguments.add(nodeID);
         return getBuilder(arguments);
     }
