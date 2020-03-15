@@ -9,7 +9,7 @@ import {
   UPDATE_LOGIN_WARN,
   UPDATE_LOGIN_WARN_MESSAGE,
   UPDATE_PASSWORD
-} from "../actions/constants";
+} from "../constants/actions";
 
 export default (state = {}, action) => {
   switch (action.type) {

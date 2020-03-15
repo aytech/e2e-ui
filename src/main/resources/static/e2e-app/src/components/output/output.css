@@ -18,6 +18,11 @@
   margin-bottom: 1rem;
 }
 
+.filter-toolbar > .btn-link:active,
+.filter-toolbar > .btn-link:focus {
+  border-color: transparent !important;
+}
+
 .jumbotron {
   min-width: 350px;
 }

@@ -7,7 +7,7 @@ import {
   UPDATE_FAILED_OUTPUT,
   UPDATE_SKIPPED_OUTPUT,
   UPDATE_EXECUTION_TIME
-} from "../actions/constants";
+} from "../constants/actions";
 
 export default (state = {}, action) => {
   switch (action.type) {

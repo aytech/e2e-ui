@@ -8,7 +8,7 @@ import {
   UPDATE_VARIABLE_TYPE,
   UPDATE_VARIABLE_VALUE,
   UPDATE_VARIABLES
-} from "./constants";
+} from "../constants/actions";
 import {
   updateAuthenticatedStatus,
   updateLoginModalStatus,
@@ -18,6 +18,7 @@ import {
 import SettingsService from "../services/SettingsService";
 import { updateNodes } from "./outputActions";
 import { HttpStatuses } from "../constants/application";
+import { updateBuildStatus } from "./runnerActions";
 
 export const updateSystem = (isSystem) => ({ type: UPDATE_SYSTEM, isSystem });
 export const updateSystemKey = (key) => ({ type: UPDATE_SYSTEM_KEY, key });
@@ -32,6 +33,7 @@ export const updateVariableValue = (value) => ({ type: UPDATE_VARIABLE_VALUE, va
 const settingsService = new SettingsService();
 
 const handleUnauthorized = (dispatch) => {
+  dispatch(updateAuthenticatedStatus(false));
   dispatch(updateLoginWarn(true));
   dispatch(updateLoginModalStatus(true));
   dispatch(updateLoginWarnMessage('Please login'));
@@ -163,17 +165,24 @@ export const fetchSettings = () => {
           variables,
           system
         } = response;
-        if (status === 200) {
+        if (status === HttpStatuses.OK) {
           dispatch(updateAuthenticatedStatus(true));
           dispatch(updateSystemVariables(systemVariables));
           dispatch(updateVariables(variables));
           dispatch(updateNodes(nodes));
           dispatch(updateSystem(system));
-        } else if (status === 401) {
-          dispatch(updateAuthenticatedStatus(false));
-          dispatch(updateLoginModalStatus(true));
-          dispatch(updateLoginWarnMessage('Please login'));
-          dispatch(updateLoginWarn(true));
+
+          let inProgress = false;
+          nodes.every(node => {
+            if (node.status !== 'complete') {
+              inProgress = true;
+              return false;
+            }
+            return true;
+          });
+          dispatch(updateBuildStatus(inProgress));
+        } else if (status === HttpStatuses.UNAUTHORIZED) {
+          handleUnauthorized(dispatch);
         }
       })
   }

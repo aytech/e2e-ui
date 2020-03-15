@@ -47,27 +47,6 @@ public class BuildController {
         this.variableService = variableService;
     }
 
-    @RequestMapping(
-            method = RequestMethod.GET,
-            value = URI_BUILD_STATUS,
-            params = {"node"}
-    )
-    public HttpEntity<DockerBuildStatus> getStatus() {
-//        DockerBuildStatus status = StatusStorage.getStatus(nodeID);
-//        E2EConfiguration configuration = new E2EConfiguration();
-//        configuration.setNodeID(nodeID);
-//        DockerResource utility = new DockerResource(String.format(DOCKER_E2E_NODE, nodeID));
-//        try {
-//            status.setCanBeStopped(utility.isContainerCreated());
-//        } catch (IOException exception) {
-//            status.addStdErrorEntry(exception.getMessage());
-//            return new ResponseEntity<>(status, HttpStatus.SERVICE_UNAVAILABLE);
-//        }
-//        ZipResource resource = new ZipResource(configuration);
-//        status.setReportAvailable(resource.isReportAvailable());
-        return new ResponseEntity<>(null, HttpStatus.OK);
-    }
-
     @RequestMapping(method = RequestMethod.GET, value = URI_NODE, params = {"node"})
     public HttpEntity<JobNode> getNodeStatus(HttpServletRequest request, @RequestParam("node") String nodeId) {
         JobNode node = nodeService.getNode(Long.parseLong(nodeId));
@@ -82,22 +61,27 @@ public class BuildController {
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = URI_NODE_REMOVE)
-    public HttpEntity<Boolean> removeNode(HttpServletRequest request, @RequestBody NodeEntity nodeEntity) {
+    public HttpEntity<GenericResponse> removeNode(HttpServletRequest request, @RequestBody NodeEntity nodeEntity) {
+        GenericResponse response = new GenericResponse(false);
         JobNode node = nodeService.getNode(nodeEntity.getId());
         if (node.getTag() == null) {
-            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+            response.setMessage("Node not found");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
         FilesResource filesResource = new FilesResource(node.getTag());
         try {
             if (!filesResource.getNodePath().exists()) {
-                return new ResponseEntity<>(nodeService.removeNode(nodeEntity), HttpStatus.OK);
+                response.setSuccess(nodeService.removeNode(nodeEntity));
+                return new ResponseEntity<>(response, HttpStatus.OK);
             }
             FileUtils.forceDelete(filesResource.getNodePath());
-            return new ResponseEntity<>(nodeService.removeNode(nodeEntity), HttpStatus.OK);
+            response.setSuccess(nodeService.removeNode(nodeEntity));
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (IOException e) {
+            response.setMessage(e.getMessage());
             e.printStackTrace();
         }
-        return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = URI_RUN_E2E)

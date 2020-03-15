@@ -6,7 +6,7 @@ import {
   UPDATE_NODES,
   UPDATE_PASSED_OUTPUT,
   UPDATE_SKIPPED_OUTPUT
-} from "./constants";
+} from "../constants/actions";
 import DockerService from "../services/DockerService";
 import OutputService from "../services/OutputService";
 import {
@@ -95,7 +95,7 @@ export const downloadReportZip = (nodeId) => {
     dockerService
       .downloadReportZip(nodeId)
       .then(response => {
-        const {status} = response;
+        const { status } = response;
         if (status === HttpStatuses.OK) {
           return response.blob();
         }

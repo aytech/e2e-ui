@@ -23,7 +23,6 @@ public class SeleniumGrid extends Node {
 
     @Override
     public Boolean isAlive() {
-        System.out.println("GRID STATUS: " + (process != null && process.isAlive()));
         return process != null && process.isAlive();
     }
 

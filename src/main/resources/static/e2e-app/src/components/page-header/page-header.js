@@ -11,19 +11,11 @@ import {
 } from "../../actions/authActions";
 import { Link } from "react-router-dom";
 import {
-  fetchSettings,
   updateSystemVariables,
   updateVariables
 } from "../../actions/settingsActions";
 
 class PageHeader extends Component {
-
-  componentDidMount() {
-    const {variables} = this.props.settings;
-    if (variables.length === 0) {
-      this.props.fetchSettings();
-    }
-  }
 
   openLoginModal = () => {
     this.props.updateLoginModalStatus(true)
@@ -76,7 +68,6 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  fetchSettings: () => dispatch(fetchSettings()),
   updateAuthenticatedStatus: (status) => dispatch(updateAuthenticatedStatus(status)),
   updateLoginModalStatus: (status) => dispatch(updateLoginModalStatus(status)),
   updateLoginWarn: (status) => dispatch(updateLoginWarn(status)),

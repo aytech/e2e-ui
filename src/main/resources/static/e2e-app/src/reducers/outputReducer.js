@@ -1,7 +1,7 @@
 import {
   UPDATE_NODE_REMOVE_PROGRESS, UPDATE_NODE_UPDATE_PROGRESS,
   UPDATE_NODES
-} from "../actions/constants";
+} from "../constants/actions";
 
 export default (state = {}, action) => {
   switch (action.type) {

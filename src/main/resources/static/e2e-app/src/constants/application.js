@@ -3,3 +3,10 @@ export class HttpStatuses {
   static OK = 200;
   static UNAUTHORIZED = 401;
 }
+
+export class NodeCategories {
+  static FAILED = 'FAILED';
+  static OTHER = 'OTHER';
+  static PASSED = 'PASSED';
+  static SKIPPED = 'SKIPPED';
+}

@@ -15,13 +15,12 @@ import { fetchSettings } from "../../actions/settingsActions";
 
 class Runner extends Component {
 
-  runE2E = () => {
-    this.props.fetchRunRequest()
-  };
-
-  fetchStatus = () => {
-    this.props.fetchSettings();
-  };
+  componentDidMount() {
+    const {variables} = this.props.settings;
+    if (variables.length === 0) {
+      this.props.fetchSettings();
+    }
+  }
 
   render() {
     const { isAuthenticated } = this.props.auth;
@@ -74,14 +73,12 @@ class Runner extends Component {
   }
 }
 
-const
-  mapStateToProps = state => ({
-    ...state
-  });
-const
-  mapDispatchToProps = dispatch => ({
-    runSuite: () => dispatch(runSuite()),
-    fetchSettings: () => dispatch(fetchSettings())
-  });
+const mapStateToProps = state => ({
+  ...state
+});
+const mapDispatchToProps = dispatch => ({
+  runSuite: () => dispatch(runSuite()),
+  fetchSettings: () => dispatch(fetchSettings())
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Runner);

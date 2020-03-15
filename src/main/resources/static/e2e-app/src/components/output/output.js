@@ -11,8 +11,30 @@ import Jumbotron from "react-bootstrap/Jumbotron";
 import FilterToolbar from "./filterToolbar";
 import NodeHeader from "./nodeHeader";
 import LogOutput from "./logOutput";
+import { NodeCategories } from "../../constants/application";
 
 class Output extends Component {
+
+  getNoLogsTitle = (node) => {
+    const filteredLogs = node.logs.filter(log => {
+      const { passed, skipped, failed, debug } = node;
+      const { category } = log;
+      if (passed === true && category === NodeCategories.PASSED) {
+        return true;
+      }
+      if (skipped === true && category === NodeCategories.SKIPPED) {
+        return true;
+      }
+      if (failed === true && category === NodeCategories.FAILED) {
+        return true;
+      }
+      return debug === true && category === NodeCategories.OTHER;
+    });
+    if (filteredLogs.length > 0) {
+      return null;
+    }
+    return <p className="text-center text-danger">No logs found</p>;
+  };
 
   render() {
 
@@ -37,8 +59,9 @@ class Output extends Component {
                 <Accordion.Collapse eventKey={ id }>
                   <Card.Body>
                     <FilterToolbar node={ node }/>
+                    { this.getNoLogsTitle(node) }
                     { logs.map(log => {
-                      return <LogOutput key={log.id} node={node} log={ log }/>
+                      return <LogOutput key={ log.id } node={ node } log={ log }/>
                     }) }
                   </Card.Body>
                 </Accordion.Collapse>

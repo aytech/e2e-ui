@@ -1,4 +1,5 @@
 import React from 'react';
+import { NodeCategories } from "../../constants/application";
 
 const LogOutput = (props) => {
   const {
@@ -13,19 +14,19 @@ const LogOutput = (props) => {
     log
   } = props.log;
 
-  if (category === 'PASSED' && passed === true) {
+  if (category === NodeCategories.PASSED && passed === true) {
     return <p key={ id } className="text-success">{ log }</p>
   }
 
-  if (category === 'SKIPPED' && skipped === true) {
+  if (category === NodeCategories.SKIPPED && skipped === true) {
     return <p key={ id } className="text-warning">{ log }</p>
   }
 
-  if (category === 'FAILED' && failed === true) {
+  if (category === NodeCategories.FAILED && failed === true) {
     return <p key={ id } className="text-danger">{ log }</p>
   }
 
-  if (category === 'OTHER' && debug === true) {
+  if (category === NodeCategories.OTHER && debug === true) {
     return <p key={ id } className="text-info">{ log }</p>
   }
 

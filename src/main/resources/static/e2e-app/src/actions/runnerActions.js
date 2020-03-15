@@ -1,7 +1,7 @@
 import {
   UPDATE_SERVER_ERROR,
   UPDATE_BUILD_STATUS
-} from "./constants";
+} from "../constants/actions";
 import DockerService from "../services/DockerService";
 import { HttpStatuses } from "../constants/application";
 import {
@@ -32,8 +32,6 @@ export const runSuite = () => {
       })
       .catch(() => {
         dispatch(updateServerErrorState(true));
-      }).finally(() => {
-      dispatch(updateBuildStatus(false));
-    });
+      });
   }
 };

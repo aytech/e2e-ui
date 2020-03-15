@@ -69,8 +69,7 @@ public class FilesResource {
         printWriter.println("WORKDIR app");
         printWriter.println("RUN apk update && \\");
         printWriter.println("\tapk upgrade && \\");
-        printWriter.println("\tapk add git");
-        // printWriter.println("\tapk add git openssh");
+        printWriter.println("\tapk add git openssh gradle");
         // printWriter.println("COPY ./id_rsa_teamcity-e2e /root/.ssh/");
         // printWriter.println("RUN chmod 400 /root/.ssh/id_rsa_teamcity-e2e");
         // printWriter.println("RUN mkdir -p /root/.ssh");

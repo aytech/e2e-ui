@@ -8,7 +8,7 @@ import {
   UPDATE_VARIABLE_TYPE,
   UPDATE_VARIABLE_VALUE,
   UPDATE_VARIABLES
-} from "../actions/constants";
+} from "../constants/actions";
 
 export default (state = {}, action) => {
   switch (action.type) {

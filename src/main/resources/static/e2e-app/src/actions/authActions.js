@@ -9,7 +9,7 @@ import {
   UPDATE_LOGIN_WARN,
   UPDATE_LOGIN_WARN_MESSAGE,
   UPDATE_PASSWORD
-} from "./constants";
+} from "../constants/actions";
 import AuthenticationService from "../services/AuthenticationService";
 import { fetchSettings } from "./settingsActions";
 import ValidationService from "../services/ValidationService";
