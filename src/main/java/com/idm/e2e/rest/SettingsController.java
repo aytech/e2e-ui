@@ -4,8 +4,10 @@ import com.idm.e2e.entities.SystemVariableEntity;
 import com.idm.e2e.entities.UserEntity;
 import com.idm.e2e.entities.VariableEntity;
 import com.idm.e2e.models.BasicVariable;
+import com.idm.e2e.models.JobNode;
 import com.idm.e2e.models.SettingsResponse;
 import com.idm.e2e.models.VariableResponse;
+import com.idm.e2e.services.DockerService;
 import com.idm.e2e.services.NodeService;
 import com.idm.e2e.services.VariableService;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 import static com.idm.e2e.configuration.AppConstants.*;
 
 @RestController
@@ -24,10 +28,16 @@ public class SettingsController {
 
     final VariableService variableService;
     final NodeService nodeService;
+    final DockerService dockerService;
 
-    public SettingsController(VariableService service, NodeService nodeService) {
+    public SettingsController(
+            VariableService service,
+            NodeService nodeService,
+            DockerService dockerService
+    ) {
         this.variableService = service;
         this.nodeService = nodeService;
+        this.dockerService = dockerService;
     }
 
     @RequestMapping(method = RequestMethod.POST, value = URI_VAR_CREATE)
@@ -105,7 +115,14 @@ public class SettingsController {
         UserEntity user = (UserEntity) authentication.getPrincipal();
         response.setVariables(variableService.getCustomVariables(user));
         response.setSystemVariables(variableService.getSystemVariables());
-        response.setNodes(nodeService.getNodes(user));
+        List<JobNode> nodes = nodeService.getNodes(user);
+        for (JobNode node : nodes) {
+            String e2eContainerName = String.format("%s%s", node.getTag(), NODE_E2E_SUFFIX);
+            boolean isNodeContainerRunning = dockerService.getNodeRunningStatus(node.getTag());
+            boolean isSuiteContainerRunning = dockerService.getNodeRunningStatus(e2eContainerName);
+            node.setStoppable(isNodeContainerRunning || isSuiteContainerRunning);
+        }
+        response.setNodes(nodes);
         response.setSystem(user.getRole().equals(UserEntity.Roles.ADMIN.toString()));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

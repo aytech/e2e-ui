@@ -1,16 +1,12 @@
 package com.idm.e2e.processes;
 
-import com.idm.e2e.models.EmailRequest;
-import com.idm.e2e.resources.EmailResource;
 import com.idm.e2e.resources.FilesResource;
 import com.idm.e2e.entities.*;
 import com.idm.e2e.resources.DockerCommandsResource;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.mail.MessagingException;
 import java.io.File;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.List;
 

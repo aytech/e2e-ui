@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.idm.e2e.configuration.AppConstants.*;
+import static com.idm.e2e.configuration.NodeStatues.IN_PROGRESS;
 
 @RestController
 @RequestMapping(value = URI_API_BASE)
@@ -50,16 +51,19 @@ public class BuildController {
         this.variableService = variableService;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = URI_NODE, params = {"node"})
+    @RequestMapping(method = RequestMethod.GET, value = URI_NODE, params = { "node" })
     public HttpEntity<JobNode> getNodeStatus(HttpServletRequest request, @RequestParam("node") String nodeId) {
-        JobNode node = nodeService.getNode(Long.parseLong(nodeId));
-        if (node.getTag() == null) {
-            return new ResponseEntity<>(node, HttpStatus.NOT_FOUND);
+        NodeEntity nodeEntity = nodeService.getNodeEntity(Long.parseLong(nodeId));
+        if (nodeEntity == null) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
-        String e2eContainerName = String.format("%s%s", node.getTag(), NODE_E2E_SUFFIX);
-        boolean isNodeContainerRunning = dockerService.getNodeRunningStatus(node.getTag());
-        boolean isSuiteContainerRunning = dockerService.getNodeRunningStatus(e2eContainerName);
-        node.setStoppable(isNodeContainerRunning || isSuiteContainerRunning);
+        String e2eContainerName = String.format("%s%s", nodeEntity.getNode(), NODE_E2E_SUFFIX);
+        boolean isNodeContainerRunning = dockerService.getNodeRunningStatus(e2eContainerName);
+        if (!isNodeContainerRunning && nodeEntity.getStatus().equals(IN_PROGRESS)) {
+            nodeEntity = nodeService.closeNode(nodeEntity);
+        }
+        JobNode node = nodeService.getJobNode(nodeEntity);
+        node.setStoppable(isNodeContainerRunning);
         return new ResponseEntity<>(node, HttpStatus.OK);
     }
 
@@ -71,6 +75,9 @@ public class BuildController {
             response.setMessage("Node not found");
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
+        // Remove node image
+        dockerService.removeNodeImage(node.getTag());
+        // Remove node directory and logs
         FilesResource filesResource = new FilesResource(node.getTag());
         try {
             if (!filesResource.getNodePath().exists()) {
@@ -105,7 +112,7 @@ public class BuildController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = URI_DOWNLOAD_REPORT, params = {"node"})
+    @RequestMapping(method = RequestMethod.GET, value = URI_DOWNLOAD_REPORT, params = { "node" })
     public ResponseEntity<Resource> downloadReport(
             HttpServletRequest request,
             @RequestParam("node") String nodeId
@@ -133,7 +140,7 @@ public class BuildController {
         return null;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = URI_STOP_PROCESS, params = {"node"})
+    @RequestMapping(method = RequestMethod.GET, value = URI_STOP_PROCESS, params = { "node" })
     public ResponseEntity<GenericResponse> stopTest(@RequestParam("node") String nodeId) {
         GenericResponse response = new GenericResponse();
         JobNode node = nodeService.getNode(Long.parseLong(nodeId));

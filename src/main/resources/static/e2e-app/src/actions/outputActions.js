@@ -72,12 +72,13 @@ export const fetchNode = (nodeId, nodes) => {
       .fetchNode(nodeId)
       .then(response => {
         const { code, data } = response;
-        const { status, logs } = data;
+        const { logs, status, stoppable } = data;
         if (code === 200) {
           const newNodes = nodes.map(node => {
             if (node.id === nodeId) {
-              node.status = status;
               node.logs = logs;
+              node.status = status;
+              node.stoppable = stoppable;
             }
             return node;
           });

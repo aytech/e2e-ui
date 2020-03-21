@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.idm.e2e.configuration.NodeStatues.COMPLETE;
+
 @Service
 public class NodeService {
 
@@ -33,10 +35,21 @@ public class NodeService {
         return nodeEntity.map(this::getJobNode).orElseGet(JobNode::new);
     }
 
+    public NodeEntity getNodeEntity(long nodeId) {
+        Optional<NodeEntity> nodeEntity = nodeRepository.findById(nodeId);
+        return nodeEntity.orElse(null);
+    }
+
     public boolean removeNode(NodeEntity nodeEntity) {
         nodeLogRepository.deleteByNodeId(nodeEntity.getId());
         nodeRepository.deleteById(nodeEntity.getId());
         return nodeRepository.findById(nodeEntity.getId()).isPresent();
+    }
+
+    public NodeEntity closeNode(NodeEntity nodeEntity) {
+        nodeEntity.setStatus(COMPLETE);
+        nodeRepository.save(nodeEntity);
+        return nodeEntity;
     }
 
     private List<JobNode> basicNodes(List<NodeEntity> nodeEntities) {
@@ -47,7 +60,7 @@ public class NodeService {
         return basicNodes;
     }
 
-    private JobNode getJobNode(NodeEntity nodeEntity) {
+    public JobNode getJobNode(NodeEntity nodeEntity) {
         JobNode basicNode = new JobNode();
         basicNode.setId(nodeEntity.getId());
         basicNode.setTag(nodeEntity.getNode());

@@ -10,6 +10,7 @@ import {
   updateLoginWarn,
   updateLoginWarnMessage
 } from "./authActions";
+import { updateNodes } from "./outputActions";
 
 const dockerService = new DockerService();
 
@@ -22,7 +23,10 @@ export const runSuite = () => {
     dockerService
       .runE2ESuite()
       .then(response => {
-        const { status } = response;
+        const { status, nodes } = response;
+        if (status === HttpStatuses.OK) {
+          dispatch(updateNodes(nodes));
+        }
         if (status === HttpStatuses.UNAUTHORIZED) {
           dispatch(updateAuthenticatedStatus(false));
           dispatch(updateLoginModalStatus(true));
