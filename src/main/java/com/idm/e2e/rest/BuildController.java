@@ -98,6 +98,7 @@ public class BuildController {
         } catch (IllegalStateException e) {
             System.out.println("Exception: " + e.getMessage());
         }
+        response.setNodes(nodeService.getNodes(user));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

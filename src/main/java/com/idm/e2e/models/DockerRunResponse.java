@@ -1,14 +1,17 @@
 package com.idm.e2e.models;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class DockerRunResponse {
     private boolean isValid;
     private ArrayList<String> errors;
     private String nodeID;
+    private List<JobNode> nodes;
 
     public DockerRunResponse() {
         errors = new ArrayList<>();
+        nodes = new ArrayList<>();
     }
 
     public boolean isValid() {
@@ -33,5 +36,13 @@ public class DockerRunResponse {
 
     public void setNodeID(String nodeID) {
         this.nodeID = nodeID;
+    }
+
+    public List<JobNode> getNodes() {
+        return nodes;
+    }
+
+    public void setNodes(List<JobNode> nodes) {
+        this.nodes = nodes;
     }
 }

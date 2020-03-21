@@ -10,8 +10,12 @@ RUN apk update && \
 #RUN eval $(ssh-agent -s) && \
 #    ssh-add ~/.ssh/id_rsa_teamcity-e2e && \
 #    git clone -b develop ssh://git@oxfordssh.awsdev.infor.com:7999/itech/idm-e2e.git
-RUN git clone -b master https://github.com/aytech/idm-e2e.git
-CMD ["tail", "-f", "/dev/null"]
+RUN git clone -b master https://github.com/aytech/idm-e2e.git .
+#CMD ["tail", "-f", "/dev/null"]
+CMD ["sh"]
+#CMD ["gradle", "--rerun-tasks", "chrome", "-Premote=http://selenium-hub:4444/wd/hub"]
+
+# gradle --rerun-tasks chrome -Premote=http://selenium-hub:4444/wd/hub
 
 #FROM gradle:5.6.2-jdk8
 #WORKDIR app
