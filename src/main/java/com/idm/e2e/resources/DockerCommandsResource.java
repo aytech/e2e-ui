@@ -8,7 +8,7 @@ import java.util.Map;
 
 import static com.idm.e2e.configuration.DockerConstants.*;
 
-public class DockerCommandsResource {
+public class DockerCommandsResource extends E2EResource {
 
     public static ProcessBuilder networkCreate() {
         ArrayList<String> arguments = getArguments();
@@ -29,22 +29,11 @@ public class DockerCommandsResource {
         return getBuilder(arguments);
     }
 
-    public static ProcessBuilder getContainerStatus(String containerName) {
+    public static ProcessBuilder getImageListProcess(String imageName) {
         ArrayList<String> arguments = getArguments();
-        arguments.add("inspect");
-        arguments.add("-f");
-        arguments.add("'{{.State.Status}}'");
-        arguments.add(containerName);
-        return getBuilder(arguments);
-    }
-
-    public static ProcessBuilder isContainerCreated(String containerName) {
-        ArrayList<String> arguments = getArguments();
-        arguments.add("container");
-        arguments.add("ls");
-        arguments.add("-f");
-        arguments.add(String.format("name=%s", containerName));
+        arguments.add("images");
         arguments.add("-q");
+        arguments.add(String.format("%s:latest", imageName));
         return getBuilder(arguments);
     }
 
@@ -61,7 +50,7 @@ public class DockerCommandsResource {
         return getBuilder(arguments);
     }
 
-    public static ProcessBuilder buildImage(String dockerFile, String imageTag, String contextPath) {
+    public ProcessBuilder buildImage(String dockerFile, String imageTag, String contextPath) {
         ArrayList<String> arguments = getArguments();
         arguments.add("build");
         arguments.add("-f");
@@ -72,14 +61,14 @@ public class DockerCommandsResource {
         return getBuilder(arguments);
     }
 
-    public static ProcessBuilder getStopContainerCommand(String containerName) {
+    public ProcessBuilder getStopContainerCommand(String containerName) {
         ArrayList<String> arguments = getArguments();
         arguments.add("stop");
         arguments.add(containerName);
         return getBuilder(arguments);
     }
 
-    public static ProcessBuilder runChromeNode(String nodeID) {
+    public ProcessBuilder runChromeNode(String nodeID) {
         ArrayList<String> arguments = getNodeArguments(nodeID, DOCKER_CHROME_VOLUME, DOCKER_CHROME_VOLUME);
         arguments.add("-e");
         arguments.add("SCREEN_WIDTH=1920");
@@ -112,8 +101,10 @@ public class DockerCommandsResource {
         return getBuilder(arguments);
     }
 
-    public static ProcessBuilder runE2ENode(String nodeID, String reportsPath, HashMap<String, String> envVariables) {
+    public ProcessBuilder runE2ENode(String nodeID, String reportsPath, HashMap<String, String> envVariables) {
         ArrayList<String> arguments = getNodeArguments(nodeID, reportsPath, DOCKER_REPORTS_PATH);
+        arguments.add("-e");
+        arguments.add(String.format("%s=%s", DOCKER_UID, getUserUid()));
         for (Map.Entry<String, String> variable : envVariables.entrySet()) {
             arguments.add("-e");
             arguments.add(String.format("%s=%s", variable.getKey(), variable.getValue()));
@@ -139,7 +130,7 @@ public class DockerCommandsResource {
     private static ArrayList<String> getRunArguments(String nodeID) {
         ArrayList<String> arguments = getArguments();
         arguments.add("run");
-        arguments.add("--rm");
+        // arguments.add("--rm");
         arguments.add("--name");
         arguments.add(nodeID);
         arguments.add(String.format("--network=%s", DOCKER_NETWORK_NAME));
@@ -163,7 +154,7 @@ public class DockerCommandsResource {
         return builder;
     }
 
-    public static String getNewNodeID() {
+    public String getNewNodeID() {
         return RandomStringUtils.random(10, false, true);
     }
 }

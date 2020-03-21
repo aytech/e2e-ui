@@ -1,20 +1,16 @@
-package com.idm.e2e.data;
+package com.idm.e2e.resources;
 
 import com.idm.e2e.models.E2EConfiguration;
-import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.idm.e2e.configuration.AppConstants.*;
-import static com.idm.e2e.configuration.DockerConstants.DOCKERFILE;
-import static com.idm.e2e.configuration.DockerConstants.DOCKER_WORK_DIRECTORY;
+import static com.idm.e2e.configuration.DockerConstants.*;
 
-public class FilesResource {
+public class FilesResource extends E2EResource {
 
     private E2EConfiguration configuration;
     private PrintWriter printWriter;
@@ -27,9 +23,6 @@ public class FilesResource {
 
     public FilesResource(String nodeId) {
         this.nodeId = nodeId;
-    }
-
-    public FilesResource() {
     }
 
     public void writeNewConfigurationFile(String targetFileName) throws IOException {
@@ -52,41 +45,61 @@ public class FilesResource {
         close();
     }
 
-    public boolean writeDockerFile(String branchName) throws IOException {
-        loadPrintWriter(branchName);
-        boolean readable = getDockerFile().setReadable(true, false);
-        boolean writable = getDockerFile().setWritable(true, false);
-        boolean executable = getDockerFile().setExecutable(true, false);
-        return readable && writable && executable;
+    public void writeBaseDockerFile() throws IOException {
+        File entrypointFile = getFileFromNodeDirectory(DOCKER_ENTRYPOINT);
+        FileWriter entrypointFileWriter = new FileWriter(
+                String.format("%s%s%s", entrypointFile.getParent(), File.separator, DOCKER_ENTRYPOINT));
+        PrintWriter entrypointPrintWriter = new PrintWriter(entrypointFileWriter);
+        entrypointPrintWriter.println("#!/bin/sh");
+        entrypointPrintWriter.println(String.format("USER_ID=${%s:-%s}", DOCKER_UID, DOCKER_UID_DEFAULT));
+        entrypointPrintWriter.println("adduser -s /bin/sh -u \"$USER_ID\" -D user");
+        entrypointPrintWriter.println("export HOME=/home/user");
+        entrypointPrintWriter.println("exec /usr/local/bin/gosu user \"$@\"");
+        entrypointPrintWriter.close();
+        entrypointFileWriter.close();
+
+        File dockerFile = getFileFromNodeDirectory(DOCKERFILE_BASE);
+        FileWriter dockerFileWriter = new FileWriter(
+                String.format("%s%s%s", dockerFile.getParent(), File.separator, DOCKERFILE_BASE));
+        PrintWriter dockerPrintWriter = new PrintWriter(dockerFileWriter);
+        dockerPrintWriter.println("FROM alpine");
+        dockerPrintWriter.println("RUN apk update && \\");
+        dockerPrintWriter.println("\tapk upgrade && \\");
+        dockerPrintWriter.println("\tapk add --no-cache gnupg && \\");
+        dockerPrintWriter.println("\tapk add dpkg ca-certificates curl");
+        dockerPrintWriter.println("RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4");
+        dockerPrintWriter.println("RUN curl -o /usr/local/bin/gosu -SL \"https://github.com/tianon/gosu/releases/download/1.4/gosu-$(dpkg --print-architecture | awk -F- '{ print $NF }')\" \\");
+        dockerPrintWriter.println("&& curl -o /usr/local/bin/gosu.asc -SL \"https://github.com/tianon/gosu/releases/download/1.4/gosu-$(dpkg --print-architecture | awk -F- '{ print $NF }').asc\" \\");
+        dockerPrintWriter.println("&& gpg --verify /usr/local/bin/gosu.asc \\");
+        dockerPrintWriter.println("&& rm /usr/local/bin/gosu.asc \\");
+        dockerPrintWriter.println("&& chmod +x /usr/local/bin/gosu");
+        dockerPrintWriter.println("COPY entrypoint.sh /usr/local/bin/entrypoint.sh");
+        dockerPrintWriter.println("RUN chmod +x /usr/local/bin/entrypoint.sh");
+        dockerPrintWriter.println("ENTRYPOINT [\"/usr/local/bin/entrypoint.sh\"]");
+        dockerPrintWriter.close();
+        dockerFileWriter.close();
     }
 
-    private void loadPrintWriter(String branchName) throws IOException {
-        File file = getDockerFile();
-        fileWriter = new FileWriter(String.format("%s%s%s", file.getParent(), File.separator, DOCKERFILE));
-        printWriter = new PrintWriter(fileWriter);
-        printWriter.println("FROM alpine as repository");
-        printWriter.println(String.format("LABEL maintainer=\"%s\"", MAINTAINER));
-        printWriter.println("WORKDIR app");
-        printWriter.println("RUN apk update && \\");
-        printWriter.println("\tapk upgrade && \\");
-        printWriter.println("\tapk add git openssh gradle");
-        // printWriter.println("COPY ./id_rsa_teamcity-e2e /root/.ssh/");
-        // printWriter.println("RUN chmod 400 /root/.ssh/id_rsa_teamcity-e2e");
-        // printWriter.println("RUN mkdir -p /root/.ssh");
-        // printWriter.println("RUN ssh-keyscan -p 7999 oxfordssh.awsdev.infor.com >> ~/.ssh/known_hosts");
-        // printWriter.println("RUN eval $(ssh-agent -s) && \\");
-        // printWriter.println("\tssh-add ~/.ssh/id_rsa_teamcity-e2e && \\");
-        // printWriter.println(String.format("\tgit clone -b %s ssh://git@oxfordssh.awsdev.infor.com:7999/itech/idm-e2e.git", branchName));
-        printWriter.println(String.format("RUN git clone -b %s https://github.com/aytech/idm-e2e.git", branchName));
-        printWriter.println("");
-        printWriter.println("FROM gradle:5.6.2-jdk8");
-        printWriter.println("WORKDIR app");
-        printWriter.println(String.format("COPY --from=repository /app/idm-e2e/src %s/src", DOCKER_WORK_DIRECTORY));
-        printWriter.println(String.format("COPY --from=repository /app/idm-e2e/build.gradle %s", DOCKER_WORK_DIRECTORY));
-        printWriter.println(String.format("COPY --from=repository /app/idm-e2e/src/test/resources/Upload/1.jpg %s", DOCKER_WORK_DIRECTORY));
-        printWriter.println(String.format("COPY --from=repository /app/idm-e2e/src/test/resources/Upload/2.jpg %s", DOCKER_WORK_DIRECTORY));
-        printWriter.println("ENTRYPOINT gradle --rerun-tasks chrome -Pidm.configuration.path=/home/gradle/app/configuration -Pidm.credentials.path=/home/gradle/app/credentials -Premote=http://selenium-hub:4444/wd/hub");
-        close();
+    public void writeDockerFile(String repositoryUrl, String branchName) throws IOException {
+        String uid = getUserUid();
+        File dockerFile = getFileFromNodeDirectory(DOCKERFILE);
+        FileWriter dockerFileWriter = new FileWriter(
+                String.format("%s%s%s", dockerFile.getParent(), File.separator, DOCKERFILE));
+        PrintWriter dockerPrintWriter = new PrintWriter(dockerFileWriter);
+
+        dockerPrintWriter.println("FROM e2e-base");
+        dockerPrintWriter.println("WORKDIR app");
+        dockerPrintWriter.println("RUN apk update && \\");
+        dockerPrintWriter.println("\tapk upgrade && \\");
+        dockerPrintWriter.println("\tapk add git openssh openjdk8");
+        dockerPrintWriter.println(String.format("RUN git clone -b %s %s .", branchName, repositoryUrl));
+        dockerPrintWriter.println("RUN mkdir -p /app/build/reports");
+        dockerPrintWriter.println(String.format("RUN chown -R %s:%s /app", uid, uid));
+        dockerPrintWriter.println("RUN chmod +x gradlew");
+        dockerPrintWriter.println("CMD [\"./gradlew\", \"--rerun-tasks\", \"chrome\", \"-Premote=http://selenium-hub:4444/wd/hub\"]");
+
+        dockerPrintWriter.close();
+        dockerFileWriter.close();
     }
 
     public void copyRsaFile() throws IOException {
@@ -131,7 +144,7 @@ public class FilesResource {
         return path;
     }
 
-    private File getFileFromNodeDirectory(String fileName) {
+    public File getFileFromNodeDirectory(String fileName) {
         File path = getNodeDirectory();
         String basePath = String.format(
                 "%s%s%s",
@@ -142,21 +155,8 @@ public class FilesResource {
         return new File(basePath);
     }
 
-    public File getDockerFile() {
-        return getFileFromNodeDirectory(DOCKERFILE);
-    }
-
-    public File getRsaFile() {
-        return getFileFromNodeDirectory(RSA_FILE);
-    }
-
     public File getTestReportDirectory() {
         return getFileFromNodeDirectory(REPORT_DIR);
-    }
-
-    public String getReportsPath() {
-        createConfigurationDirectory(null);
-        return getConfigurationDirectory(null).getPath();
     }
 
     public void createConfigurationDirectory(String subDirectory) {
@@ -172,25 +172,6 @@ public class FilesResource {
                 createConfigurationDirectory(subDirectory);
             }
         }
-    }
-
-    public void cleanConfigurationFiles() {
-        for (String path : getConfigurationFiles()) {
-            File file = new File(path);
-            if (file.exists() && file.delete()) {
-                System.out.println(String.format("File %s was removed", file.getName()));
-            }
-        }
-    }
-
-    private List<String> getConfigurationFiles() {
-        String configurationDirectory = getConfigurationDirectory(null).getPath();
-        ArrayList<String> paths = new ArrayList<>();
-        paths.add(String.format("%s%s%s", configurationDirectory, File.separator, CONFIGURATION));
-        paths.add(String.format("%s%s%s", configurationDirectory, File.separator, CREDENTIALS));
-        paths.add(String.format("%s%s%s", configurationDirectory, File.separator, DOCKERFILE));
-        paths.add(String.format("%s%s%s", configurationDirectory, File.separator, RSA_FILE));
-        return paths;
     }
 
     /*
@@ -236,13 +217,5 @@ public class FilesResource {
         File file = getFile(targetFileName);
         fileWriter = new FileWriter(String.format("%s%s%s", file.getParent(), File.separator, targetFileName));
         printWriter = new PrintWriter(fileWriter);
-    }
-
-    public void removeDockerFile() throws IOException {
-        FileUtils.forceDelete(getDockerFile());
-    }
-
-    public void removeRsaFile() throws IOException {
-        FileUtils.forceDelete(getRsaFile());
     }
 }

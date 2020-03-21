@@ -3,6 +3,7 @@ package com.idm.e2e.loggers;
 import com.idm.e2e.data.StatusStorage;
 import com.idm.e2e.models.DockerBuildStatus;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -38,6 +39,8 @@ public class ProcessLogger {
             status.addStdErrorEntry(line);
             System.out.println("Error: " + line);
         }
+        input.close();
+        error.close();
     }
 
     public void log(String nodeID) throws IOException {
@@ -70,8 +73,7 @@ public class ProcessLogger {
     }
 
     public Boolean getLogBoolean() {
-        try {
-            BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        try (BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             String line;
             while ((line = input.readLine()) != null) {
                 if (Boolean.parseBoolean(line.replaceAll("'", ""))) {
@@ -85,8 +87,7 @@ public class ProcessLogger {
     }
 
     public String getLogString() {
-        try {
-            BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        try (BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             String line = input.readLine();
             if (line != null) {
                 return line.replaceAll("'", "");

@@ -1,6 +1,7 @@
 package com.idm.e2e.rest;
 
-import com.idm.e2e.data.FilesResource;
+import com.idm.e2e.loggers.ProcessLogger;
+import com.idm.e2e.resources.FilesResource;
 import com.idm.e2e.data.ZipResource;
 import com.idm.e2e.entities.NodeEntity;
 import com.idm.e2e.entities.SystemVariableEntity;
@@ -22,7 +23,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;

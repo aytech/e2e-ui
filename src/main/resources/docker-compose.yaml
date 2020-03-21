@@ -41,6 +41,6 @@ services:
       - E2E_BASE_URL=https://nlbavwidm3.infor.com/infor
       - E2E_ENVIRONMENT=staging
       - E2E_DOCUMENT_TYPE=AA
-      - E2E_FILE_PATH=/app/1.jpg
+      - E2E_FILE_PATH=/app/src/test/resources/Upload/1.jpg
       - E2E_USER=oleg.yapparov@infor.com
-      - E2E_PASSWORD=foo
+      - E2E_PASSWORD=admin

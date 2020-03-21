@@ -2,6 +2,8 @@ package com.idm.e2e.processes;
 
 import com.idm.e2e.entities.*;
 import com.idm.e2e.interfaces.DockerRunnable;
+import com.idm.e2e.loggers.ProcessLogger;
+import com.idm.e2e.resources.DockerCommandsResource;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -161,5 +163,11 @@ public abstract class Node implements DockerRunnable {
             return LogLevel.INFO;
         }
         return LogLevel.DEBUG;
+    }
+
+    protected boolean imageExists(String imageTag) throws IOException {
+        Process imageProcess = DockerCommandsResource.getImageListProcess(imageTag).start();
+        ProcessLogger logger = new ProcessLogger(imageProcess);
+        return logger.getLogString() != null;
     }
 }

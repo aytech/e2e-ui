@@ -5,6 +5,8 @@ public class AppConstants {
     public static final String CONFIGURATION = "configuration";
     public static final String CONFIGURATION_DIRECTORY = "e2e";
     public static final String CREDENTIALS = "credentials";
+    public static final String E2E_REPO_BRANCH = "master";
+    public static final String E2E_URL = "https://github.com/aytech/idm-e2e.git";
     public static final String EMAIL_FROM = "e2e.donotreply@infor.com";
     public static final String EMAIL_SUBJECT = "E2E Runner test report";
     public static final String GMAIL_ACCESS_TYPE = "offline";

@@ -1,6 +1,6 @@
 package com.idm.e2e.data;
 
-import com.idm.e2e.models.E2EConfiguration;
+import com.idm.e2e.resources.FilesResource;
 
 import java.io.*;
 import java.util.zip.ZipEntry;
