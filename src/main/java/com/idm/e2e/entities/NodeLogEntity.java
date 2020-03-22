@@ -14,21 +14,25 @@ public class NodeLogEntity implements LogEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long id;
 
-    @Column(name = "level")
+    @Column(name = "level",
+            length = 10,
+            nullable = false)
     private String level;
 
-    @Column(name = "category")
+    @Column(name = "category",
+            length = 10,
+            nullable = false)
     private String category;
 
     @Column(name = "log")
+    @Lob
     private String log;
 
     @ManyToOne(cascade = {
             CascadeType.PERSIST,
             CascadeType.MERGE,
             CascadeType.DETACH,
-            CascadeType.REFRESH
-    })
+            CascadeType.REFRESH })
     @JoinColumn(name = "node_id")
     private NodeEntity node;
 

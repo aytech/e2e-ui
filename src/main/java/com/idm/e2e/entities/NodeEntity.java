@@ -16,18 +16,21 @@ public class NodeEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long id;
 
-    @Column(name = "node")
+    @Column(name = "node",
+            length = 20,
+            nullable = false)
     private String node;
 
-    @Column(name = "status")
+    @Column(name = "status",
+            length = 20,
+            nullable = false)
     protected String status;
 
     @ManyToOne(cascade = {
             CascadeType.PERSIST,
             CascadeType.MERGE,
             CascadeType.DETACH,
-            CascadeType.REFRESH
-    })
+            CascadeType.REFRESH })
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
@@ -37,8 +40,7 @@ public class NodeEntity {
                     CascadeType.MERGE,
                     CascadeType.REMOVE,
                     CascadeType.DETACH,
-                    CascadeType.REFRESH
-            })
+                    CascadeType.REFRESH })
     private List<NodeLogEntity> logs;
 
     @CreationTimestamp

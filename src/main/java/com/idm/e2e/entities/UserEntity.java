@@ -30,29 +30,54 @@ public class UserEntity implements UserDetails {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
-    @Column(name = "activation_code")
+
+    @Column(name = "activation_code", length = 100)
     private String activationCode;
-    @Column(name = "username")
+
+    @Column(name = "username", length = 100)
     private String username;
-    @Column(name = "email")
+
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
-    @Column(name = "password")
+
+    @Column(name = "password", nullable = false)
     private String password;
-    @Column(name = "role")
+
+    @Column(name = "role", nullable = false)
     private String role;
-    @Column(name = "enabled")
+
+    @Column(
+            name = "enabled",
+            nullable = false,
+            columnDefinition = "boolean default false")
     private boolean enabled;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created")
     private Date created;
-    @Column(name = "deleted")
+
+    @Column(
+            name = "deleted",
+            nullable = false,
+            columnDefinition = "boolean default false")
     private boolean deleted;
+
     @OneToMany(mappedBy = "user",
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE,
+                    CascadeType.DETACH,
+                    CascadeType.REFRESH })
     private List<VariableEntity> variables;
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER,
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+
+    @OneToMany(mappedBy = "user",
+            fetch = FetchType.EAGER,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE,
+                    CascadeType.DETACH,
+                    CascadeType.REFRESH })
     private List<NodeEntity> nodes;
 
     public Long getId() {

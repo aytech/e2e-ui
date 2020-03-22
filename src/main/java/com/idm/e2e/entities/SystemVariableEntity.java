@@ -14,13 +14,19 @@ public class SystemVariableEntity implements VariablesEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(name = "key")
+    @Column(name = "key",
+            length = 100,
+            nullable = false)
     private String key;
 
-    @Column(name = "value")
+    @Column(name = "value",
+            length = 100,
+            nullable = false)
     private String value;
 
-    @Column(name = "type")
+    @Column(name = "type",
+            length = 10,
+            nullable = false)
     private String type;
 
     @CreationTimestamp
