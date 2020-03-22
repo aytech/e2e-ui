@@ -10,53 +10,57 @@ import {
   updateSystemVariable,
   updateSystemVariables
 } from "../../actions/settingsActions";
+import { Prompt } from "react-router";
 
 class ListAdminSystemVariables extends Component {
 
-  onChangeVariableKey = (position, event) => {
-    const { systemVariables } = this.props.settings;
-    systemVariables.every((variable, index) => {
-      if (position === index) {
-        variable.key = event.target.value;
-        return false;
-      }
-      return true;
-    });
-    this.props.updateSystemVariables(systemVariables);
-  };
-
-  onChangeVariableValue = (position, event) => {
-    const { systemVariables } = this.props.settings;
-    systemVariables.every((variable, index) => {
-      if (position === index) {
-        variable.value = event.target.value;
-        return false;
-      }
-      return true;
-    });
-    this.props.updateSystemVariables(systemVariables);
-  };
-
-  onChangeVariableType = (position, event) => {
-    const { systemVariables } = this.props.settings;
-    systemVariables.every((variable, index) => {
-      if (position === index) {
-        variable.type = event.target.value;
-        return false;
-      }
-      return true;
-    });
-    this.props.updateSystemVariables(systemVariables);
-  };
-
-  updateVariable = (position) => {
-    const { systemVariables } = this.props.settings;
-    const variable = systemVariables[position];
-    if (variable === undefined) {
-      return;
+  constructor(props) {
+    super(props);
+    this.state = {
+      modifiedVariableId: -1
     }
-    if (this.props.validator(variable)) {
-      this.props.updateSystemVariable(variable, systemVariables);
+  }
+
+  getVariable = (id) => {
+    const { systemVariables } = this.props.settings;
+    return systemVariables.find(variable => variable.id === id);
+  };
+
+  updateVariable = (variable) => {
+    const { systemVariables } = this.props.settings;
+    const variables = systemVariables.map(element => {
+      if (element.id === variable.id) {
+        return variable;
+      }
+      return element;
+    });
+    this.props.updateSystemVariables(variables);
+    this.setState({ modifiedVariableId: variable.id });
+  };
+
+  onChangeVariableKey = (id, event) => {
+    const variable = this.getVariable(id);
+    if (variable !== undefined) {
+      variable.key = event.target.value;
+      this.updateVariable(variable);
+    }
+  };
+
+  onChangeVariableValue = (id, event) => {
+    const variable = this.getVariable(id);
+    if (variable !== undefined) {
+      variable.value = event.target.value;
+      this.updateVariable(variable);
+    }
+  };
+
+  onChangeVariableType = (id, event) => {
+    const { types } = this.props.settings;
+    const variable = this.getVariable(id);
+    const isValidType = types.indexOf(event.target.value) !== -1;
+    if (variable !== undefined && isValidType === true) {
+      variable.type = event.target.value;
+      this.updateVariable(variable);
     }
   };
 
@@ -69,14 +73,32 @@ class ListAdminSystemVariables extends Component {
     this.props.removeSystemVariable(variable.id, systemVariables);
   };
 
+  getEditButton = (index, variable) => {
+    const { modifiedVariableId } = this.state;
+    const modified = modifiedVariableId === variable.id;
+    const variant = modified ? 'warning' : 'light';
+    return (
+      <Button variant={ variant } onClick={ () => {
+        this.setState({ modifiedVariableId: -1 });
+        this.props.updateSystemVariable(variable)
+      } } disabled={ modified === false }>
+        <FontAwesomeIcon icon={ faEdit }/>
+      </Button>
+    );
+  };
+
   render() {
     const {
       systemVariables,
       types
     } = this.props.settings;
+    const { modifiedVariableId } = this.state;
 
     return (
       <React.Fragment>
+        <Prompt
+          when={ modifiedVariableId !== -1 }
+          message="Discard unsaved changes?"/>
         { systemVariables.map((variable, index) => (
           <Form.Group className="var-group" key={ index }>
             <Form.Row>
@@ -87,7 +109,7 @@ class ListAdminSystemVariables extends Component {
                     placeholder="Variable name"
                     value={ variable.key }
                     onChange={ (event) => {
-                      this.onChangeVariableKey(index, event)
+                      this.onChangeVariableKey(variable.id, event)
                     } }/>
                 </Form.Group>
               </Col>
@@ -98,7 +120,7 @@ class ListAdminSystemVariables extends Component {
                     placeholder="Variable value"
                     value={ variable.value }
                     onChange={ (event) => {
-                      this.onChangeVariableValue(index, event)
+                      this.onChangeVariableValue(variable.id, event)
                     } }/>
                 </Form.Group>
               </Col>
@@ -108,7 +130,7 @@ class ListAdminSystemVariables extends Component {
                     as="select"
                     value={ variable.type }
                     onChange={ (event) => {
-                      this.onChangeVariableType(index, event)
+                      this.onChangeVariableType(variable.id, event)
                     } }>
                     { types.map((type, idx) => (
                       <option
@@ -122,11 +144,7 @@ class ListAdminSystemVariables extends Component {
               </Col>
               <Col xs={ 12 } sm={ 12 } md={ 3 } lg={ 2 } className="text-center">
                 <Form.Group>
-                  <Button variant="warning" onClick={ () => {
-                    this.updateVariable(index)
-                  } }>
-                    <FontAwesomeIcon icon={ faEdit }/>
-                  </Button>
+                  { this.getEditButton(index, variable) }
                   <Button variant="danger" onClick={ () => {
                     this.removeVariable(index)
                   } }>

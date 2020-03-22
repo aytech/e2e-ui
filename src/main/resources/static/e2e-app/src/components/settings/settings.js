@@ -9,8 +9,16 @@ import ListVariables from "./listVariables";
 import ListAdminSystemVariables from "./listAdminSystemVariables";
 import ListSystemVariables from "./listSystemVariables";
 import NewSystemVariableForm from "./newSystemVariableForm";
+import { fetchSettings } from "../../actions/settingsActions";
 
 class Settings extends Component {
+
+  componentDidMount() {
+    const { variables } = this.props.settings;
+    if (variables.length === 0) {
+      this.props.fetchSettings();
+    }
+  }
 
   valueNotEmpty = (value) => {
     return value !== undefined && value.trim() !== '';
@@ -78,7 +86,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-
+  fetchSettings: () => dispatch(fetchSettings())
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Settings);

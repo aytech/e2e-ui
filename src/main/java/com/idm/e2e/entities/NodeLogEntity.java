@@ -1,6 +1,7 @@
 package com.idm.e2e.entities;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -25,7 +26,7 @@ public class NodeLogEntity implements LogEntity {
     private String category;
 
     @Column(name = "log")
-    @Lob
+    @Type(type = "text")
     private String log;
 
     @ManyToOne(cascade = {

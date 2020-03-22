@@ -134,6 +134,7 @@ class Login extends Component {
 
     return (
       <Modal
+        backdropClassName="fill"
         show={ isLoginModalOpen }
         onHide={ this.onHide }>
         <Modal.Header closeButton>

@@ -19,6 +19,8 @@ import {
   stopNode
 } from "../../actions/outputActions";
 import NodeStopModal from "./nodeStopModal";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 
 class NodeHeader extends Component {
 
@@ -81,12 +83,14 @@ class NodeHeader extends Component {
       <React.Fragment>
         <Row>
           <Col xs={ 12 } sm={ 12 } md={ 12 } lg={ 4 } className="text-center">
-            <Accordion.Toggle
-              as={ Button }
-              className={ this.getToggleClassname(status) }
-              eventKey={ id }>
-              { tag }
-            </Accordion.Toggle>
+            <OverlayTrigger overlay={ <Tooltip id="tooltip-toggle">Click to toggle log output view</Tooltip> }>
+              <Accordion.Toggle
+                as={ Button }
+                className={ this.getToggleClassname(status) }
+                eventKey={ id }>
+                { tag }
+              </Accordion.Toggle>
+            </OverlayTrigger>
           </Col>
           <Col xs={ 12 } sm={ 12 } md={ 12 } lg={ 4 } className="text-center">
             <Badge variant={ (status === 'complete') ? 'success' : 'warning' }>
@@ -98,34 +102,42 @@ class NodeHeader extends Component {
           </Col>
           <Col xs={ 12 } sm={ 12 } md={ 12 } lg={ 4 } className="text-center node-actions">
             { status === "in progress" &&
-            <Button className="node-refresh" onClick={ () => {
-              this.props.fetchNode(id, nodes)
-            } }>
-              <FontAwesomeIcon
-                icon={ faSyncAlt }
-                spin={ isNodeUpdateProgress === true }/>
-            </Button>
+            <OverlayTrigger overlay={ <Tooltip id="tooltip-refresh">Update status</Tooltip> }>
+              <Button className="node-refresh" onClick={ () => {
+                this.props.fetchNode(id, nodes)
+              } }>
+                <FontAwesomeIcon
+                  icon={ faSyncAlt }
+                  spin={ isNodeUpdateProgress === true }/>
+              </Button>
+            </OverlayTrigger>
             }
             { status === "in progress" && stoppable &&
-            <Button variant="warning" onClick={ () => {
-              this.openStopNodeModal(id)
-            } }>
-              <FontAwesomeIcon icon={ faStopCircle }/>
-            </Button>
+            <OverlayTrigger overlay={ <Tooltip id="tooltip-stop">Stop test</Tooltip> }>
+              <Button variant="warning" onClick={ () => {
+                this.openStopNodeModal(id)
+              } }>
+                <FontAwesomeIcon icon={ faStopCircle }/>
+              </Button>
+            </OverlayTrigger>
             }
             { status === "complete" &&
-            <Button variant="secondary" onClick={ () => {
-              this.props.downloadReportZip(id)
-            } }>
-              <FontAwesomeIcon icon={ faDownload }/>
-            </Button>
+            <OverlayTrigger overlay={ <Tooltip id="tooltip-download">Download test report</Tooltip> }>
+              <Button variant="secondary" onClick={ () => {
+                this.props.downloadReportZip(id)
+              } }>
+                <FontAwesomeIcon icon={ faDownload }/>
+              </Button>
+            </OverlayTrigger>
             }
             { status === "complete" &&
-            <Button variant="danger" onClick={ () => {
-              this.props.removeNode(id, nodes)
-            } }>
-              <FontAwesomeIcon icon={ faTrashAlt }/>
-            </Button>
+            <OverlayTrigger overlay={ <Tooltip id="tooltip-remove">Remove log</Tooltip> }>
+              <Button variant="danger" onClick={ () => {
+                this.props.removeNode(id, nodes)
+              } }>
+                <FontAwesomeIcon icon={ faTrashAlt }/>
+              </Button>
+            </OverlayTrigger>
             }
           </Col>
         </Row>

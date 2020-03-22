@@ -10,3 +10,9 @@ export class NodeCategories {
   static PASSED = 'PASSED';
   static SKIPPED = 'SKIPPED';
 }
+
+export class VariableTypes {
+  static TEXT = 'text';
+  static EMAIL = 'email';
+  static PASSWORD = 'password';
+}

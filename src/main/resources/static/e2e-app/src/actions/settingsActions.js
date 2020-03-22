@@ -165,6 +165,9 @@ export const fetchSettings = () => {
           variables,
           system
         } = response;
+        if (status === HttpStatuses.UNAUTHORIZED) {
+          return handleUnauthorized(dispatch);
+        }
         if (status === HttpStatuses.OK) {
           dispatch(updateAuthenticatedStatus(true));
           dispatch(updateSystemVariables(systemVariables));
@@ -181,8 +184,6 @@ export const fetchSettings = () => {
             return true;
           });
           dispatch(updateBuildStatus(inProgress));
-        } else if (status === HttpStatuses.UNAUTHORIZED) {
-          handleUnauthorized(dispatch);
         }
       })
   }

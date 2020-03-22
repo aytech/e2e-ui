@@ -2,6 +2,7 @@ import thunkMiddleware from 'redux-thunk';
 import { createLogger } from 'redux-logger';
 import { createStore, applyMiddleware } from "redux";
 import rootReducer from "./reducers/rootReducer";
+import { VariableTypes } from "./constants/application";
 
 const initialState = {
   auth: {
@@ -40,7 +41,11 @@ const initialState = {
     systemValue: '',
     systemVariables: [],
     type: 'text',
-    types: ['text', 'email', 'password'],
+    types: [
+      VariableTypes.TEXT,
+      VariableTypes.EMAIL,
+      VariableTypes.PASSWORD
+    ],
     value: '',
     variables: []
   }
