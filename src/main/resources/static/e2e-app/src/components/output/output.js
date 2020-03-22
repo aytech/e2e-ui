@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
-import {
-  fetchNode,
-  stopNode
-} from "../../actions/outputActions";
+import { fetchNode } from "../../actions/outputActions";
 import './output.css';
 import Card from "react-bootstrap/Card";
 import Accordion from "react-bootstrap/Accordion";
@@ -12,6 +9,7 @@ import FilterToolbar from "./filterToolbar";
 import NodeHeader from "./nodeHeader";
 import LogOutput from "./logOutput";
 import { NodeCategories } from "../../constants/application";
+import Alert from "react-bootstrap/Alert";
 
 class Output extends Component {
 
@@ -36,6 +34,17 @@ class Output extends Component {
     return <p className="text-center text-danger">No logs found</p>;
   };
 
+  getNoRunsAlert = (nodesCount) => {
+    if (nodesCount < 1) {
+      return (
+        <Alert variant="warning" className="text-center">
+          No recorded test results found
+        </Alert>
+      );
+    }
+    return null;
+  };
+
   render() {
 
     const {
@@ -45,6 +54,7 @@ class Output extends Component {
     return (
       <Jumbotron>
         <h5 className="display-5">Recorded runs:</h5>
+        { this.getNoRunsAlert(nodes.length) }
         <Accordion>
           { nodes.map(node => {
             const {
@@ -79,8 +89,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  fetchNode: (nodeId, nodes) => dispatch(fetchNode(nodeId, nodes)),
-  stopNode: (nodeId) => dispatch(stopNode(nodeId))
+  fetchNode: (nodeId, nodes) => dispatch(fetchNode(nodeId, nodes))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Output);

@@ -53,6 +53,13 @@ class NodeHeader extends Component {
     return date.toLocaleTimeString(window.navigator.language, options);
   };
 
+  getToggleClassname = (nodeStatus) => {
+    if (nodeStatus === "in progress") {
+      return 'btn-warning';
+    }
+    return 'btn-success';
+  };
+
   render() {
     const {
       isNodeUpdateProgress,
@@ -76,6 +83,7 @@ class NodeHeader extends Component {
           <Col xs={ 12 } sm={ 12 } md={ 12 } lg={ 4 } className="text-center">
             <Accordion.Toggle
               as={ Button }
+              className={ this.getToggleClassname(status) }
               eventKey={ id }>
               { tag }
             </Accordion.Toggle>
@@ -126,7 +134,7 @@ class NodeHeader extends Component {
           onCancel={ this.closeModal }
           onOk={ () => {
             this.closeModal();
-            this.props.stopNode(cancellingNodeId);
+            this.props.stopNode(cancellingNodeId, nodes);
           } }/>
       </React.Fragment>
     );
@@ -140,6 +148,6 @@ const mapDispatchToProps = dispatch => ({
   downloadReportZip: (nodeId) => dispatch(downloadReportZip(nodeId)),
   fetchNode: (nodeId, nodes) => dispatch(fetchNode(nodeId, nodes)),
   removeNode: (nodeId, nodes) => dispatch(removeNode(nodeId, nodes)),
-  stopNode: (nodeId) => dispatch(stopNode(nodeId))
+  stopNode: (nodeId, nodes) => dispatch(stopNode(nodeId, nodes))
 });
 export default connect(mapStateToProps, mapDispatchToProps)(NodeHeader);

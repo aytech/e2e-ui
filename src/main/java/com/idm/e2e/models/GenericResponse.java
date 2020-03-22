@@ -3,6 +3,7 @@ package com.idm.e2e.models;
 public class GenericResponse {
     private Boolean success;
     private String message;
+    protected JobNode node;
 
     public GenericResponse() {
     }
@@ -25,5 +26,13 @@ public class GenericResponse {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public JobNode getNode() {
+        return node;
+    }
+
+    public void setNode(JobNode node) {
+        this.node = node;
     }
 }

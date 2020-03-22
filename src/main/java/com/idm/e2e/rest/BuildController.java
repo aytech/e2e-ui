@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.idm.e2e.configuration.AppConstants.*;
+import static com.idm.e2e.configuration.NodeStatues.COMPLETE;
 import static com.idm.e2e.configuration.NodeStatues.IN_PROGRESS;
 
 @RestController
@@ -59,9 +60,6 @@ public class BuildController {
         }
         String e2eContainerName = String.format("%s%s", nodeEntity.getNode(), NODE_E2E_SUFFIX);
         boolean isNodeContainerRunning = dockerService.getNodeRunningStatus(e2eContainerName);
-        if (!isNodeContainerRunning && nodeEntity.getStatus().equals(IN_PROGRESS)) {
-            nodeEntity = nodeService.closeNode(nodeEntity);
-        }
         JobNode node = nodeService.getJobNode(nodeEntity);
         node.setStoppable(isNodeContainerRunning);
         return new ResponseEntity<>(node, HttpStatus.OK);
@@ -143,21 +141,28 @@ public class BuildController {
     @RequestMapping(method = RequestMethod.GET, value = URI_STOP_PROCESS, params = { "node" })
     public ResponseEntity<GenericResponse> stopTest(@RequestParam("node") String nodeId) {
         GenericResponse response = new GenericResponse();
-        JobNode node = nodeService.getNode(Long.parseLong(nodeId));
-        if (node.getTag() == null) {
+        NodeEntity nodeEntity = nodeService.getNodeEntity(Long.parseLong(nodeId));
+        if (nodeEntity == null) {
             response.setSuccess(false);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
-        String e2eContainerName = String.format("%s%s", node.getTag(), NODE_E2E_SUFFIX);
-        boolean isNodeContainerRunning = dockerService.getNodeRunningStatus(node.getTag());
-        boolean isSuiteContainerRunning = dockerService.getNodeRunningStatus(e2eContainerName);
-        if (isSuiteContainerRunning) {
+        // Update node status
+        nodeService.closeNode(nodeEntity);
+        // Stop containers
+        String e2eContainerName = String.format("%s%s", nodeEntity.getNode(), NODE_E2E_SUFFIX);
+        boolean isNodeContainerRunning = dockerService.getNodeRunningStatus(e2eContainerName);
+        boolean isNodeChromeContainerRunning = dockerService.getNodeRunningStatus(nodeEntity.getNode());
+        if (isNodeContainerRunning) {
             dockerService.stopNodeContainer(e2eContainerName);
         }
-        if (isNodeContainerRunning) {
-            dockerService.stopNodeContainer(node.getTag());
+        if (isNodeChromeContainerRunning) {
+            dockerService.stopNodeContainer(nodeEntity.getNode());
         }
+        // Remove dangling image
+        dockerService.removeNodeImage(e2eContainerName);
+        // Update response
         response.setSuccess(true);
+        response.setNode(nodeService.getJobNode(nodeEntity));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

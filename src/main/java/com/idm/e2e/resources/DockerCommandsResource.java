@@ -130,7 +130,7 @@ public class DockerCommandsResource extends E2EResource {
     private static ArrayList<String> getRunArguments(String nodeID) {
         ArrayList<String> arguments = getArguments();
         arguments.add("run");
-        // arguments.add("--rm");
+        arguments.add("--rm");
         arguments.add("--name");
         arguments.add(nodeID);
         arguments.add(String.format("--network=%s", DOCKER_NETWORK_NAME));

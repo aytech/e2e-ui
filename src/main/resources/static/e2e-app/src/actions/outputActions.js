@@ -9,13 +9,11 @@ import {
 } from "../constants/actions";
 import DockerService from "../services/DockerService";
 import OutputService from "../services/OutputService";
-import {
-  updateAuthenticatedStatus,
-  updateLoginModalStatus,
-  updateLoginWarn,
-  updateLoginWarnMessage
-} from "./authActions";
 import { HttpStatuses } from "../constants/application";
+import {
+  handleUnauthorized,
+  updateNode
+} from "./genericActions";
 
 const dockerService = new DockerService();
 const outputService = new OutputService();
@@ -28,20 +26,18 @@ export const updatePassedOutput = (status) => ({ type: UPDATE_PASSED_OUTPUT, sta
 export const updateFailedOutput = (status) => ({ type: UPDATE_FAILED_OUTPUT, status });
 export const updateSkippedOutput = (status) => ({ type: UPDATE_SKIPPED_OUTPUT, status });
 
-export const stopNode = (nodeId) => {
+export const stopNode = (nodeId, nodes) => {
   return (dispatch) => {
     dockerService
       .stopProcess(nodeId)
       .then(response => {
-        const { status } = response;
+        const { status, node } = response;
         if (status === HttpStatuses.UNAUTHORIZED) {
-          dispatch(updateAuthenticatedStatus(false));
-          dispatch(updateLoginModalStatus(true));
-          dispatch(updateLoginWarnMessage('Please login'));
-          dispatch(updateLoginWarn(true));
+          handleUnauthorized(dispatch)
         }
-      })
-      .finally(() => {
+        if (status === HttpStatuses.OK) {
+          updateNode(node, nodes, dispatch);
+        }
       });
   }
 };
@@ -101,10 +97,7 @@ export const downloadReportZip = (nodeId) => {
           return response.blob();
         }
         if (status === HttpStatuses.UNAUTHORIZED) {
-          dispatch(updateAuthenticatedStatus(false));
-          dispatch(updateLoginModalStatus(true));
-          dispatch(updateLoginWarnMessage('Please login'));
-          dispatch(updateLoginWarn(true));
+          handleUnauthorized(dispatch);
         }
         return null;
       })

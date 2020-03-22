@@ -40,8 +40,9 @@ public class DockerService {
         arguments.add("stop");
         arguments.add(nodeId);
         try {
-            new ProcessBuilder().command(arguments).start();
-        } catch (IOException e) {
+            Process process = new ProcessBuilder().command(arguments).start();
+            process.waitFor();
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -51,10 +52,12 @@ public class DockerService {
         arguments.add("docker");
         arguments.add("image");
         arguments.add("rm");
+        arguments.add("--force");
         arguments.add(String.format("%s%s", imageName, NODE_E2E_SUFFIX));
         try {
-            new ProcessBuilder().command(arguments).start();
-        } catch (IOException e) {
+            Process process = new ProcessBuilder().command(arguments).start();
+            process.waitFor();
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

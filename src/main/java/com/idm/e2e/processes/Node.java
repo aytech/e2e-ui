@@ -85,15 +85,19 @@ public abstract class Node implements DockerRunnable {
         session.close();
     }
 
-    public void log(Process process, NodeEntity node) throws IOException {
+    public void log(Process process, NodeEntity node) {
         String logLine;
         BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
         BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-        while ((logLine = input.readLine()) != null) {
-            saveLog(logLine, node);
-        }
-        while ((logLine = error.readLine()) != null) {
-            saveLog(logLine, node);
+        try {
+            while ((logLine = input.readLine()) != null) {
+                saveLog(logLine, node);
+            }
+            while ((logLine = error.readLine()) != null) {
+                saveLog(logLine, node);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
