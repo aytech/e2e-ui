@@ -1,0 +1,19 @@
+idm.environment=staging
+# URL of staging environment (e.g. IDM1)
+idm.client.staging.url=https://nlbavwidm1.infor.com/infor
+# Path to primary image to be used across scenarios
+# Windows path example: C:\\Users\\Oleg\\Pictures\\image.jpg
+idm.file.path.primary=/e2e/1.jpg
+# Path to alternative image, used in testing of documents update
+# Windows path example: C:\\Users\\Oleg\\Pictures\\image.jpg
+idm.file.path.secondary=/e2e/2.jpg
+# Primary Document Type to be used across all scenarios
+idm.document.type=Document
+# Alternative Document Type name, for testing of saving documents
+# under a different Document Type
+idm.document.type.new=File
+# Path to download location, for testing file downloads
+# Windows path example: C:\\Users\\Oleg\\Downloads
+idm.file.download.path=/home
+# Email address for testing email functionality
+idm.user.email=example@infor.com

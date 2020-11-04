@@ -1,0 +1,27 @@
+version: "3.5"
+networks:
+  e2e-nw:
+    driver: bridge
+    name: e2e-nw
+services:
+  chrome-2:
+    image: selenium/node-chrome:3.141.59-vanadium
+    networks:
+      - e2e-nw
+    container_name: chrome-2
+    volumes:
+      - /dev/shm:/dev/shm
+    environment:
+      - HUB_HOST=selenium-hub
+      - HUB_PORT=4444
+      - SCREEN_WIDTH=1920
+      - SCREEN_HEIGHT=1080
+      - SCREEN_DEPTH=32
+  e2e-chrome-2:
+    image: e2e-2
+    networks:
+      - e2e-nw
+    container_name: e2e-node-2
+    environment:
+      - HUB_HOST=hub
+      - HUB_PORT=4444

@@ -1,5 +1,7 @@
 .gradle
 .idea
+.project
+.settings
 
 # Build files/ directories
 build
@@ -23,3 +25,4 @@ src/main/resources/static/*.html
 **/.env
 /tokens/StoredCredential
 /src/main/resources/keys/e2e-runner-credentials.json
+

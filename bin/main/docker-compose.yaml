@@ -1,0 +1,46 @@
+version: "3.5"
+networks:
+  e2e-nw:
+    driver: bridge
+    name: e2e-nw
+services:
+  hub:
+    image: selenium/hub:3.141.59-vanadium
+    networks:
+      - e2e-nw
+    container_name: selenium-hub
+    ports:
+      - "4444:4444"
+    environment:
+      - GRID_TIMEOUT=3000
+      - GRID_BROWSER_TIMEOUT=0
+  chrome:
+    image: selenium/node-chrome:3.141.59-vanadium
+    networks:
+      - e2e-nw
+    container_name: chrome
+    volumes:
+      - /dev/shm:/dev/shm
+    environment:
+      - HUB_HOST=selenium-hub
+      - HUB_PORT=4444
+      - SCREEN_WIDTH=1920
+      - SCREEN_HEIGHT=1080
+      - SCREEN_DEPTH=32
+  e2e:
+    image: e2e
+    networks:
+      - e2e-nw
+    container_name: e2e
+    volumes:
+      - /home/oleg/e2e:/app/build/reports
+    environment:
+      - LOCAL_USER_ID=1000
+      - HUB_HOST=hub
+      - HUB_PORT=4444
+      - E2E_BASE_URL=https://nlbavwidm3.infor.com/infor
+      - E2E_ENVIRONMENT=staging
+      - E2E_DOCUMENT_TYPE=AA
+      - E2E_FILE_PATH=/app/src/test/resources/Upload/1.jpg
+      - E2E_USER=oleg.yapparov@infor.com
+      - E2E_PASSWORD=admin
